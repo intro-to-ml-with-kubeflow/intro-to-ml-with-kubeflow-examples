@@ -1,0 +1,7 @@
+language: scala
+sudo: true
+apt:
+  addons:
+    - shellcheck
+script:
+  - ./ci.sh
