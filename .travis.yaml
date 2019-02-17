@@ -1,7 +1,8 @@
 language: generic
 sudo: true
-apt:
-  addons:
-    - shellcheck
+addons:
+  apt:
+    packages:
+     - shellcheck
 script:
   - ./ci.sh
