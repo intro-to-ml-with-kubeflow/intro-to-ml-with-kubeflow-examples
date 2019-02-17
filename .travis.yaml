@@ -1,4 +1,4 @@
-language: scala
+language: generic
 sudo: true
 apt:
   addons:
