@@ -1,11 +1,14 @@
 #!/bin/bash
 #tag::ksonnet[]
 export KSONNET_VERSION=0.11.0
-export PLATFORM=$(uname) # Either Linux or Darwin
-curl -OL https://github.com/ksonnet/ksonnet/releases/download/v$KSONNET_VERSION/ks_$KSONNET_VERSION_$PLATFORM_amd64.tar.gz
-tar zxf ks_$KSONNET_VERSION_$PLATFORM_amd64.tar.gz
+PLATFORM=$(uname) # Either Linux or Darwin
+export PLATFORM
+kubeflow_releases_base="https://github.com/ksonnet/ksonnet/releases/download"
+curl -OL "$kubeflow_releases_base/v${KSONNET_VERSION}/ks_${KSONNET_VERSION}_${PLATFORM}_amd64.tar.gz"
+tar zxf "ks_${KSONNET_VERSION}_${PLATFORM}_amd64.tar.gz"
+pwd=$(pwd)
 # Add this + platform/version exports to your bashrc or move the ks bin into /usr/bin
-export PATH=$PATH:$(pwd)/ks_0.11.0_$PLATFORM_amd64
+export PATH=$PATH:"$pwd/ks_0.11.0_${PLATFORM}_amd64"
 #end::ksonnet[]
 #tag::ubuntu-kubectl[]
 sudo snap install kubectl --classic
@@ -33,7 +36,10 @@ yum install -y kubectl
 brew install kubernetes-cli
 #end::osx-kubectl[]
 #begin::no-pkg-manager-kubectl[]
-export KUBECTL_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/$PLATFORM/amd64/kubectl
+kubectl_release_base="https://storage.googleapis.com/kubernetes-release"
+stable_url="$kubectl_release_base/release/stable.txt"
+KUBECTL_VERSION=$(curl -s "$stable_url")
+export KUBECTL_VERSION
+curl -LO "$kubectl_release_base/$KUBECTL_VERSION/bin/$PLATFORM/amd64/kubectl"
 # Now either move kubectl to /usr/bin or add it to your PATH
 #end::no-pkg-manager-kubectl[]
