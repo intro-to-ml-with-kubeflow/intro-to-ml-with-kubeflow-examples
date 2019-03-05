@@ -1,4 +1,12 @@
 version: 2
+
+apt-run:  &apt-install
+  name: Install apt packages
+  command: |
+    sudo apt-get -qq update
+    sudo apt-get install -y \
+      shellcheck
+
 jobs:
   build:
     working_directory: ~/mermaid-starter
@@ -6,11 +14,7 @@ jobs:
       - image: circleci/python:3.6-jessie-node-browsers-legacy
     steps:
       - checkout
-      - run:
-        name: Install deps
-        command: |
-          sudo apt-get update -yqq
-          sudo apt-get install shellcheck
+      - run: *apt-install
       - run:
         name: Run our basic shell CI
         command: ./ci.sh
