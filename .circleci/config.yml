@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/mermaid-starter
+    docker:
+      - image: circleci/python:3.6-jessie-node-browsers-legacy
+    steps:
+      - checkout
+      - run:
+        name: Install deps
+	command: |	
+          sudo apt-get update -yqq
+	  sudo apt-get install shellcheck
+      - run:
+        name: Run our basic shell CI
+	command: ./ci.sh
