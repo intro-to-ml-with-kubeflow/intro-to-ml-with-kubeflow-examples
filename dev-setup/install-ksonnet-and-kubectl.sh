@@ -35,7 +35,7 @@ yum install -y kubectl
 #tag::osx-kubectl[]
 brew install kubernetes-cli
 #end::osx-kubectl[]
-#begin::no-pkg-manager-kubectl[]
+#tag::no-pkg-manager-kubectl[]
 kubectl_release_base="https://storage.googleapis.com/kubernetes-release"
 stable_url="$kubectl_release_base/release/stable.txt"
 KUBECTL_VERSION=$(curl -s "$stable_url")
