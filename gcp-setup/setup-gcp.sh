@@ -1,8 +1,8 @@
 #!/bin/bash
-#tags::ubuntu[]
+#tag::ubuntu[]
 apt-get install google-cloud-sdk
 #end::ubuntu[]
 apt-get remove google-cloud-sdk
-#tags::general[]
+#tag::general[]
 curl https://sdk.cloud.google.com | bash
 #end::general[]
