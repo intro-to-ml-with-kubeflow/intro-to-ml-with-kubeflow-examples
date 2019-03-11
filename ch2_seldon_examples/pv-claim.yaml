@@ -1,7 +1,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: nfs-1
+  name: "nfs-1"
 spec:
   storageClassName: manual
   accessModes:
