@@ -20,8 +20,15 @@ kubectl rollout status deploy/tiller-deploy -n kube-system
 helm install seldon-core-analytics --name seldon-core-analytics --set grafana_prom_admin_password=password --set persistence.enabled=false --repo https://storage.googleapis.com/seldon-charts --namespace kubeflow
 #end::setup_components[]
 
+
+## TODO check if nfs-1 exists before trying to create
+#tag::createPV[]
+kubectl create -f ch2_seldon_examples/pv-volume.yaml -n $NAMESPACE
+kubectl create -f ch2_seldon_examples/pv-claim.yaml -n $NAMESPACE
+#end:createPV[]
+
 # TODO(trevor): what version/tag?
-#tag::clone[]
+#tag::cloneSeldonExample[]
 # Clone the base seldon example
 git clone https://github.com/kubeflow/example-seldon
-#end::clone[]
+#end::cloneSeldonExample[]
