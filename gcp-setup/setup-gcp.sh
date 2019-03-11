@@ -14,7 +14,7 @@ PROJECT_ID="boos-demo-projects-are-rad"
 gcloud auth login # Launches a web browser to login with
 gcloud config set project "$PROJECT_ID" #Project ID is your Google project ID
 #end::configure_cloud_sdk[]
-ZONE="us-west1-b"
+ZONE="us-central1-a" # For TPU access
 CLUSTER_NAME="ci-cluster"
 #tag::launch_cluster[]
 gcloud beta container clusters create $CLUSTER_NAME \
