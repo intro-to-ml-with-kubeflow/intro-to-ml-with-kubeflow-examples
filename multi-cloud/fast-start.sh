@@ -16,7 +16,8 @@ export PATH=$PATH:$KF_SCRIPTS
 echo "export PATH=$PATH:$KF_SCRIPTS" >> ~/.bashrc
 
 echo "Configuring Google default project if unset"
-if [ ! gcloud config get-value project 2>1 /dev/null ]; then
+GOOGLE_PROJECT=$(gcloud config get-value project 2>1 /dev/null)
+if [ -z "$GOOGLE_PROJECT"  ]; then
   echo "Default project not configured. Press enter to auto-configure or Ctrl-D to exit"
   echo "and change the project you're in up above (or manually set)"
   read configure
