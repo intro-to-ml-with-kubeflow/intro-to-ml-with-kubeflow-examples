@@ -15,6 +15,16 @@ export KF_SCRIPTS=`pwd`/scripts
 export PATH=$PATH:$KF_SCRIPTS
 echo "export PATH=$PATH:$KF_SCRIPTS" >> ~/.bashrc
 
+echo "Configuring Google default project if unset"
+if [ ! gcloud config get-value project 2>1 /dev/null ]; then
+  echo "Default project not configured. Press enter to auto-configure or Ctrl-D to exit"
+  echo "and change the project you're in up above (or manually set)"
+  read configure
+  latest_project=$(gcloud projects list | tail -n 1 | cut -f 1  -d' ')
+  gcloud config set project $latest_project
+fi
+GOOGLE_PROJECT=$(gcloud config get-value project 2>1 /dev/null)
+
 echo "Enabling Google Cloud APIs"
 gcloud services enable file.googleapis.com storage-component.googleapis.com \
        storage-api.googleapis.com stackdriver.googleapis.com containerregistry.googleapis.com \
