@@ -17,19 +17,21 @@ echo "export PATH=$PATH:$KF_SCRIPTS" >> ~/.bashrc
 
 echo "Configuring Google default project if unset"
 
-if [ ! GOOGLE_PROJECT=$(gcloud config get-value project 2>1 /dev/null) || -z "$GOOGLE_PROJECT"  ]; then
+if [ ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ] ||
+     [ -z "$GOOGLE_PROJECT" ]; then
   echo "Default project not configured. Press enter to auto-configure or Ctrl-D to exit"
   echo "and change the project you're in up above (or manually set)"
   read configure
   latest_project=$(gcloud projects list | tail -n 1 | cut -f 1  -d' ')
   gcloud config set project $latest_project
 fi
-GOOGLE_PROJECT=$(gcloud config get-value project 2>1 /dev/null)
+GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null)
 
 echo "Enabling Google Cloud APIs"
 gcloud services enable file.googleapis.com storage-component.googleapis.com \
        storage-api.googleapis.com stackdriver.googleapis.com containerregistry.googleapis.com \
-       iap.googleapis.com compute.googleapis.com container.googleapis.com
+       iap.googleapis.com compute.googleapis.com container.googleapis.com &
+gke_api_enable_pid=$?
 echo "Setting up Azure"
 sudo apt-get install apt-transport-https lsb-release software-properties-common dirmngr -y
 AZ_REPO=$(lsb_release -cs)
@@ -43,7 +45,8 @@ sudo apt-get install azure-cli
 az login
 
 echo "Starting up GKE cluster"
-GZONE="us-central1-a" # For TPU access
+wait $gke_api_enable_pid || echo "API enable command already finished"
+GZONE="us-central1-a" # For TPU access if we decide to go there
 GOOGLE_CLUSTER_NAME="google-kf-test"
 gcloud beta container clusters create $GOOGLE_CLUSTER_NAME \
        --zone $GZONE \
