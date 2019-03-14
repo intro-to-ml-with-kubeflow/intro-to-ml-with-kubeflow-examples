@@ -22,7 +22,11 @@ While there are many ways to set up Kubeflow, in the interest of spead we will s
 * Set up a GKE and EKS cluster (named google-kf-test & azure-kf-test)
 
 
-`curl https://raw.githubusercontent.com/holdenk/intro-to-ml-with-kubeflow-examples/multi-cloud/multi-cloud/fast-start.sh -O fast-start.sh && chmod a+x fast-start.sh && ./fast-start.sh`
+```bash
+curl https://raw.githubusercontent.com/holdenk/intro-to-ml-with-kubeflow-examples/multi-cloud/multi-cloud/fast-start.sh -O fast-start.sh
+chmod a+x fast-start.sh
+./fast-start.sh
+```
 
 At that point it's going to be on you to start your kubeflow adventure!
 
