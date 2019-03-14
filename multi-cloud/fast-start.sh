@@ -2,6 +2,8 @@
 
 set -ex
 
+echo "Getting sudo cached..."
+sudo ls
 echo "Downloading Kubeflow"
 export KUBEFLOW_SRC=~/kf
 export KUBEFLOW_TAG=v0.4.1
