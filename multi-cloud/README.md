@@ -10,7 +10,7 @@ If you don't already have a username and password for Google Cloud & Azure from 
 
 Kubeflow can be installed and deployed on many enivorments.
 For today's tutorial we will focus on using Google & Azure.
-The provided set up script is designed to be used within a Google Cloud Console instance, however you are free to modify it to run locally.
+The provided set up script is designed to be used within a Google Cloud Console instance, however you are free to modify it to run locally or do your own set-up.
 
 
 While there are many ways to set up Kubeflow, in the interest of spead we will start with using a fast setup script in this directory (`fast_setup.sh`).
@@ -22,6 +22,8 @@ While there are many ways to set up Kubeflow, in the interest of spead we will s
 * Set up a GKE and EKS cluster (named google-kf-test & azure-kf-test)
 
 At that point it's going to be on you to start your kubeflow adventure!
+
+Note: Kubeflow's control script also has the ability to create "platform" configuration, our fast set up script does not use this since it requires setting up an Identity Aware Proxy, which can add an extra 20 minutes (normally well worth, but today we're in a rush).
 
 ## Starting a Kubeflow project
 
