@@ -4,6 +4,10 @@ set -ex
 
 echo "Getting sudo cached..."
 sudo ls
+echo "Setting up SSH if needed"
+if [ ! -f ~/.ssh/id_rsa.pub ]; then
+    ssh-keygen
+fi
 echo "Downloading Kubeflow"
 export KUBEFLOW_SRC=~/kf
 export KUBEFLOW_TAG=v0.4.1
@@ -15,6 +19,13 @@ export KF_SCRIPTS=`pwd`/scripts
 export PATH=$PATH:$KF_SCRIPTS
 echo "export PATH=$PATH:$KF_SCRIPTS" >> ~/.bashrc
 
+if [ ! command -v gcloud >/dev/null 2>&1 ]; then
+  export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+  echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+  sudo apt-get update && sudo apt-get install google-cloud-sdk
+fi
+
 echo "Configuring Google default project if unset"
 
 if [ ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ] ||
@@ -24,6 +35,7 @@ if [ ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ] ||
   read configure
   latest_project=$(gcloud projects list | tail -n 1 | cut -f 1  -d' ')
   gcloud config set project $latest_project
+  echo "gcloud config set project $latest_project" >> ~/.bashrc
 fi
 GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null)
 
@@ -33,21 +45,23 @@ gcloud services enable file.googleapis.com storage-component.googleapis.com \
        iap.googleapis.com compute.googleapis.com container.googleapis.com &
 gke_api_enable_pid=$?
 echo "Setting up Azure"
-sudo apt-get install apt-transport-https lsb-release software-properties-common dirmngr -y
-AZ_REPO=$(lsb_release -cs)
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
-  sudo tee /etc/apt/sources.list.d/azure-cli.list
-sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv \
-     --keyserver packages.microsoft.com \
-     --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
-sudo apt-get update
-sudo apt-get install azure-cli
-az login
+if [ ! command -v az >/dev/null 2>&1  ]; then
+  sudo apt-get install apt-transport-https lsb-release software-properties-common dirmngr -y
+  AZ_REPO=$(lsb_release -cs)
+  echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
+    sudo tee /etc/apt/sources.list.d/azure-cli.list
+  sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv \
+       --keyserver packages.microsoft.com \
+       --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
+  sudo apt-get update
+  sudo apt-get install azure-cli
+  az login
+fi
 
 echo "Starting up GKE cluster"
 wait $gke_api_enable_pid || echo "API enable command already finished"
 GZONE="us-central1-a" # For TPU access if we decide to go there
-GOOGLE_CLUSTER_NAME="google-kf-test"
+GOOGLE_CLUSTER_NAME=${GOOGLE_CLUSTER_NAME:="google-kf-test"}
 gcloud beta container clusters create $GOOGLE_CLUSTER_NAME \
        --zone $GZONE \
        --machine-type "n1-standard-8" \
@@ -59,8 +73,25 @@ gcloud beta container clusters create $GOOGLE_CLUSTER_NAME \
        --enable-autorepair \
        --enable-autoscaling --min-nodes 1 --max-nodes 10 --num-nodes 2 &
 GCLUSTER_CREATION_PID=$!
+
 echo "Starting up Azure K8s cluster"
+az configure --defaults location=westus
+az group exists -n kf-westus || az group create -n kf-westus
+AZURE_CLUSTER_NAME=${GOOGLE_CLUSTER_NAME:="azure-kf-test"}
+az aks create --name AZURE_CLUSTER_NAME \
+   --disable-browser \
+   --resource-group kf-westus \
+   --node-count 5 \
+   --ssh-key-value ~/.ssh/id_rsa.pub \
+   --node-osdisk-size 100 &
+AZURE_CLUSTER_CREATION_PID=$!
+
+echo "Creating kubeflow project"
 
 echo "Connecting to google cluster"
-wait $GCLUSTER_CREATION_PID || echo "cluster ready"
+wait $GCLUSTER_CREATION_PID || echo "google cluster ready"
 gcloud beta container clusters delete $GCLUSTER_NAME --zone $GZONE
+
+echo "When you are ready to connect to your Azure cluster run:"
+echo "az aks get-credentials --name azure-kf-test --resource-group westus"
+
