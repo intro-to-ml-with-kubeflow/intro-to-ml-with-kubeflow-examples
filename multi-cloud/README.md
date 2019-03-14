@@ -21,6 +21,9 @@ While there are many ways to set up Kubeflow, in the interest of spead we will s
 * Enable various components in 
 * Set up a GKE and EKS cluster (named google-kf-test & azure-kf-test)
 
+
+`curl https://raw.githubusercontent.com/holdenk/intro-to-ml-with-kubeflow-examples/multi-cloud/multi-cloud/fast-start.sh -O fast-start.sh && chmod a+x fast-start.sh && ./fast-start.sh`
+
 At that point it's going to be on you to start your kubeflow adventure!
 
 Note: Kubeflow's control script also has the ability to create "platform" configuration, our fast set up script does not use this since it requires setting up an Identity Aware Proxy, which can add an extra 20 minutes (normally well worth, but today we're in a rush).
