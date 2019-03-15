@@ -19,7 +19,7 @@ export KF_SCRIPTS=`pwd`/scripts
 export PATH=$PATH:$KF_SCRIPTS
 echo "export PATH=$PATH:$KF_SCRIPTS" >> ~/.bashrc
 
-if [ ! command -v gcloud >/dev/null 2>&1 ]; then
+if ! command -v gcloud >/dev/null 2>&1; then
   export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
   echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
@@ -45,7 +45,7 @@ gcloud services enable file.googleapis.com storage-component.googleapis.com \
        iap.googleapis.com compute.googleapis.com container.googleapis.com &
 gke_api_enable_pid=$?
 echo "Setting up Azure"
-if [ ! command -v az >/dev/null 2>&1  ]; then
+if ! command -v az >/dev/null 2>&1; then
   sudo apt-get install apt-transport-https lsb-release software-properties-common dirmngr -y
   AZ_REPO=$(lsb_release -cs)
   echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
@@ -60,7 +60,7 @@ fi
 
 echo "Starting up GKE cluster"
 wait $gke_api_enable_pid || echo "API enable command already finished"
-GZONE="us-central1-a" # For TPU access if we decide to go there
+GZONE=${GZONE:="us-central1-a"} # For TPU access if we decide to go there
 GOOGLE_CLUSTER_NAME=${GOOGLE_CLUSTER_NAME:="google-kf-test"}
 gcloud beta container clusters create $GOOGLE_CLUSTER_NAME \
        --zone $GZONE \
@@ -78,7 +78,7 @@ echo "Starting up Azure K8s cluster"
 az configure --defaults location=westus
 az group exists -n kf-westus || az group create -n kf-westus
 AZURE_CLUSTER_NAME=${GOOGLE_CLUSTER_NAME:="azure-kf-test"}
-az aks create --name AZURE_CLUSTER_NAME \
+az aks create --name $AZURE_CLUSTER_NAME \
    --disable-browser \
    --resource-group kf-westus \
    --node-count 5 \
