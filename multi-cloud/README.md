@@ -14,7 +14,9 @@ The provided set up script is designed to be used within a Google Cloud Console 
 
 ### Connecting to your Google Cloud Shell
 
-### Setting up your instance
+
+
+### Setting up your instance & clusters
 
 While there are many ways to set up Kubeflow, in the interest of spead we will start with using a fast setup script in this directory (`fast_setup.sh`).
 `fast_setup.sh` will do the following for you:
@@ -35,11 +37,11 @@ At that point it's going to be on you to start your kubeflow adventure!
 
 ### Alternatives
 
-Note: Kubeflow's [control script](https://github.com/kubeflow/kubeflow/blob/master/scripts/kfctl.sh) also has the ability to create "platform" configuration, our fast set up script does not use this since it requires setting up an Identity Aware Proxy, which can add an extra 20 minutes (normally well worth, but today we're in a rush).
+Note: Kubeflow's [control script](https://github.com/kubeflow/kubeflow/blob/master/scripts/kfctl.sh) also has the ability to create "platform" configuration, our fast set up script does not use this since it requires setting up an [Identity Aware Proxy](https://cloud.google.com/iap/docs/), which can add an extra 20 minutes (normally well worth, but today we're in a rush).
 
 
 There is also [Kubeflow's click to deploy interface](https://deploy.kubeflow.cloud/#/deploy) (which can set up or skip IAP as desired) -- but to make this more cloud agnostic we avoided that option.
 
 ## Starting a Kubeflow project
 
-Kubeflow provides a script to bootstrap a new kubeflow project
+Kubeflow provides a script to bootstrap a new kubeflow project. Kubeflow's main entry point is `kfctl.sh` 
