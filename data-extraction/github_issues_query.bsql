@@ -1,5 +1,9 @@
-SELECT repo.name, JSON_EXTRACT(payload, '$.issue.url') 
-AS url FROM (
+SELECT repo.name,
+       IFNULL(JSON_EXTRACT(payload, '$.issue.url'),
+              CONCAT(repo.url,
+	             "/issues/",
+		     JSON_EXTRACT(payload, '$.number')))
+       AS url FROM (
   SELECT *, JSON_EXTRACT(payload, '$.action') AS action
-  FROM "githubarchive.day.*" WHERE type = "IssuesEvent")
+  FROM `githubarchive.day.201*` WHERE type = "IssuesEvent")
 WHERE type = "IssuesEvent"  AND action = "\"opened\""
