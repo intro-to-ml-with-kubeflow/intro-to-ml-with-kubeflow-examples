@@ -1,0 +1,5 @@
+SELECT repo.name, JSON_EXTRACT(payload, '$.issue.url') 
+AS url FROM (
+  SELECT *, JSON_EXTRACT(payload, '$.action') AS action
+  FROM "githubarchive.day.*" WHERE type = "IssuesEvent")
+WHERE type = "IssuesEvent"  AND action = "\"opened\""
