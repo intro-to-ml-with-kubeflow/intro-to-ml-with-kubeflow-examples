@@ -8,6 +8,8 @@ echo "Setting up SSH if needed"
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
     ssh-keygen
 fi
+echo "Installing some dependencies"
+pip install --user pyyaml
 echo "Downloading Kubeflow"
 if [ ! -d ~/kf ]; then
   export KUBEFLOW_SRC=~/kf
@@ -113,6 +115,9 @@ echo "Creating kubeflow project"
 echo "Connecting to google cluster"
 wait $GCLUSTER_CREATION_PID || echo "google cluster ready"
 gcloud container clusters get-credentials $GOOGLE_CLUSTER_NAME --zone $GZONE
+echo "Creating kubeflow-admin account"
+kubectl create clusterrolebinding kf-admin \
+      --clusterrole=cluster-admin --user=$(gcloud config get-value account)
 
 echo "When you are ready to connect to your Azure cluster run:"
 echo "az aks get-credentials --name azure-kf-test --resource-group westus"
