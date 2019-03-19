@@ -12,16 +12,28 @@ Kubeflow can be installed and deployed on many enivorments.
 For today's tutorial we will focus on using Google & Azure.
 The provided set up script is designed to be used within a Google Cloud Console instance, however you are free to modify it to run locally or do your own set-up.
 
+### Logging in to cloud console
+
+If you already have a gcloud account you may find it easier to use incognito mode. You can log in to the cloud console by going to https://console.cloud.google.com . 
+Once you're in the default project should already be selected but if not you can select it by clicking on the project drop down in the top left
+
+![Project drop down location](./imgs/select_project_left_top.png)
+
+Then selecting the project. Everyone may have a different project name, don't worry about this.
+![Select project](./imgs/select_project_picker.png)
+
 ### Connecting to your Google Cloud Shell
 
 You can lunch Google Cloud Shell by clicking on the >_ icon in the top right if you have gcloud installed in your laptop (make sure to use the workshop account so you don't get billed).
-
+![Cloud shell launch](cloud-console-button.png)
 
 Note: there is a gcloud alpha ssh command, but we'll be use the webpreview which doesn't work out of the box with this.
 
 
 This will give you a cloud shell, but before you dive in please enable boost mode by click on the 3 dots and selecting enable boost mode.
+![The 3 dots to click on to get the advanced menu](area_to_enable_boost.png)
 
+![Advanced menue expanded](enable-boost-expanded.png)
 
 ### Setting up your instance & clusters
 
