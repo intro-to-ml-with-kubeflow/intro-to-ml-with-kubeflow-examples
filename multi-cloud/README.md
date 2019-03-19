@@ -53,3 +53,10 @@ cd gcp_app
 kfctl.sh generate k8s
 kfctl.sh apply k8s
 ```
+
+### Connecting to your Kubeflow Ambdassador
+
+The Kubeflow Ambassador gives you a nice web UI with which you can access many of Kubeflow's components.
+Normally on GCP you'd set up Kubeflow in IAP mode which would give you easy access to the ambassador.
+
+Since we're in a hurry today though we'll use port forwarding and the cloudshell web preview which is also pretty cool.
