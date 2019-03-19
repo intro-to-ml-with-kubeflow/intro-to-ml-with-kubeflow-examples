@@ -87,7 +87,7 @@ Normally on GCP you'd set up Kubeflow in IAP mode which would give you easy acce
 Since we're in a hurry today though we'll use port forwarding and the cloudshell web preview which is also pretty cool.
 
 ```bash
-kubectl port-forward svc/ambassador -n kubeflow 8080:80
+kubectl port-forward svc/ambassador -n kubeflow 8080:80 &
 ```
 
 The cloudshell web preview button looks like and should be at the top of your cloudhsell web interface
@@ -101,3 +101,4 @@ The default port should be 8080 which is the correct one, but you change it if n
 Now you can launch web preview and you should get the Kubeflow Ambassador page which looks something like:
 
 ![Image of Ambassador Web UI](./imgs/kf_ambassador.png)
+

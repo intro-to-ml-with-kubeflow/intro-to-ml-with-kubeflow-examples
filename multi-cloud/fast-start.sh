@@ -116,6 +116,7 @@ echo "Creating kubeflow project"
 echo "Connecting to google cluster"
 wait $GCLUSTER_CREATION_PID || echo "google cluster ready"
 gcloud container clusters get-credentials $GOOGLE_CLUSTER_NAME --zone $GZONE
+echo "These parts would normally be handled by platform init:"
 echo "Creating kubeflow-admin account"
 kubectl create clusterrolebinding kf-admin \
       --clusterrole=cluster-admin --user=$(gcloud config get-value account)
