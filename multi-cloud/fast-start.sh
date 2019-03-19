@@ -14,6 +14,7 @@ echo "Downloading Kubeflow"
 export KUBEFLOW_SRC=~/kf
 export KUBEFLOW_TAG=v0.4.1
 export KF_SCRIPTS=$KUBEFLOW_SRC/scripts
+export PATH=$PATH:$KF_SCRIPTS
 if [ ! -d ~/kf ]; then
   mkdir -p $KUBEFLOW_SRC
   pushd $KUBEFLOW_SRC
@@ -85,7 +86,7 @@ fi
 echo "Creating Google Kubeflow project:"
 export G_KF_APP=${G_KF_APP:="g-kf-app"}
 echo "export G_KF_APP=$G_KF_APP" >> ~/.bashrc
-kfclt.sh init ${G_KF_APP} --platform gcp
+kfctl.sh init ${G_KF_APP} --platform gcp
 pushd $G_KF_APP
 source env.sh
 kfctl.sh generate platform
