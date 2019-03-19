@@ -57,7 +57,7 @@ if ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ||
 fi
 GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null)
 
-echo "Enabling Google Cloud APIs"
+echo "Enabling Google Cloud APIs async for speedup"
 gcloud services enable file.googleapis.com storage-component.googleapis.com \
        storage-api.googleapis.com stackdriver.googleapis.com containerregistry.googleapis.com \
        iap.googleapis.com compute.googleapis.com container.googleapis.com &
@@ -81,22 +81,28 @@ if [ ! -z "$SKIP_AZURE" ]; then
   az group exists -n kf-westus || az group create -n kf-westus
 fi
   
-echo "Starting up GKE cluster"
-wait $gke_api_enable_pid || echo "API enable command already finished"
-GZONE=${GZONE:="us-central1-a"} # For TPU access if we decide to go there
-GOOGLE_CLUSTER_NAME=${GOOGLE_CLUSTER_NAME:="google-kf-test"}
-echo "Checking for existing cluster or creating new cluster if no existing cluster"
-gcloud beta container clusters describe $GOOGLE_CLUSTER_NAME --zone $GZONE &> /dev/null || gcloud beta container clusters create $GOOGLE_CLUSTER_NAME \
-       --zone $GZONE \
-       --machine-type "n1-standard-8" \
-       --disk-type "pd-standard" \
-       --disk-size "100" \
-       --scopes "https://www.googleapis.com/auth/cloud-platform" \
-       --addons HorizontalPodAutoscaling,HttpLoadBalancing \
-       --enable-autoupgrade \
-       --enable-autorepair \
-       --enable-autoscaling --min-nodes 1 --max-nodes 10 --num-nodes 2 &
-GCLUSTER_CREATION_PID=$!
+echo "Creating Google Kubeflow project:"
+export G_KF_APP=${G_KF_APP:="g-kf-app"}
+echo "export G_KF_APP=$G_KF_APP" >> ~/.bashrc
+kfclt.sh init ${G_KF_APP} --platform gcp
+pushd $G_KF_APP
+source env.sh
+kfctl.sh generate platform
+kfctl.sh apply platform &
+APPLY_GCP_PLATFORM_PID=$!
+kfctl.sh generate k8s
+# Disabling IAP IAM check
+echo "Skip IAP if we aren't set up for it"
+if [[ -z "$CLIENT_ID" ]]; then
+  pushd ks_app
+  export CLIENT_ID=${CLIENT_ID:="fake_client_id"}
+  export CLIENT_SECRET=${CLIENT_SECRET:="fake_client_secret"}
+  # Disable IAP check in Jupyter Hub
+  ks param set jupyter jupyterHubAuthenticator null
+  popd
+fi
+popd
+
 
 if [[ ! -z "$SKIP_AZURE" ]]; then
   echo "Starting up Azure K8s cluster"
@@ -111,15 +117,10 @@ if [[ ! -z "$SKIP_AZURE" ]]; then
   AZURE_CLUSTER_CREATION_PID=$!
 fi
 
-echo "Creating kubeflow project"
 
 echo "Connecting to google cluster"
-wait $GCLUSTER_CREATION_PID || echo "google cluster ready"
+wait APPLY_GCP_PLATFORM_PID=$! || echo "GCP cluster ready"
 gcloud container clusters get-credentials $GOOGLE_CLUSTER_NAME --zone $GZONE
-echo "These parts would normally be handled by platform init:"
-echo "Creating kubeflow-admin account"
-kubectl create clusterrolebinding kf-admin \
-      --clusterrole=cluster-admin --user=$(gcloud config get-value account)
 
 echo "When you are ready to connect to your Azure cluster run:"
 echo "az aks get-credentials --name azure-kf-test --resource-group westus"

@@ -57,19 +57,27 @@ At that point it's going to be on you to start your kubeflow adventure!
 
 ### Alternatives
 
-Note: Kubeflow's [control script](https://github.com/kubeflow/kubeflow/blob/master/scripts/kfctl.sh) also has the ability to create "platform" configuration, our fast set up script does not use this since it requires setting up an [Identity Aware Proxy](https://cloud.google.com/iap/docs/), which can add an extra 20 minutes (normally well worth, but today we're in a rush).
-
-
 There is also [Kubeflow's click to deploy interface](https://deploy.kubeflow.cloud/#/deploy) (which can set up or skip IAP as desired) -- but to make this more cloud agnostic we avoided that option.
 
-## Starting a Kubeflow project
 
-Kubeflow provides a script to bootstrap a new kubeflow project. Kubeflow's main entry point is `kfctl.sh`, this has been added to your path with the fast-start but otherwise you can find this in the `${KUBEFLOW_SRC}/scripts/kfctl.sh`
+In addition to generating K8s configurations, Kubeflow also has the tools (for some platforms) to generate all of the ancilary configuration (enabling services, creating a K8s cluster, etc.).
+
+
+`fast-start.sh` takes advantage of  `kfctl.sh` GCP platform generation and manually disables IAP mode.
+For now the Azure resources are created manually inside of fast-start, but Azure has been added as a supported platform to `kfctl` in the master branch of Kubeflow.
+
+### Loading your Kubeflow application
+
+To support disabling IAP mode we've generated your GCP kubeflow app and made some non-standard configuration changes.
+To loud your application and apply Kubeflow's Kubernetes configuration you run:
+
+Kubeflow's main entry point is `kfctl.sh`, this has been added to your path with the fast-start but otherwise you can find this in the `${KUBEFLOW_SRC}/scripts/kfctl.sh`.
+
 
 ```bash
-kfctl.sh init gcp_app --platform none
-cd gcp_app
-kfctl.sh generate k8s
+pushd g-kf-app
+source env.sh
+# Normally we would have done platform & k8s generate/apply as well
 kfctl.sh apply k8s
 ```
 
@@ -78,6 +86,8 @@ Now you can see what's running in your cluster with:
 ```bash
 kubectl get all --all-namespaces
 ```
+
+
 
 ### Connecting to your Kubeflow Ambassador
 
@@ -102,3 +112,29 @@ Now you can launch web preview and you should get the Kubeflow Ambassador page w
 
 ![Image of Ambassador Web UI](./imgs/kf_ambassador.png)
 
+
+
+## Starting a new Kubeflow project for Azure
+
+First we'll connect to our Azure cluster:
+
+```bash
+az aks get-credentials --name azure-kf-test --resource-group westus
+```
+
+Since Azure platform isn't supported in 0.4.1  we'll instead use it as a "raw" k8s cluster.
+Kubeflow provides `kfctl.sh` is also used to bootstrap a new kubeflow project:
+
+
+```bash
+kfctl.sh init azure-app --platform none
+cd azure-app
+kfctl.sh generate k8s
+kfctl.sh apply k8s
+```
+
+Now you can see what's running in your cluster with:
+
+```bash
+kubectl get all --all-namespaces
+```

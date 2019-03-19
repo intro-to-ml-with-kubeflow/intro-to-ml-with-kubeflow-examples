@@ -7,10 +7,12 @@ set -ex
 
 
 echo "Setting up kubeflow project"
-kfctl.sh init gcp_app --platform none
-cd gcp_app
-kfctl.sh generate k8s
+export G_KF_APP=${G_KF_APP:="g-kf-app"}
+pushd $G_KF_APP
+source env.sh
+# Normally we would have done platform & k8s generate/apply as well
 kfctl.sh apply k8s
+
 
 echo "Let's look at what's running:"
 kubectl get all --all-namespaces
