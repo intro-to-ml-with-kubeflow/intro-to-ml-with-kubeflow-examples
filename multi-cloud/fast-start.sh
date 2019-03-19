@@ -22,7 +22,7 @@ if [ ! -d ~/kf ]; then
 fi
 echo "Downloading ksonnet"
 export KSONNET_VERSION=0.11.0
-PLATFORM=$(uname) # Either Linux or Darwin
+PLATFORM=$(uname | tr '[:upper:]' '[:lower:]') # Either linux or darwin
 export PLATFORM
 if [ ! -d ks_0.11.0_${PLATFORM}_amd64 ]; then
   kubeflow_releases_base="https://github.com/ksonnet/ksonnet/releases/download"
@@ -71,7 +71,7 @@ if ! command -v az >/dev/null 2>&1; then
        --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
   sudo apt-get update
   sudo apt-get install azure-cli
-  az login
+  AZURE_setup=$(az login) || echo "Skipping azure login"
 fi
 
 echo "Setting up Azure resource group"

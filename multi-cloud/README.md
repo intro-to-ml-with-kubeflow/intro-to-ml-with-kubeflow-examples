@@ -31,6 +31,7 @@ While there are many ways to set up Kubeflow, in the interest of spead we will s
 curl https://raw.githubusercontent.com/holdenk/intro-to-ml-with-kubeflow-examples/multi-cloud/multi-cloud/fast-start.sh -o fast-start.sh
 chmod a+x fast-start.sh
 ./fast-start.sh
+source ~/.bashrc
 ```
 
 At that point it's going to be on you to start your kubeflow adventure!
@@ -44,4 +45,6 @@ There is also [Kubeflow's click to deploy interface](https://deploy.kubeflow.clo
 
 ## Starting a Kubeflow project
 
-Kubeflow provides a script to bootstrap a new kubeflow project. Kubeflow's main entry point is `kfctl.sh` 
+Kubeflow provides a script to bootstrap a new kubeflow project. Kubeflow's main entry point is `kfctl.sh`, this has been added to your path with the fast-start but otherwise you can find this in the `${KUBEFLOW_SRC}/scripts/kfctl.sh`
+
+
