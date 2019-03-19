@@ -14,6 +14,10 @@ The provided set up script is designed to be used within a Google Cloud Console 
 
 ### Connecting to your Google Cloud Shell
 
+You can lunch Google Cloud Shell by clicking on the >_ icon in the top right OR by running `gcloud alpha cloud-shell ssh` if you have gcloud installed in your laptop (make sure to use the workshop account so you don't get billed).
+
+
+This will give you a cloud shell, but before you dive in please enable boost mode by click on the 3 dots and selecting enable boost mode.
 
 
 ### Setting up your instance & clusters
@@ -60,3 +64,4 @@ The Kubeflow Ambassador gives you a nice web UI with which you can access many o
 Normally on GCP you'd set up Kubeflow in IAP mode which would give you easy access to the ambassador.
 
 Since we're in a hurry today though we'll use port forwarding and the cloudshell web preview which is also pretty cool.
+
