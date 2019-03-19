@@ -80,15 +80,12 @@ kubectl port-forward svc/ambassador -n kubeflow 8080:80
 
 The cloudshell web preview button looks like and should be at the top of your cloudhsell web interface
 
-![image of cloudshell webpreview button]
-(./imgs/web_preview.png)
+![image of cloudshell webpreview button](./imgs/web_preview.png)
 
 The default port should be 8080 which is the correct one, but you change it if not:
 
-![image of cloudhsell port selection]
-(./imgs/webpreview_w_port.png)
+![image of cloudhsell port selection](./imgs/webpreview_w_port.png)
 
 Now you can launch web preview and you should get the Kubeflow Ambassador page which looks something like:
 
-![Image of Ambassador Web UI]
-(./imgs/kf_ambassador.png)
+![Image of Ambassador Web UI](./imgs/kf_ambassador.png)
