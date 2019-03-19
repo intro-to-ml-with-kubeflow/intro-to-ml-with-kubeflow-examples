@@ -14,7 +14,10 @@ The provided set up script is designed to be used within a Google Cloud Console 
 
 ### Connecting to your Google Cloud Shell
 
-You can lunch Google Cloud Shell by clicking on the >_ icon in the top right OR by running `gcloud alpha cloud-shell ssh` if you have gcloud installed in your laptop (make sure to use the workshop account so you don't get billed).
+You can lunch Google Cloud Shell by clicking on the >_ icon in the top right if you have gcloud installed in your laptop (make sure to use the workshop account so you don't get billed).
+
+
+Note: there is a gcloud alpha ssh command, but we'll be use the webpreview which doesn't work out of the box with this.
 
 
 This will give you a cloud shell, but before you dive in please enable boost mode by click on the 3 dots and selecting enable boost mode.
@@ -64,7 +67,7 @@ Now you can see what's running in your cluster with:
 kubectl get all --all-namespaces
 ```
 
-### Connecting to your Kubeflow Ambdassador
+### Connecting to your Kubeflow Ambassador
 
 The Kubeflow Ambassador gives you a nice web UI with which you can access many of Kubeflow's components.
 Normally on GCP you'd set up Kubeflow in IAP mode which would give you easy access to the ambassador.
@@ -75,6 +78,17 @@ Since we're in a hurry today though we'll use port forwarding and the cloudshell
 kubectl port-forward svc/ambassador -n kubeflow 8080:80
 ```
 
+The cloudshell web preview button looks like and should be at the top of your cloudhsell web interface
+
+![image of cloudshell webpreview button]
+(./imgs/web_preview.png)
+
+The default port should be 8080 which is the correct one, but you change it if not:
+
+![image of cloudhsell port selection]
+(./imgs/webpreview_w_port.png)
+
 Now you can launch web preview and you should get the Kubeflow Ambassador page which looks something like:
 
-
+![Image of Ambassador Web UI]
+(./imgs/kf_ambassador.png)
