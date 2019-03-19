@@ -58,6 +58,12 @@ kfctl.sh generate k8s
 kfctl.sh apply k8s
 ```
 
+Now you can see what's running in your cluster with:
+
+```bash
+kubectl get all --all-namespaces
+```
+
 ### Connecting to your Kubeflow Ambdassador
 
 The Kubeflow Ambassador gives you a nice web UI with which you can access many of Kubeflow's components.
