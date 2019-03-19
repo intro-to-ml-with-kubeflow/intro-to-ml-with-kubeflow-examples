@@ -109,7 +109,7 @@ echo "Creating kubeflow project"
 
 echo "Connecting to google cluster"
 wait $GCLUSTER_CREATION_PID || echo "google cluster ready"
-gcloud beta container clusters delete $GCLUSTER_NAME --zone $GZONE
+gcloud container clusters get-credentials $GCLUSTER_NAME --zone $GZONE
 
 echo "When you are ready to connect to your Azure cluster run:"
 echo "az aks get-credentials --name azure-kf-test --resource-group westus"
