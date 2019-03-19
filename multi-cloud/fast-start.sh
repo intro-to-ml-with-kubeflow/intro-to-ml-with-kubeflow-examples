@@ -85,7 +85,8 @@ echo "Starting up GKE cluster"
 wait $gke_api_enable_pid || echo "API enable command already finished"
 GZONE=${GZONE:="us-central1-a"} # For TPU access if we decide to go there
 GOOGLE_CLUSTER_NAME=${GOOGLE_CLUSTER_NAME:="google-kf-test"}
-gcloud beta container clusters describe $GOOGLE_CLUSTER_NAME --zone $GZONE || gcloud beta container clusters create $GOOGLE_CLUSTER_NAME \
+echo "Checking for existing cluster or creating new cluster if no existing cluster"
+gcloud beta container clusters describe $GOOGLE_CLUSTER_NAME --zone $GZONE &> /dev/null || gcloud beta container clusters create $GOOGLE_CLUSTER_NAME \
        --zone $GZONE \
        --machine-type "n1-standard-8" \
        --disk-type "pd-standard" \
@@ -97,7 +98,7 @@ gcloud beta container clusters describe $GOOGLE_CLUSTER_NAME --zone $GZONE || gc
        --enable-autoscaling --min-nodes 1 --max-nodes 10 --num-nodes 2 &
 GCLUSTER_CREATION_PID=$!
 
-if [ ! -z "$SKIP_AZURE" ]; then
+if [[ ! -z "$SKIP_AZURE" ]]; then
   echo "Starting up Azure K8s cluster"
   az configure --defaults location=westus
   az group exists -n kf-westus || az group create -n kf-westus
