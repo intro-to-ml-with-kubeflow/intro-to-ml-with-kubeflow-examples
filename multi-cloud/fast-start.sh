@@ -60,24 +60,25 @@ gcloud services enable file.googleapis.com storage-component.googleapis.com \
        storage-api.googleapis.com stackdriver.googleapis.com containerregistry.googleapis.com \
        iap.googleapis.com compute.googleapis.com container.googleapis.com &
 gke_api_enable_pid=$?
-echo "Setting up Azure"
-if ! command -v az >/dev/null 2>&1; then
-  sudo apt-get install apt-transport-https lsb-release software-properties-common dirmngr -y
-  AZ_REPO=$(lsb_release -cs)
-  echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
-    sudo tee /etc/apt/sources.list.d/azure-cli.list
-  sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv \
-       --keyserver packages.microsoft.com \
-       --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
-  sudo apt-get update
-  sudo apt-get install azure-cli
-  AZURE_setup=$(az login) || echo "Skipping azure login"
+if [ ! -z "$SKIP_AZURE" ]; then
+  echo "Setting up Azure"
+  if ! command -v az >/dev/null 2>&1; then
+    sudo apt-get install apt-transport-https lsb-release software-properties-common dirmngr -y
+    AZ_REPO=$(lsb_release -cs)
+    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
+      sudo tee /etc/apt/sources.list.d/azure-cli.list
+    sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv \
+	 --keyserver packages.microsoft.com \
+	 --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
+    sudo apt-get update
+    sudo apt-get install azure-cli
+    az login
+  fi
+  echo "Setting up Azure resource group"
+  az configure --defaults location=westus
+  az group exists -n kf-westus || az group create -n kf-westus
 fi
-
-echo "Setting up Azure resource group"
-az configure --defaults location=westus
-az group exists -n kf-westus || az group create -n kf-westus
-
+  
 echo "Starting up GKE cluster"
 wait $gke_api_enable_pid || echo "API enable command already finished"
 GZONE=${GZONE:="us-central1-a"} # For TPU access if we decide to go there
@@ -94,16 +95,18 @@ gcloud beta container clusters describe $GOOGLE_CLUSTER_NAME --zone $GZONE || gc
        --enable-autoscaling --min-nodes 1 --max-nodes 10 --num-nodes 2 &
 GCLUSTER_CREATION_PID=$!
 
-echo "Starting up Azure K8s cluster"
-az configure --defaults location=westus
-az group exists -n kf-westus || az group create -n kf-westus
-AZURE_CLUSTER_NAME=${AZURE_CLUSTER_NAME:="azure-kf-test"}
-az aks show -g kf-westus -n $AZURE_CLUSTER_NAME || az aks create --name $AZURE_CLUSTER_NAME \
-   --resource-group kf-westus \
-   --node-count 2 \
-   --ssh-key-value ~/.ssh/id_rsa.pub \
-   --node-osdisk-size 30 &
-AZURE_CLUSTER_CREATION_PID=$!
+if [ ! -z "$SKIP_AZURE" ]; then
+  echo "Starting up Azure K8s cluster"
+  az configure --defaults location=westus
+  az group exists -n kf-westus || az group create -n kf-westus
+  AZURE_CLUSTER_NAME=${AZURE_CLUSTER_NAME:="azure-kf-test"}
+  az aks show -g kf-westus -n $AZURE_CLUSTER_NAME || az aks create --name $AZURE_CLUSTER_NAME \
+							--resource-group kf-westus \
+							--node-count 2 \
+							--ssh-key-value ~/.ssh/id_rsa.pub \
+							--node-osdisk-size 30 &
+  AZURE_CLUSTER_CREATION_PID=$!
+fi
 
 echo "Creating kubeflow project"
 
