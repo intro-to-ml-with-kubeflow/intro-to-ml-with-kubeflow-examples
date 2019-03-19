@@ -75,4 +75,6 @@ Since we're in a hurry today though we'll use port forwarding and the cloudshell
 kubectl port-forward svc/ambassador -n kubeflow 8080:80
 ```
 
-Now you can launch web preview.
+Now you can launch web preview and you should get the Kubeflow Ambassador page which looks something like:
+
+
