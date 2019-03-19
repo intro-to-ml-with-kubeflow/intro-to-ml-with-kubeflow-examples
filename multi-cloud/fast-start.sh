@@ -11,17 +11,18 @@ fi
 echo "Installing some dependencies"
 pip install --user pyyaml
 echo "Downloading Kubeflow"
+export KUBEFLOW_SRC=~/kf
+export KUBEFLOW_TAG=v0.4.1
+export KF_SCRIPTS=$KUBEFLOW_SRC/scripts
 if [ ! -d ~/kf ]; then
-  export KUBEFLOW_SRC=~/kf
-  export KUBEFLOW_TAG=v0.4.1
   mkdir -p $KUBEFLOW_SRC
   pushd $KUBEFLOW_SRC
   curl https://raw.githubusercontent.com/kubeflow/kubeflow/${KUBEFLOW_TAG}/scripts/download.sh | bash
-  echo "Adding to the path"
-  export KF_SCRIPTS=`pwd`/scripts
-  export PATH=$PATH:$KF_SCRIPTS
   echo "export PATH=\$PATH:$KF_SCRIPTS" >> ~/.bashrc
+  popd
 fi
+echo "Adding to the path"
+
 echo "Downloading ksonnet"
 export KSONNET_VERSION=0.11.0
 PLATFORM=$(uname | tr '[:upper:]' '[:lower:]') # Either linux or darwin
