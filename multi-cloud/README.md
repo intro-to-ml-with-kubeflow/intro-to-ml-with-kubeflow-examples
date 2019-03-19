@@ -47,4 +47,9 @@ There is also [Kubeflow's click to deploy interface](https://deploy.kubeflow.clo
 
 Kubeflow provides a script to bootstrap a new kubeflow project. Kubeflow's main entry point is `kfctl.sh`, this has been added to your path with the fast-start but otherwise you can find this in the `${KUBEFLOW_SRC}/scripts/kfctl.sh`
 
-
+```bash
+kfctl.sh init gcp_app --platform none
+cd gcp_app
+kfctl.sh generate k8s
+kfctl.sh apply k8s
+```
