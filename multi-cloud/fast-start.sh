@@ -91,16 +91,19 @@ echo "export G_KF_APP=$G_KF_APP" >> ~/.bashrc
 kfctl.sh init ${G_KF_APP} --platform gcp
 pushd $G_KF_APP
 source env.sh
+if [[ -z "$CLIENT_ID" ]]; then
+  export CLIENT_ID=${CLIENT_ID:="fake_client_id"}
+  export CLIENT_SECRET=${CLIENT_SECRET:="fake_client_secret"}
+  export SKIP_IAP="true"
+fi
 kfctl.sh generate platform
 kfctl.sh apply platform &
 APPLY_GCP_PLATFORM_PID=$!
 kfctl.sh generate k8s
 # Disabling IAP IAM check
 echo "Skip IAP if we aren't set up for it"
-if [[ -z "$CLIENT_ID" ]]; then
+if [[ ! -z "$SKIP_IAP" ]]; then
   pushd ks_app
-  export CLIENT_ID=${CLIENT_ID:="fake_client_id"}
-  export CLIENT_SECRET=${CLIENT_SECRET:="fake_client_secret"}
   # Disable IAP check in Jupyter Hub
   ks param set jupyter jupyterHubAuthenticator null
   popd
@@ -123,8 +126,8 @@ fi
 
 
 echo "Connecting to google cluster"
-wait APPLY_GCP_PLATFORM_PID=$! || echo "GCP cluster ready"
-gcloud container clusters get-credentials $GOOGLE_CLUSTER_NAME --zone $GZONE
+wait $APPLY_GCP_PLATFORM_PID || echo "GCP cluster ready"
+gcloud container clusters get-credentials ${G_KF_APP} --zone $GZONE
 
 echo "When you are ready to connect to your Azure cluster run:"
 echo "az aks get-credentials --name azure-kf-test --resource-group westus"
