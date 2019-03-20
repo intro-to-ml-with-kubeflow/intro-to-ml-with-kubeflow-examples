@@ -9,6 +9,7 @@ source env.sh
 kfctl.sh generate k8s
 pushd ks_app
 ## Install Seldon
+# TODO:(holden & trevor) -- Do we need to configure this?
 ks param set ambassador ambassadorServiceType NodePort
 ks pkg install kubeflow/seldon
 ks generate seldon seldon
