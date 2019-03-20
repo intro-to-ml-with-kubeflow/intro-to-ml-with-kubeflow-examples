@@ -47,7 +47,7 @@ While there are many ways to set up Kubeflow, in the interest of spead we will s
 * Creates your first Kubeflow App with some special customizations. (See Holden for details.)
 
 ```bash
-curl https://raw.githubusercontent.com/holdenk/intro-to-ml-with-kubeflow-examples/multi-cloud/multi-cloud/fast-start.sh -o fast-start.sh
+curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh -o fast-start.sh
 chmod a+x fast-start.sh
 ./fast-start.sh
 source ~/.bashrc
