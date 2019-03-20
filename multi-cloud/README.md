@@ -77,6 +77,21 @@ Kubeflow's main entry point is `kfctl.sh`, this has been added to your path with
 ```bash
 pushd g-kf-app
 source env.sh
+```
+
+
+We want to install a few additional packages because we're going to be using
+additional services. In this case `seldon-core`
+
+```bash
+#ks param set ambassador ambassadorServiceType NodePort #maybe don't need this
+ks pkg install kubeflow/seldon
+ks generate seldon seldon
+ks apply default -c seldon
+```
+
+
+```
 # Normally we would have done platform & k8s generate/apply as well
 kfctl.sh apply k8s
 ```
@@ -181,7 +196,7 @@ kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --service
 A persistent volume claim.
 
 ```
-kubectl create -f  -n kubeflow https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/ch2_seldon_examples/pv-claim.yaml
+kubectl create -f  -n kubeflow https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multicloud/pv-claim.yaml
 ```
 
 Check to make sure it worked with
@@ -199,4 +214,90 @@ should look like this:
 ![Google Storage](./imgs/gcloud_storage.png)
 
 
+## Train the Model
+
+
+### Clone Example Seldon
+
+This entire example is based loosely on https://github.com/kubeflow/example-seldon
+we'll want to clone this repository to get the code and config files it uses.
+
+```
+cd ~/
+git clone https://github.com/kubeflow/example-seldon
+```
+
+
+### Optional- Monkey with the existing model.
+
+Some people just want to do the basics- but not you- you're  a hard charger- you
+want to do all the stuff. In this little section we're going to edit the model.
+
+The original model that is being trained is a `RandomForrestClassifier` which is
+a pretty trashy way to categorize handwritten digits.
+
+Luckily `sklearn` has a nice consistent API so we can swap out about any classifier in its place.
+
+To do this, in the place where you cloned `example-seldon` let's go edit the training file.
+
+Goto `example-seldon/models/sk_mnist/train`.  Check the file `create_model.py`.
+
+The lines of interest are 39 through 42
+```
+classifier = RandomForestClassifier(n_estimators=30)
+
+classifier.fit(data[:n_samples // 2], targets[:n_samples // 2])
+```
+
+Thanks to the magic of python- you don't even need to change the second line.
+
+You'll need to import your new classifier (up towards the begining), and here on line 39
+declare classifier as what ever new and better one you want.
+
+While you're in here, please take a look at various things like the rest of `create_model.py`, `Dockerfile`, and `build_and_push.sh`.
+
+These are all interesting things, but going in to the finer details of creating a workflow is a bit out of scope, and we feel you can figure
+it out pretty easily on your own once this is done.
+
+
+### Ok Now train it.
+
+IF you didn't monkey with the model:
+```bash
+cd $EXAMPE_SELDON
+argo submit training-sk-mnist-workflow.yaml -n kubeflow
+```
+
+ELSE IF you monkeyed with the model, you'll need to train and build a new image:
+
+```bash
+cd $EXAMPE_SELDON
+argo submit training-sk-mnist-workflow.yaml -n kubeflow -p build-push-image=true
+```
+
+Which will build and push the new docker image as part of the work flow. This workflow
+has a `build-push-image` parameter that will reload the image. You can check that out [here](
+
+### Ok now monitor it.
+
+The easiest way to monitor the model progress is using the following two shell commands:
+
+```
+kubectl get pods -n kubeflow | grep sk-train
+## AND
+argo list -n kubeflow
+```
+
+These will hopefully show a successfully running set of pods / job.
+
+## Serve the Model
+
+Once training has finished, we can serve it with:
+
+```
+cd $EXAMPLE_SELDON/workflows
+argo submit serving-sk-mnist-workflow.yaml -n kubeflow -p deploy-model=true
+```
+
+Now talk about monitoring and querying
 
