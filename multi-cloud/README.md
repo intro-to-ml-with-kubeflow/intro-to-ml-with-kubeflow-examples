@@ -9,7 +9,7 @@ If you don't already have a username and password for Google Cloud & Azure from 
 ## Set up
 
 Kubeflow can be installed and deployed on many enivorments.
-For today's tutorial we will focus on using Google & Azure.
+For today's tutorial we will focus on using Google, IBM, & Azure.
 The provided set up script is designed to be used within a Google Cloud Console instance, however you are free to modify it to run locally or do your own set-up.
 
 ### Logging in to cloud console
@@ -44,7 +44,7 @@ While there are many ways to set up Kubeflow, in the interest of spead we will s
 * Download Google & Azure's command line tools (if needed)
 * Enable various components in 
 * Set up a GKE and EKS cluster (named google-kf-test & azure-kf-test)
-
+* Creates your first Kubeflow App with some special customizations. (See Holden for details.)
 
 ```bash
 curl https://raw.githubusercontent.com/holdenk/intro-to-ml-with-kubeflow-examples/multi-cloud/multi-cloud/fast-start.sh -o fast-start.sh
@@ -80,6 +80,14 @@ source env.sh
 # Normally we would have done platform & k8s generate/apply as well
 kfctl.sh apply k8s
 ```
+
+**Possibly not needed**
+Create cluster role binding.
+```
+kubectl create clusterrolebinding kf-admin \
+     --clusterrole=cluster-admin --user=$(gcloud config get-value account)
+```
+
 
 Now you can see what's running in your cluster with:
 
@@ -138,3 +146,57 @@ Now you can see what's running in your cluster with:
 ```bash
 kubectl get all --all-namespaces
 ```
+
+## Installing Argo
+
+Argo is a workflow management tool which we need to submit our training and serving jobs.
+
+To download `argo` run.
+```
+curl -sSL -o ~/argo https://github.com/argoproj/argo/releases/download/v2.2.1/argo-linux-amd64
+chmod +x ~/argo
+```
+
+To "install" `argo` :
+
+```bash
+kubectl create ns argo
+kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.1/manifests/install.yaml
+```
+
+Now before you just blindly copy and paste the next part- update your NAME and EMAIL
+```
+kubectl create clusterrolebinding YOURNAME-cluster-admin-binding --clusterrole=cluster-admin --user=YOUREMAIL@gmail.com
+```
+
+This all seems like a _lot_ of cluster role binding... probably don't need all of these.
+
+```
+kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=default:default
+kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --serviceaccount=kubeflow:default
+```
+
+## A place for your model to call home.
+
+A persistent volume claim.
+
+```
+kubectl create -f  -n kubeflow https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/ch2_seldon_examples/pv-claim.yaml
+```
+
+Check to make sure it worked with
+
+```
+kubectl get pvc -n kubeflow
+```
+
+OR
+
+console.cloud.google.com/kubernetes/storage
+
+should look like this:
+
+![Google Storage](./imgs/gcloud_storage.png)
+
+
+
