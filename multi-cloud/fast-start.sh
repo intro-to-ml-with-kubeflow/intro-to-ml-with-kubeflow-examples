@@ -85,6 +85,8 @@ fi
   
 echo "Creating Google Kubeflow project:"
 export G_KF_APP=${G_KF_APP:="g-kf-app"}
+export ZONE=${ZONE:="us-central1-a"}
+export GZONE=$ZONE
 echo "export G_KF_APP=$G_KF_APP" >> ~/.bashrc
 kfctl.sh init ${G_KF_APP} --platform gcp
 pushd $G_KF_APP
