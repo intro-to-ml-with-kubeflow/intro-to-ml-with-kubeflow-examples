@@ -1,9 +1,12 @@
 # Cross-cloud model training and serving with Kubeflow
 
 This tutorial is designed to get you off-to-the races with cross-cloud Kubeflow.
-If you don't already have a username and password for Google Cloud & Azure from the instructor gohead and get one.
+If you don't already have a username and password for Google Cloud & Azure from the instructor go head and get one.
 
 **Note: If you're looking at this and the images are broken [click here](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/README.md)**
+
+
+**Note: If you find bugs, or have suggestions please consider e-mailing us, or submitting a PR if you know how to fix or improve it**
 
 ## Motivation
 
@@ -14,7 +17,7 @@ If at any point you get lost, that's totally normal. Feel free to look the solut
 
 ## Set up
 
-Kubeflow can be installed and deployed on many enivorments.
+Kubeflow can be installed and deployed on many environments.
 For today's tutorial we will focus on using Google, IBM, & Azure.
 The provided set up script is designed to be used within a Google Cloud Console instance, however you are free to modify it to run locally or do your own set-up.
 
@@ -48,7 +51,7 @@ This will allow you to re-connect your terminal session in another connection
 
 ### Setting up your instance & clusters
 
-While there are many ways to set up Kubeflow, in the interest of spead we will start with using a fast setup script in this directory (`fast_setup.sh`).
+While there are many ways to set up Kubeflow, in the interest of speed we will start with using a fast setup script in this directory (`fast_setup.sh`).
 `fast_setup.sh` will do the following for you:
 
 * Download Kubeflow and it dependencies
@@ -64,14 +67,14 @@ chmod a+x fast-start.sh
 source ~/.bashrc
 ```
 
-At that point it's going to be on you to start your kubeflow adventure!
+At that point it's going to be on you to start your Kubeflow adventure!
 
 #### Alternatives
 
 There is also [Kubeflow's click to deploy interface](https://deploy.kubeflow.cloud/#/deploy) (which can set up or skip IAP as desired) -- but to make this more cloud agnostic we avoided that option.
 
 
-In addition to generating K8s configurations, Kubeflow also has the tools (for some platforms) to generate all of the ancilary configuration (enabling services, creating a K8s cluster, etc.).
+In addition to generating K8s configurations, Kubeflow also has the tools (for some platforms) to generate all of the ancillary configuration (enabling services, creating a K8s cluster, etc.).
 
 
 `fast-start.sh` takes advantage of  `kfctl.sh` GCP platform generation and manually disables IAP mode.
@@ -79,8 +82,8 @@ For now the Azure resources are created manually inside of fast-start, but Azure
 
 ### Loading your Kubeflow application
 
-To support disabling IAP mode we've generated your GCP kubeflow app and made some non-standard configuration changes.
-To hide all our dirty laundry, we've done this by starting a kubeflow application for you and setting some hidden parameters (you can look inside of fast-start.sh if your curious).
+To support disabling IAP mode we've generated your GCP Kubeflow app and made some non-standard configuration changes.
+To hide all our dirty laundry, we've done this by starting a Kubeflow application for you and setting some hidden parameters (you can look inside of fast-start.sh if your curious).
 To load your application and apply Kubeflow's Kubernetes configuration you run:
 
 
@@ -335,7 +338,7 @@ classifier.fit(data[:n_samples // 2], targets[:n_samples // 2])
 
 Thanks to the magic of python- you don't even need to change the second line.
 
-You'll need to import your new classifier (up towards the begining), and here on line 39
+You'll need to import your new classifier (up towards the beginning), and here on line 39
 declare classifier as what ever new and better one you want.
 
 While you're in here, please take a look at various things like the rest of `create_model.py`, `Dockerfile`, and `build_and_push.sh`.
