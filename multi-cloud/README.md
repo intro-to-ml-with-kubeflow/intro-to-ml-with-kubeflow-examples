@@ -34,15 +34,15 @@ Then selecting the project. Everyone may have a different project name, don't wo
 ### Connecting to your Google Cloud Shell
 
 You can lunch Google Cloud Shell by clicking on the >_ icon in the top right if you have gcloud installed in your laptop (make sure to use the workshop account so you don't get billed).
-![Cloud shell launch](cloud-console-button.png)
+![Cloud shell launch](./imgs/cloud-console-button.png)
 
 Note: there is a gcloud alpha ssh command, but we'll be use the webpreview which doesn't work out of the box with this.
 
 
 This will give you a cloud shell, but before you dive in please enable boost mode by click on the 3 dots and selecting enable boost mode.
-![The 3 dots to click on to get the advanced menu](area_to_enable_boost.png)
+![The 3 dots to click on to get the advanced menu](./imgs/area_to_enable_boost.png)
 
-![Advanced menue expanded](enable-boost-expanded.png)
+![Advanced menue expanded](./imgs/enable-boost-expanded.png)
 
 #### Optional: Using screen
 
