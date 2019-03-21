@@ -59,10 +59,10 @@ if ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ||
 fi
 GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null)
 
-echo "Enabling Google Cloud APIs async for speedup"
+#echo "Enabling Google Cloud APIs async for speedup"
 gcloud services enable file.googleapis.com storage-component.googleapis.com \
        storage-api.googleapis.com stackdriver.googleapis.com containerregistry.googleapis.com \
-       iap.googleapis.com compute.googleapis.com container.googleapis.com &
+       iap.googleapis.com compute.googleapis.com container.googleapis.com
 gke_api_enable_pid=$?
 if [ ! -z "$SKIP_AZURE" ]; then
   echo "Setting up Azure"

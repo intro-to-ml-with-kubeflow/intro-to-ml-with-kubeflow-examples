@@ -271,7 +271,7 @@ argo submit training-sk-mnist-workflow.yaml -n kubeflow
 ELSE IF you monkeyed with the model, you'll need to train and build a new image:
 
 ```bash
-cd $EXAMPE_SELDON
+cd $EXAMPE_SELDON/workflows
 argo submit training-sk-mnist-workflow.yaml -n kubeflow -p build-push-image=true
 ```
 
