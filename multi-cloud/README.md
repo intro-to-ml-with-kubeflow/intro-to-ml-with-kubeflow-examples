@@ -13,7 +13,7 @@ If you don't already have a username and password for Google Cloud & Azure from 
 
 ## Solution guide
 
-If at any point you get lost, that's totally normal. Feel free to look the solution fancy (we use bash!) [solution shell script https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution.sh](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution.sh).
+If at any point you get lost, that's totally normal. Feel free to look at the fancy (we use bash!) [solution shell script at https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution.sh](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution.sh).
 
 ## Set up
 
@@ -34,12 +34,14 @@ Then selecting the project. Everyone may have a different project name, don't wo
 ### Connecting to your Google Cloud Shell
 
 You can lunch Google Cloud Shell by clicking on the >_ icon in the top right if you have gcloud installed in your laptop (make sure to use the workshop account so you don't get billed).
+
 ![Cloud shell launch](./imgs/cloud-console-button.png)
 
 Note: there is a gcloud alpha ssh command, but we'll be use the webpreview which doesn't work out of the box with this.
 
 
 This will give you a cloud shell, but before you dive in please enable boost mode by click on the 3 dots and selecting enable boost mode.
+
 ![The 3 dots to click on to get the advanced menu](./imgs/area_to_enable_boost.png)
 
 ![Advanced menue expanded](./imgs/enable-boost-expanded.png)
@@ -83,7 +85,7 @@ For now the Azure resources are created manually inside of fast-start, but Azure
 ### Loading your Kubeflow application
 
 To support disabling IAP mode we've generated your GCP Kubeflow app and made some non-standard configuration changes.
-To hide all our dirty laundry, we've done this by starting a Kubeflow application for you and setting some hidden parameters (you can look inside of fast-start.sh if your curious).
+To hide all our dirty laundry, we've done this by starting a Kubeflow application for you and setting some hidden parameters (you can look inside of fast-start.sh if you're curious).
 To load your application and apply Kubeflow's Kubernetes configuration you run:
 
 
@@ -125,7 +127,7 @@ Since we're in a hurry today though we'll use port forwarding and the cloudshell
 kubectl port-forward svc/ambassador -n kubeflow 8080:80 &
 ```
 
-The cloudshell web preview button looks like and should be at the top of your cloudhsell web interface
+The cloudshell web preview button looks like and should be at the top of your cloudshell web interface
 
 ![image of cloudshell webpreview button](./imgs/web_preview.png)
 
@@ -147,7 +149,7 @@ We want to install a few additional packages because we're going to be using
 additional services.
 Currently Kubeflow manages packages with [ksonnet](https://ksonnet.io/), although [this is changing](https://groups.google.com/forum/#!searchin/kubeflow-discuss/ksonnet%7Csort:date/kubeflow-discuss/Zg14_Ok7XH4/iL7bHZo6CgAJ).
 `kfctl.sh` creates a ksonnet application inside of your kubeflow application called `ks_app`.
-KSonnet Packages which are shipped with kubeflow can be installed by going into the `ks_app` directory with and running `ks pkg install kubeflow/[package_name]`.
+Ksonnet Packages which are shipped with kubeflow can be installed by going into the `ks_app` directory with and running `ks pkg install kubeflow/[package_name]`.
 
 
 Our example uses [seldon core](https://www.seldon.io/) for model serving, called `seldon` inside of Kubeflow. Go ahead and install it now :)
@@ -220,6 +222,7 @@ kubectl create clusterrolebinding kf-admin \
 Now we can use `kfctl.sh` to apply our newly generated yaml. Make sure to run this in the root of your kubeflow project.
 
 ```
+cd ..
 kfctl.sh apply k8s
 ```
 
@@ -283,7 +286,7 @@ kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --service
 A persistent volume claim.
 
 ```
-kubectl create -f  -n kubeflow https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multicloud/pv-claim.yaml
+kubectl create -f https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/config/pv-claim.yaml -n kubeflow
 ```
 
 Check to make sure it worked with
@@ -327,7 +330,7 @@ Luckily `sklearn` has a nice consistent API so we can swap out about any classif
 
 To do this, in the place where you cloned `example-seldon` let's go edit the training file.
 
-Goto `example-seldon/models/sk_mnist/train`.  Check the file `create_model.py`.
+Go to `example-seldon/models/sk_mnist/train`.  Check the file `create_model.py`.
 
 The lines of interest are 39 through 42
 ```
@@ -351,15 +354,15 @@ it out pretty easily on your own once this is done.
 
 IF you didn't monkey with the model:
 ```bash
-cd $EXAMPE_SELDON
-argo submit training-sk-mnist-workflow.yaml -n kubeflow
+cd $EXAMPLE_SELDON/workflows
+~/argo submit training-sk-mnist-workflow.yaml -n kubeflow
 ```
 
 ELSE IF you monkeyed with the model, you'll need to train and build a new image:
 
 ```bash
-cd $EXAMPE_SELDON/workflows
-argo submit training-sk-mnist-workflow.yaml -n kubeflow -p build-push-image=true
+cd $EXAMPLE_SELDON/workflows
+~/argo submit training-sk-mnist-workflow.yaml -n kubeflow -p build-push-image=true
 ```
 
 Which will build and push the new docker image as part of the work flow. This workflow
@@ -372,7 +375,7 @@ The easiest way to monitor the model progress is using the following two shell c
 ```
 kubectl get pods -n kubeflow | grep sk-train
 ## AND
-argo list -n kubeflow
+~/argo list -n kubeflow
 ```
 
 These will hopefully show a successfully running set of pods / job.
@@ -383,7 +386,7 @@ Once training has finished, we can serve it with:
 
 ```
 cd $EXAMPLE_SELDON/workflows
-argo submit serving-sk-mnist-workflow.yaml -n kubeflow -p deploy-model=true
+~/argo submit serving-sk-mnist-workflow.yaml -n kubeflow -p deploy-model=true
 ```
 
 
