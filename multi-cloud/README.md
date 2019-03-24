@@ -16,13 +16,15 @@ We've picked a relatively un-complicated machine learning example, the data is a
 We also train a default model so you don't get hung up on that, but it isn't a very good model for the problem, so if you've got time and want to explore more you can jump in there.
 
 
-## Solution guide
+
+## For when thing's go wrong
+
+Hopefully it hasn't broken for you, but incase something goes wrong feel free to come up here and take a look.
+
+#### Solution guide
 
 If at any point you get lost, that's totally normal. Feel free to look at the fancy (we use bash!) [solution shell scripts https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud).
 
-### If it all catches on fire
-
-Hopefully it hasn't broken for you, but incase something goes wrong feel free to come up here and take a look.
 
 #### Debugging
 
@@ -465,3 +467,12 @@ If you're running short on time, feel free to skip re-training your model and in
 
 
 ### Serving
+
+## Next steps and other resources
+
+We hope this has been useful to you and increased your interest in learning more about Kubeflow.
+The Kubeflow project [has a collection of examples on GitHub](https://github.com/kubeflow/examples).
+There is also a [discussion list](https://groups.google.com/forum/#!forum/kubeflow-discuss) and [the Kubeflow slack](http://kubeflow.slack.com) [and invite link](https://kubeflow.slack.com/join/shared_invite/enQtNDg5MTM4NTQyNjczLWUyZGI1ZmExZWExYWY4YzlkOWI4NjljNjJhZjhjMjEwNGFjNmVkNjg2NTg4M2I0ZTM5NDExZWI5YTIyMzVmNzM) for your questions.
+
+
+Some of us are also working on [a book about Kubeflow, and you can join the mailing list to find out more](http://www.introductiontomlwithkubeflow.com/).
