@@ -10,6 +10,11 @@ If you don't already have a username and password for Google Cloud & Azure from 
 
 ## Motivation
 
+We've picked a relatively un-complicated machine learning example, the data is already prepared, so that you can focus on exploring Kubeflow and how to deploy Kubeflow on multiple clouds.
+
+
+We also train a default model so you don't get hung up on that, but it isn't a very good model for the problem, so if you've got time and want to explore more you can jump in there.
+
 
 ## Solution guide
 
