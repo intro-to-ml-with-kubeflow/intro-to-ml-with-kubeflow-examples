@@ -294,7 +294,7 @@ kubectl get pvc -n kubeflow
 
 OR
 
-console.cloud.google.com/kubernetes/storage
+https://console.cloud.google.com/kubernetes/storage
 
 should look like this:
 
