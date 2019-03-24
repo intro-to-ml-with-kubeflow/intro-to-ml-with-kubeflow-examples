@@ -81,8 +81,37 @@ if [ ! -z "$SKIP_AZURE" ]; then
   echo "Setting up Azure resource group"
   az configure --defaults location=westus
   az group exists -n kf-westus || az group create -n kf-westus
+else
+  echo "Skipping Azure setup since configured as such"
 fi
 
+echo "Setting up a GCP-SA"
+export SERVICE_ACCOUNT=user-gcp-sa
+export SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
+export KEY_FILE=${HOME}/secrets/${SERVICE_ACCOUNT_EMAIL}.json
+
+if [ ! -f ${KEY_FILE} ]; then
+  echo "Creating GCP SA account"
+  echo "
+export SERVICE_ACCOUNT=user-gcp-sa
+export SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
+" >> ~/.bashrc
+  gcloud iam service-accounts create ${SERVICE_ACCOUNT} \
+	 --display-name "GCP Service Account for use with kubeflow examples"
+
+  gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
+	 serviceAccount:${SERVICE_ACCOUNT_EMAIL} \
+	 --role=roles/storage.admin
+  gcloud iam service-accounts keys create ${KEY_FILE} \
+	 --iam-account ${SERVICE_ACCOUNT_EMAIL}
+else
+	echo "using existing GCP SA"
+fi
+
+echo "Creating bucket"
+export BUCKET_NAME=kubeflow-${GOOGLE_PROJECT}
+echo "export BUCKET_NAME=kubeflow-${GOOGLE_PROJECT}" >> ~/.bashrc
+gsutil mb -c regional -l us-central1 gs://${BUCKET_NAME} || echo "Bucket exists"
 
 echo "Creating Google Kubeflow project:"
 export G_KF_APP=${G_KF_APP:="g-kf-app"}
@@ -131,6 +160,9 @@ popd
 echo "Connecting to google cluster"
 wait $APPLY_GCP_PLATFORM_PID || echo "GCP cluster ready"
 gcloud container clusters get-credentials ${G_KF_APP} --zone $GZONE
+# Upload the SA creds for storage access
+kubectl create secret generic user-gcp-sa \
+  --from-file=user-gcp-sa.json="${KEY_FILE}"
 
 if [ ! -d ${G_KF_APP} ]; then
   echo "No KF app, re-run fast-start.sh?"
