@@ -13,7 +13,7 @@ If you don't already have a username and password for Google Cloud & Azure from 
 
 ## Solution guide
 
-If at any point you get lost, that's totally normal. Feel free to look at the fancy (we use bash!) [solution shell script at https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution.sh](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution.sh).
+If at any point you get lost, that's totally normal. Feel free to look at the fancy (we use bash!) [solution shell scripts https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud).
 
 ## Set up
 
@@ -48,7 +48,7 @@ This will give you a cloud shell, but before you dive in please enable boost mod
 
 #### Optional: Using screen
 
-Since conference WiFi is unpredictable, you may wish to use (screen)[https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/].
+Since conference WiFi is unpredictable, you may wish to use [screen](https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/).
 This will allow you to re-connect your terminal session in another connection 
 
 ### Setting up your instance & clusters
