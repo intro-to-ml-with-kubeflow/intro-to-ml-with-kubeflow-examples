@@ -3,10 +3,10 @@
 This tutorial is designed to get you off-to-the races with cross-cloud Kubeflow.
 If you don't already have a username and password for Google Cloud & Azure from the instructor go head and get one.
 
-**Note: If you're looking at this and the images are broken [click here](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/README.md)**
+**Note:** If you're looking at this and the images are broken [click here](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/README.md)
 
 
-**Note: If you find bugs, or have suggestions please consider e-mailing us, or submitting a PR if you know how to fix or improve it**
+**Note:** If you find bugs, or have suggestions please consider e-mailing us, or submitting a PR if you know how to fix or improve it. There is also a shared [note's document](https://docs.google.com/document/d/1V6Q8z-BiaFCvdBaLg1n3BDTZpXsNroN24YFHXH7Ri68/edit?usp=sharing) that you are more than welcome to contribute to (and we can get you some coffee or SWAG as thanks)
 
 ## Motivation
 
