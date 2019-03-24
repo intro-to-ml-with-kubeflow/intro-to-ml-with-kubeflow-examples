@@ -6,5 +6,7 @@ kfctl.sh delete k8s
 kfctl.sh delete platform
 popd
 
+gcloud deployment-manager deployments delete ${G_KF_APP}
+
 AZURE_CLUSTER_NAME=${AZURE_CLUSTER_NAME:="azure-kf-test"}
 az aks delete --name AZURE_CLUSTER_NAME
