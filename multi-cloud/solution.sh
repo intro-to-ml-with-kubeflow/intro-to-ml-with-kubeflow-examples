@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -ex
+
 echo "Setup GCP"
 ./solution1.sh
 echo "Install seldon"
