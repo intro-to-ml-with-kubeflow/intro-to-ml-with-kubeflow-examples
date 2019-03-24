@@ -60,7 +60,7 @@ While there are many ways to set up Kubeflow, in the interest of speed we will s
 * Download Google & Azure's command line tools (if needed)
 * Enable various components in 
 * Set up a GKE and EKS cluster (named google-kf-test & azure-kf-test)
-* Creates your first Kubeflow App with some special customizations. (See Holden for details.)
+* Creates your first Kubeflow App on GKE with some special customizations to avoid waiting for certificate provissioning
 
 ```bash
 curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh -o fast-start.sh
@@ -189,6 +189,8 @@ kubeflow tf-batch-predict
 kubeflow tf-serving              *
 kubeflow tf-training             *
 ```
+
+If this doesn't work for you, remember we have the [solutions](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution2.sh) in the [repo](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud].
 
 Once you've installed your new component you have the opportunity to configure it with:
 
