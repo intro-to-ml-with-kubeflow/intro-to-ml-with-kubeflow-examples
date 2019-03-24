@@ -7,11 +7,11 @@ set -ex
 # 1) 
 
 # Optionally, toss a hand grenade in your current GCP setup with:
+# ./cleanup.sh
 # rm -rf $HOME
 # surf to https://console.cloud.google.com/kubernetes/list
 # and delete all the clusters.
 
-# TODO: You have to manually create a cluster- that should happen via scrip in fast-start.sh (how does it not anymore?)
 
 echo "Download and run 'fast-start.sh'"
 wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh
@@ -27,8 +27,6 @@ source env.sh
 # Normally we would have done platform & k8s generate/apply as well
 
 kfctl.sh apply k8s
-
-pushd ks_app
 
 echo "Let's look at what's running:"
 kubectl get all --all-namespaces

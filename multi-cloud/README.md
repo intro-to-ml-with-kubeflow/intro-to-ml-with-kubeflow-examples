@@ -187,7 +187,7 @@ Currently Kubeflow manages packages with [ksonnet](https://ksonnet.io/), althoug
 Ksonnet Packages which are shipped with kubeflow can be installed by going into the `ks_app` directory with and running `ks pkg install kubeflow/[package_name]`.
 
 
-Our example uses [seldon core](https://www.seldon.io/) for model serving, called `seldon` inside of Kubeflow. Go ahead and install it now :)
+Our example uses [seldon core](https://www.seldon.io/) for model serving, called `seldon` inside of Kubeflow.
 
 
 You can make sure it's installed by running `ks pkg list` and looking for `*` next to seldon:
@@ -224,6 +224,9 @@ kubeflow tf-batch-predict
 kubeflow tf-serving              *
 kubeflow tf-training             *
 ```
+
+If it is not installed (although the default path should install it), go ahead and install it now.
+You can also try installing the `pachyderm` package, which can be useful later.
 
 If this doesn't work for you, remember we have the [solutions](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution2.sh) in the [repo](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud].
 
@@ -291,7 +294,7 @@ Now that you've add a new registry you can list the components and install them 
 #### Installing Argo
 
 Argo is a workflow management tool, and serves as the basis of Kubeflow pipelines.
-Since we're using an older example as our base though, we will directly use argo for our training and serving jobs.
+Currently, Kubeflow pipelines depend on some GCP specific components, so we will instead use Argo directly (this should be fixed eventually).
 
 To download `argo` run.
 ```
@@ -299,22 +302,16 @@ curl -sSL -o ~/argo https://github.com/argoproj/argo/releases/download/v2.2.1/ar
 chmod +x ~/argo
 ```
 
-To "install" `argo` :
+To "install" the `argo` command:
 
 ```bash
 kubectl create ns argo
 kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.1/manifests/install.yaml
 ```
 
-Now before you just blindly copy and paste the next part- update your NAME and EMAIL
-```
-kubectl create clusterrolebinding YOURNAME-cluster-admin-binding --clusterrole=cluster-admin --user=YOUREMAIL@gmail.com
-```
+Then we want to give the Kubeflow default service account permission to run everything it needs in the workflow:
 
-This all seems like a _lot_ of cluster role binding... probably don't need all of these.
-
-```
-kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=default:default
+```bash
 kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --serviceaccount=kubeflow:default
 ```
 
@@ -403,14 +400,22 @@ cd $EXAMPLE_SELDON/workflows
 ```
 
 Which will build and push the new docker image as part of the work flow. This workflow
-has a `build-push-image` parameter that will reload the image. You can check that out [here](
+has a `build-push-image` parameter that will reload the image. You can check that out [here]().
+
+#### Configuring your job to save the results into GCS/S3/etc.
+
+This saves the model results to a persistent-volume-claim, however we can't move this between clouds.
+If you want you can configure an [S3 compatable backend credintals as in the IBM guide](https://github.com/intro-to-ml-with-kubeflow/ibm-install-guide/blob/master/once-cluster-is-up.sh).
+
+
+
 
 ### Ok now monitor it.
 
 The easiest way to monitor the model progress is using the following two shell commands:
 
 ```
-kubectl get pods -n kubeflow | grep sk-train
+kubectl get pods -n kubeflow -w | grep sk-train
 ## AND
 ~/argo list -n kubeflow
 ```
