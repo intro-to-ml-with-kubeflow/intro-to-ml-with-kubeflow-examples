@@ -17,6 +17,28 @@ If at any point you get lost, that's totally normal. Feel free to look at the fa
 
 ### If it all catches on fire
 
+Hopefully it hasn't broken for you, but incase something goes wrong feel free to come up here and take a look.
+
+#### Debugging
+
+There's a few different tools for debugging whats going wrong.
+The `kubectl` program gives you a way to get the description of a pod which can include useful error information.
+
+```bash
+kubectl describe pod -n kubeflow [podname]
+```
+
+The logs of the pod also often contain useful information:
+
+```bash
+kubectl logs -n kubeflow [podname]
+```
+
+
+In kubeflow it's common for there to be multiple containers, so you may need to add `-c main` (or similar) to get the logs.
+
+#### If you want to start over
+
 **Note:*** If you get into a really bad state there is also a cleanup script you may find useful.
 Manually deleting the Kubernetes cluster can leave you in a weird state, since the GCP deployment has a number of ancilary service deployed along side.
 The [cleanup script is at https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh).
