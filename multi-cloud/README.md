@@ -19,7 +19,7 @@ If at any point you get lost, that's totally normal. Feel free to look at the fa
 
 **Note:*** If you get into a really bad state there is also a cleanup script you may find useful.
 Manually deleting the Kubernetes cluster can leave you in a weird state, since the GCP deployment has a number of ancilary service deployed along side.
-The cleanup script is at https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh 
+The [cleanup script is at https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh).
 
 ## Set up
 
