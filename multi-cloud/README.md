@@ -15,6 +15,12 @@ If you don't already have a username and password for Google Cloud & Azure from 
 
 If at any point you get lost, that's totally normal. Feel free to look at the fancy (we use bash!) [solution shell scripts https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud).
 
+### If it all catches on fire
+
+**Note:*** If you get into a really bad state there is also a cleanup script you may find useful.
+Manually deleting the Kubernetes cluster can leave you in a weird state, since the GCP deployment has a number of ancilary service deployed along side.
+The cleanup script is at https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh 
+
 ## Set up
 
 Kubeflow can be installed and deployed on many environments.
