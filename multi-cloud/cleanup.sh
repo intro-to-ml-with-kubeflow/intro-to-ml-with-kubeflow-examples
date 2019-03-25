@@ -6,5 +6,11 @@ kfctl.sh delete k8s
 kfctl.sh delete platform
 popd
 
+gcloud deployment-manager deployments delete ${G_KF_APP}
+
 AZURE_CLUSTER_NAME=${AZURE_CLUSTER_NAME:="azure-kf-test"}
 az aks delete --name AZURE_CLUSTER_NAME
+
+rm fast-start.sh
+curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh -o fast-start.sh
+chmod a+x fast-start.sh

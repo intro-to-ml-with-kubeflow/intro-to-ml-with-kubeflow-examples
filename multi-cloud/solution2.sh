@@ -7,22 +7,11 @@
 pushd ks_app
 ks pkg install kubeflow/seldon
 ks generate seldon seldon
-ks apply default -c seldon
+# We can either use KS to apply this, or we can use kfctl to re-apply the app.
+# We use kfctl, since Kubeflow is moving away from KS in the long term, but you
+# may see other guides which say to do something like:
+# ks apply default -c seldon
 popd
 # Applying to the cluster is done with kfctl.sh (although you could use ks directly too)
 kfctl.sh apply k8s
 # Optionally there are additional seldon components, like the analytics
-
-## Move this later (optional task)
-kubectl -n kube-system create sa tiller
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-helm init --service-account tiller
-kubectl rollout status deploy/tiller-deploy -n kube-system
-# Setup SAD
-helm install seldon-core-analytics \
-	--name seldon-core-analytics \
-	--set grafana_prom_admin_password=password \
-	--set persistence.enabled=false \
-	--repo https://storage.googleapis.com/seldon-charts \
-	--namespace kubeflow
-
