@@ -73,7 +73,7 @@ gcloud services enable file.googleapis.com storage-component.googleapis.com \
        storage-api.googleapis.com stackdriver.googleapis.com containerregistry.googleapis.com \
        iap.googleapis.com compute.googleapis.com container.googleapis.com &
 gke_api_enable_pid=$?
-if [[! -z "$SKIP_AZURE" ]]; then
+if [[ ! -z "$SKIP_AZURE" ]]; then
   echo "Setting up Azure"
   if ! command -v az >/dev/null 2>&1; then
     sudo apt-get install apt-transport-https lsb-release software-properties-common dirmngr -y
