@@ -100,7 +100,7 @@ While there are many ways to set up Kubeflow, in the interest of speed we will s
 ```bash
 curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh -o fast-start.sh
 chmod a+x fast-start.sh
-./fast-start.sh | tee startup-logs
+./fast-start.sh 2>&1 | tee startup-logs
 echo $?
 source ~/.bashrc
 ```
