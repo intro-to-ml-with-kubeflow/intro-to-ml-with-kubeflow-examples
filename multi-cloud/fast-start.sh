@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Long story, buy me a drink, we modify the PATH in here in previous installs.
+source ~/.bashrc
+
 set -ex
 
 if [[ ! -z "$SKIP_AZURE" ]]; then
