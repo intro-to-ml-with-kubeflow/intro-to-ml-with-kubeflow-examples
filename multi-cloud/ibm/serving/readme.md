@@ -46,20 +46,65 @@ ibmcloud ks region-set us-south
 ibmcloud ks cluster-config ibm-serving-demo
 ```
 ^^ That will throw an error until the cluster is up- check status with
+
 ```bash
 ibmcloud ks clusters
 ```
 
-Should only take 20 minutes or so-
+Should only take 20-30 minutes or so-
 
+
+```bash
+ibmcloud ks cluster-config ibm-serving-demo
+```
+
+That's going to give you a command to run:
+
+```bash
+export KUBECONFIG=/home/$USER/.bluemix/plugins/container-service/clusters/ibm-serving-demo/kube-config-hou02-ibm-serving-demo.yml
+```
 
 ### Step 5: Install Seldon Core
 
 #### Install seldon-core
 
+Init Serving App
+```bash
+ks init ibm-serving-deployment --api-spec=version:v1.8.0
+```
+
+```bash
+cd ibm-serving-deployment
+ks registry add seldon-core github.com/SeldonIO/seldon-core/tree/master/seldon-core
+ks pkg install seldon-core/seldon-core@master
+ks generate seldon-core seldon-core
+```
 
 
+Apply everything
+
+```
+ks apply default
+```
+
+
+#### Download image serving files
+
+```bash
+mkdir ibm-serving
+wget
+```
 #### Install s2i
+
+s2i is a program that creates images out of source files.
+
+```bash
+wget https://github.com/openshift/source-to-image/releases/download/v1.1.13/source-to-image-v1.1.13-b54d75d3-linux-amd64.tar.gz
+tar -xvf source-to-image-v1.1.13-b54d75d3-linux-amd64.tar.gz
+```
+
+
+
 
 ### Step 6: Serve image.
 
