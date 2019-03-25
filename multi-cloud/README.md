@@ -400,36 +400,28 @@ it out pretty easily on your own once this is done.
 
 ### Ok Now train it.
 
-IF you didn't monkey with the model:
+**IF** you didn't monkey with the model:
 ```bash
 export EXAMPLE_SELDON=~/example-seldon
 cd $EXAMPLE_SELDON/workflows
 ~/argo submit training-sk-mnist-workflow.yaml -n kubeflow
 ```
 
-ELSE IF you monkeyed with the model, you'll need to train and build a new image.
+**ELSE IF** you monkeyed with the model, you'll need to build a new image and configure the pipeline to use it.
 
 Building a new image requires configuring your own Docker credentials so that it can be pushed.
-The example workflow is expecting you to supply a Kubernetes Secret with the following values:
+Using the Google container registry is configured with:
 
-```yml
-apiVersion: v1
-data:
-  password: <YOUR_PASSWORD_BASE64>
-  username: <YOUR_USERNAME_BASE64>
-kind: Secret
-metadata:
-  name: docker-credentials
-  namespace: kubeflow
-type: Opaque
+```bash
+gcloud auth configure-docker
 ```
 
-Once you define such a secret, run `kubectl apply -f secret.yml` to apply it to the `kubeflow` namespace, before running the below commands.
+To get your Docker information 
 
 ```bash
 export EXAMPLE_SELDON=~/example-seldon
 cd $EXAMPLE_SELDON/workflows
-~/argo submit training-sk-mnist-workflow.yaml -n kubeflow -p build-push-image=true
+~/argo submit training-sk-mnist-workflow.yaml -n kubeflow -p docker-user=gcr.io/${GOOGLE_PROJECT} -p version=latest
 ```
 
 Which will build and push the new docker image as part of the work flow. This workflow
