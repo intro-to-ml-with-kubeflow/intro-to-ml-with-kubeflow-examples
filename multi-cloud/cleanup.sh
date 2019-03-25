@@ -2,10 +2,8 @@
 
 GZONE=${GZONE:="us-central1-a"} # For TPU access if we decide to go there
 export G_KF_APP=${G_KF_APP:="g-kf-app"}
-pushd gcp-app-kfctl
-kfctl.sh delete k8s
-kfctl.sh delete platform
-popd
+pushd ${G_KF_APP} && kfctl.sh delete k8s && kfctl.sh delete platform && popd
+rm -rf ${G_KF_APP}
 
 gcloud deployment-manager deployments delete ${G_KF_APP}
 
