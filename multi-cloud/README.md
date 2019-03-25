@@ -502,3 +502,17 @@ Boris @ LightBend has written a series of blog posts on how to use [Kubeflow Wit
 
 
 Some of us are also working on [a book about Kubeflow, and you can join the mailing list to find out more](http://www.introductiontomlwithkubeflow.com/).
+
+#### Let's go cross cloud!
+
+OK- read this to get your IBM cloud set up (just need gui, no cloud cli tools)
+https://console.bluemix.net/docs/services/cloud-object-storage/basics/order-storage.html#order-storage
+
+Create a Cloud Object Storage Service
+
+Create credentials.
+
+When you create the creds, you click on the little triange to expand them, then look at this- and figure it out.
+
+see this https://console.bluemix.net/docs/services/cloud-object-storage/libraries/python.html#using-python
+
