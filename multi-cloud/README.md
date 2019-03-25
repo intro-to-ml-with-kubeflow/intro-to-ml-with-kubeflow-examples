@@ -407,13 +407,48 @@ cd $EXAMPLE_SELDON/workflows
 ~/argo submit training-sk-mnist-workflow.yaml -n kubeflow
 ```
 
-**ELSE IF** you monkeyed with the model, you'll need to build a new image and configure the pipeline to use it.
+**ELSE IF** you monkeyed with the model, you'll need to build a new image, put it somewhere your Kubernetes cluster can access and configure the pipeline to use it.
 
-Building a new image locally is simple, however since we're deploying this on a cluster we'll need to put the image in something called a container registry.
+
+Building a Docker image is fairly straight forward provided that you already have Docker installed.
+The `Dockerfile` specifies what goes in a Docker image. To build this into an image you will go back to the `models/sk_mnist/train/`.
+
+
+Looking at the `Makefile` we can see that the image is normally built with `docker build --force-rm=true -t seldonio/skmnistclassifier_trainer:0.2 .`
+
+
+The `--force-rm` forces removal the intermediate containers during the build. When you build a docker container you can think of it as building something akin to a layer cake, where the different layers are stacked on top of each other to make something delicious (except instead it uses something called [union filesystem](https://medium.com/@paccattam/drooling-over-docker-2-understanding-union-file-systems-2e9bf204177c) by default).
+
+**TODO**: Add a cat with a layer cake image here.
+
+The above explanation was just added so we can have a picture of a cat with some cake :) **Note** Three hours can be a long time! Remember to drink water/coffee/eat snacks as necessary. While your model trains can be a great time for a break.
+
+The `t` "tags" (or names) the image, specifying a user, container, and version.
+We're going to keep the same image name (`skmnistclassifier_trainer`), but for now we're not going to associate it with any particular user and we're going to increase the version number to 0.3 so we can tell the difference with our own version.
+
+```bash
+docker build --force-rm=true -t skmnistclassifier_trainer:0.3 .
+```
+
+
+Since we're deploying this on a cluster we'll need to put the image in something called a container registry.
 To give your local Docker permission to your the [Google container registry](https://cloud.google.com/container-registry/) is configured with:
 
 ```bash
 gcloud auth configure-docker
+```
+
+
+Your Google container registry](https://cloud.google.com/container-registry/) is at `gcr.io/${GOOGLE_PROJECT}`, so we'll tag our image to this base and push it up:
+
+```bash
+docker tag skmnistclassifier_trainer:0.3 gcr.io/${GOOGLE_PROJECT}/skmnistclassifier_trainer:0.3
+```
+
+Once an image is tagged, you still need to explicitly push it to the container registry to make it available:
+
+```bash
+docker push gcr.io/${GOOGLE_PROJECT}/skmnistclassifier_trainer:0.3
 ```
 
 **TODO: Finish manual build**
@@ -423,11 +458,10 @@ Now that it's all set up and pushed, we can run the previous pipeline pointing t
 ```bash
 export EXAMPLE_SELDON=~/example-seldon
 cd $EXAMPLE_SELDON/workflows
-~/argo submit training-sk-mnist-workflow.yaml -n kubeflow -p docker-user=gcr.io/${GOOGLE_PROJECT} -p version=latest
+~/argo submit training-sk-mnist-workflow.yaml -n kubeflow -p docker-user=gcr.io/${GOOGLE_PROJECT} -p version=0.3
 ```
 
-Which will build and push the new docker image as part of the work flow. This workflow
-has a `build-push-image` parameter that will reload the image. You can check that out [here]().
+**Note**: There is also an (optional) build push step in the workflow, however with GCR it's a bit easier to just build it by hand. If you want you can explore doing the build-push as part of the workflow as well (although it requires your code is pushed to github).
 
 ### Ok now monitor it.
 
