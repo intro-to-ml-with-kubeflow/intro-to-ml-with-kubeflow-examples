@@ -1,6 +1,19 @@
 #!/bin/bash
 
+# Long story, buy me a drink, we modify the PATH in here in previous installs.
+source ~/.bashrc
+
 set -ex
+
+if [[ -z "$SKIP_AZURE" ]]; then
+  export IF_AZURE="& Azure"
+fi
+
+echo "Prepairing to set up I will be deploying on GCP${IF_AZURE}"
+echo "Press enter if this OK or ctrl-d to change the settings"
+echo "Azure is controlled with the SKIP_AZURE env variable"
+echo "p.s. did you remember to run me with tee?"
+read panda
 
 echo "Getting sudo cached..."
 sudo ls
@@ -64,7 +77,7 @@ gcloud services enable file.googleapis.com storage-component.googleapis.com \
        storage-api.googleapis.com stackdriver.googleapis.com containerregistry.googleapis.com \
        iap.googleapis.com compute.googleapis.com container.googleapis.com &
 gke_api_enable_pid=$?
-if [ ! -z "$SKIP_AZURE" ]; then
+if [[ -z "$SKIP_AZURE" ]]; then
   echo "Setting up Azure"
   if ! command -v az >/dev/null 2>&1; then
     sudo apt-get install apt-transport-https lsb-release software-properties-common dirmngr -y
@@ -85,28 +98,6 @@ else
   echo "Skipping Azure setup since configured as such"
 fi
 
-echo "Setting up a GCP-SA for storage"
-export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
-export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
-export KEY_FILE=${HOME}/secrets/${STORAGE_SERVICE_ACCOUNT_EMAIL}.json
-
-if [ ! -f ${KEY_FILE} ]; then
-  echo "Creating GCP SA storage account"
-  echo "
-export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
-export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
-" >> ~/.bashrc
-  gcloud iam service-accounts create ${STORAGE_SERVICE_ACCOUNT} \
-	 --display-name "GCP Service Account for use with kubeflow examples"
-
-  gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
-	 serviceAccount:${STORAGE_SERVICE_ACCOUNT_EMAIL} \
-	 --role=roles/storage.admin
-  gcloud iam service-accounts keys create ${KEY_FILE} \
-	 --iam-account ${STORAGE_SERVICE_ACCOUNT_EMAIL}
-else
-	echo "using existing GCP SA"
-fi
 
 echo "Creating bucket"
 export BUCKET_NAME=kubeflow-${GOOGLE_PROJECT}
@@ -127,11 +118,14 @@ if [[ -z "$CLIENT_ID" ]]; then
   export SKIP_IAP="true"
 fi
 kfctl.sh generate platform
-kfctl.sh apply platform &
+echo "Waiting on enabling just to avoid race conditions"
+wait $gke_api_enable_pid || echo "Services already enabled"
+echo "Apply the platform. Sometimes the deployment manager behaves weirdly so retry"
+kfctl.sh apply platform || (echo "retrying platform application" && kfctl.sh apply platform)
 APPLY_GCP_PLATFORM_PID=$!
 popd
 
-if [[ ! -z "$SKIP_AZURE" ]]; then
+if [[ -z "$SKIP_AZURE" ]]; then
   echo "Starting up Azure K8s cluster"
   az configure --defaults location=westus
   az group exists -n kf-westus || az group create -n kf-westus
@@ -159,6 +153,30 @@ popd
 
 echo "Connecting to google cluster"
 wait $APPLY_GCP_PLATFORM_PID || echo "GCP cluster ready"
+echo "Creating SA creds now that platform has settled"
+echo "Setting up a GCP-SA for storage"
+export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
+export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
+export KEY_FILE=${HOME}/secrets/${STORAGE_SERVICE_ACCOUNT_EMAIL}.json
+
+if [ ! -f ${KEY_FILE} ]; then
+  echo "Creating GCP SA storage account"
+  echo "
+export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
+export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
+" >> ~/.bashrc
+  gcloud iam service-accounts create ${STORAGE_SERVICE_ACCOUNT} \
+	 --display-name "GCP Service Account for use with kubeflow examples" || echo "SA exists, just modifying"
+
+  gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
+	 serviceAccount:${STORAGE_SERVICE_ACCOUNT_EMAIL} \
+	 --role=roles/storage.admin
+  gcloud iam service-accounts keys create ${KEY_FILE} \
+	 --iam-account ${STORAGE_SERVICE_ACCOUNT_EMAIL}
+else
+	echo "using existing GCP SA"
+fi
+
 gcloud container clusters get-credentials ${G_KF_APP} --zone $GZONE
 # Upload the SA creds for storage access
 kubectl create secret generic user-gcp-sa \
@@ -175,3 +193,4 @@ fi
 
 echo "When you are ready to connect to your Azure cluster run:"
 echo "az aks get-credentials --name azure-kf-test --resource-group westus"
+echo "All done!"

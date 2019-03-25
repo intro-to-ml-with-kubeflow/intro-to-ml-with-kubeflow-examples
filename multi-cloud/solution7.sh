@@ -2,6 +2,7 @@
 
 # Adding hacky transporter for moving model from GCP to IBMCloud
 
+gcloud auth configure-docker
 
 mkdir hacky-s3
 cd hacky-s3
