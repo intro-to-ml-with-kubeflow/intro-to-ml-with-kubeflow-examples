@@ -19,6 +19,7 @@ Now you can login with
 ```bash
 ibmcloud login
 ibmcloud plugin install container-service
+ibmcloud plugin install container-registry #for docker
 ```
 
 
@@ -27,6 +28,7 @@ ibmcloud plugin install container-service
 ### Step 3: Push Model from GCP to your Cloud Storage
 
 see `../hacky-s3-copy`
+
 
 ### Step 4: Create K8s cluster on IBM
 
@@ -70,14 +72,19 @@ export KUBECONFIG=/home/$USER/.bluemix/plugins/container-service/clusters/ibm-se
 
 Init Serving App
 ```bash
-ks init ibm-serving-deployment --api-spec=version:v1.8.0
+ks init ibm-serving-app --api-spec=version:v1.8.0
 ```
 
 ```bash
-cd ibm-serving-deployment
+cd ibm-serving-app
 ks registry add seldon-core github.com/SeldonIO/seldon-core/tree/master/seldon-core
 ks pkg install seldon-core/seldon-core@master
 ks generate seldon-core seldon-core
+
+kubectl create ns argo
+kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.1/manifests/install.yaml
+kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=default:default
+
 ```
 
 
@@ -91,9 +98,18 @@ ks apply default
 #### Download image serving files
 
 ```bash
+cd ~/
 mkdir ibm-serving
-wget
+cd ibm-serving
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/ibm/serving/contract.json
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/ibm/serving/requirements.txt
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/ibm/serving/SkMnist.py
+mkdir .s2i
+cd .s2i
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/ibm/serving/.s2i/environment
+cd ..
 ```
+
 #### Install s2i
 
 s2i is a program that creates images out of source files.
@@ -104,7 +120,56 @@ tar -xvf source-to-image-v1.1.13-b54d75d3-linux-amd64.tar.gz
 ```
 
 
+### Building Image
 
+### Step 3.1: Setup Container Registry on IBM side
+
+```
+NAMESPACE=serving-demo
+ibmcloud cr namespace-add $NAMESPACE
+```
+
+Find the region with this command:
+```
+ibmcloud ks region
+```
+
+for me:
+```
+REGION=us-south
+```
+
+and don't forget to login
+```
+ibmcloud cr login
+```
+
+```
+IMAGE_PULL_SECRET_NAME=my-docker-registry-secret
+TOKEN_PASS=$(ibmcloud cr token-add --description "kf-tutorial" --non-expiring -q)
+kubectl --namespace default \
+	  create secret docker-registry $IMAGE_PULL_SECRET_NAME \
+	  --docker-server=registry.ng.bluemix.net \
+	  --docker-username=token \
+	  --docker-password=$TOKEN_PASS \
+	  --docker-email=a@b.com
+```
+#### Build source images for serving
+
+```
+./s2i build . seldonio/seldon-core-s2i-python3:0.5 us.icr.io/$NAMESPACE/skmnistclassifier_runtime:0.1
+docker push us.icr.io/$NAMESPACE/skmnistclassifier_runtime:0.1
+```
 
 ### Step 6: Serve image.
+
+Now we download the workflow and send it to argo. Please feel free to inspect it.
+
+We wish we had the time to.
+
+
+```
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/ibm/serving/serving-sk-mnist-workflow.yaml
+~/argo submit serving-sk-mnist-workflow.yaml -p docker-user=us.icr.io/$NAMESPACE -p deploy-model=true
+```
 
