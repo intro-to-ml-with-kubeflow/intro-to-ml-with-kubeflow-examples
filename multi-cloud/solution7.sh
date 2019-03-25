@@ -4,7 +4,13 @@
 
 gcloud auth configure-docker
 
-wget
+
+## TODO: Download-
+# 1) hacky-s3-copy/Dockerfile
+# 2) hacky-s3-copy/beam-me-up-scotty.py
+# 3) requirements.txt
+
+GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null)
 ##
-docker tag quickstart-image gcr.io/[PROJECT-ID]/quickstart-image:tag1
-docker push gcr.io/[PROJECT-ID]/quickstart-image:tag1
+docker tag quickstart-image gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord
+docker push gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord
