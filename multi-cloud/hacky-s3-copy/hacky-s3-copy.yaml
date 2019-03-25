@@ -12,8 +12,9 @@ spec:
       containers:
         - name: hacky-s3-copy
           image: gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord
-      volumeMounts:
-        - mountPath: "/data"
-          name: nfs-1
+          volumeMounts:
+            - name: nfs-1
+              mountPath: /data
+      restartPolicy: Never
   backoffLimit: 1
 
