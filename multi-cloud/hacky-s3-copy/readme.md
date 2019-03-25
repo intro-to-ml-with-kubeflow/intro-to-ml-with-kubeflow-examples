@@ -21,3 +21,6 @@ pico *yaml
 ```
 
 and replace $GOOG_PROJECT w your project
+
+## turn on public assess to your gcp repo
+(fix this bc its bad practice)
