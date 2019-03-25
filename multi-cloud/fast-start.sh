@@ -7,7 +7,9 @@ if [[ ! -z "$SKIP_AZURE" ]]; then
 fi
 
 echo "Prepairing to set up I will be deploying on GCP${IF_AZURE}"
-sleep 5
+echo "Press enter if this OK or ctrl-d to change the settings"
+echo "Azure is controlled with the SKIP_AZURE env variable"
+read panda
 
 echo "Getting sudo cached..."
 sudo ls
