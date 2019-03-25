@@ -87,8 +87,8 @@ fi
 
 echo "Setting up a GCP-SA for storage"
 export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
-export STORAGE_SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
-export KEY_FILE=${HOME}/secrets/${SERVICE_ACCOUNT_EMAIL}.json
+export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
+export KEY_FILE=${HOME}/secrets/${STORAGE_SERVICE_ACCOUNT_EMAIL}.json
 
 if [ ! -f ${KEY_FILE} ]; then
   echo "Creating GCP SA storage account"
