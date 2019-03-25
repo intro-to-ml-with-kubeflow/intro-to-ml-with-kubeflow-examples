@@ -106,7 +106,7 @@ While there are many ways to set up Kubeflow, in the interest of speed we will s
 * Set up a GKE and EKS cluster (named google-kf-test & azure-kf-test)
 * Creates your first Kubeflow App on GKE with some special customizations to avoid waiting for certificate provissioning
 
-If you wish to skip building either an Azure or IBM cluster you can set: `SKIP_AZURE` and `SKIP_IBM` to true, respectively.
+If you wish to skip building an Azure cluster you can set: `SKIP_AZURE=1` as an environmental variable to the below script.
 
 ```bash
 curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh -o fast-start.sh
@@ -457,7 +457,7 @@ Once training has finished, we can serve it with:
 
 ```
 cd $EXAMPLE_SELDON/workflows
-~/argo submit serving-sk-mnist-workflow.yaml -n kubeflow
+~/argo submit serving-sk-mnist-workflow.yaml -n kubeflow  -p deploy-model=true
 ```
 
 To query the service: you will firstly grab one of the service endpoints by running `kubectl describe svc ambassador -n kubeflow | grep Endpoints`, which grabs the endpoints of the running ambassador deployment. Next you will run `~/argo list -n kubeflow | grep seldon-sk-deploy` to grab the successful deployment name. Now you can curl by hitting the REST endpoint:
