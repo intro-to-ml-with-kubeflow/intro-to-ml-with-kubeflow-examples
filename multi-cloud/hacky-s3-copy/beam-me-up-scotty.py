@@ -33,7 +33,7 @@ transfer_config = ibm_boto3.s3.transfer.TransferConfig(
 # the upload_fileobj method will automatically execute a multi-part upload
 # in 5 MB chunks for all files over 15 MB
 with open("/data/sk.pkl", "rb") as file_data:
-    cos.Object(BUCKET_NAME, "foo.txt").upload_fileobj(
+    cos.Object(BUCKET_NAME, "sk.pkl").upload_fileobj(
         Fileobj=file_data,
         Config=transfer_config
     )
