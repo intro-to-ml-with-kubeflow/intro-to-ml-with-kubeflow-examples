@@ -72,6 +72,7 @@ export KUBECONFIG=/home/$USER/.bluemix/plugins/container-service/clusters/ibm-se
 
 Init Serving App
 ```bash
+cd ~/
 ks init ibm-serving-app --api-spec=version:v1.8.0
 ```
 
@@ -145,7 +146,7 @@ ibmcloud cr login
 ```
 
 ```
-IMAGE_PULL_SECRET_NAME=my-docker-registry-secret
+IMAGE_PULL_SECRET_NAME=docker-credentials
 TOKEN_PASS=$(ibmcloud cr token-add --description "kf-tutorial" --non-expiring -q)
 kubectl --namespace default \
 	  create secret docker-registry $IMAGE_PULL_SECRET_NAME \
@@ -167,9 +168,19 @@ Now we download the workflow and send it to argo. Please feel free to inspect it
 
 We wish we had the time to.
 
-
 ```
 wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/ibm/serving/serving-sk-mnist-workflow.yaml
-~/argo submit serving-sk-mnist-workflow.yaml -p docker-user=us.icr.io/$NAMESPACE -p deploy-model=true
+~/argo submit serving-sk-mnist-workflow.yaml -p docker-user=us.icr.io/$NAMESPACE -p deploy-model=true --serviceaccount seldon
 ```
 
+And to check that it worked
+```bash
+trevor_d_grant@cloudshell:~ (kubeflow-hacky-hacky)$ ~/argo list
+NAME                     STATUS      AGE   DURATION
+seldon-sk-deploy-lfbzc   Succeeded   9s    3s
+```
+
+
+### Step 7: Testing
+
+Need to make a thing that tests
