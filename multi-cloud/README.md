@@ -228,7 +228,7 @@ kubeflow tf-training             *
 If it is not installed (although the default path should install it), go ahead and install it now.
 You can also try installing the `pachyderm` package, which can be useful later.
 
-If this doesn't work for you, remember we have the [solutions](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution2.sh) in the [repo](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud].
+If this doesn't work for you, remember we have the [solutions](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution2.sh) in the [repo](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud).
 
 Once you've installed your new component you have the opportunity to configure it with:
 
@@ -496,6 +496,9 @@ If you're running short on time, feel free to skip re-training your model and in
 We hope this has been useful to you and increased your interest in learning more about Kubeflow.
 The Kubeflow project [has a collection of examples on GitHub](https://github.com/kubeflow/examples).
 There is also a [discussion list](https://groups.google.com/forum/#!forum/kubeflow-discuss) and [the Kubeflow slack](http://kubeflow.slack.com) [and invite link](https://kubeflow.slack.com/join/shared_invite/enQtNDg5MTM4NTQyNjczLWUyZGI1ZmExZWExYWY4YzlkOWI4NjljNjJhZjhjMjEwNGFjNmVkNjg2NTg4M2I0ZTM5NDExZWI5YTIyMzVmNzM) for your questions.
+
+
+Boris @ LightBend has written a series of blog posts on how to use [Kubeflow With OpenShift](https://www.lightbend.com/blog/how-to-deploy-kubeflow-on-lightbend-platform-openshift-kubeflow-tensorflow-jobs).
 
 
 Some of us are also working on [a book about Kubeflow, and you can join the mailing list to find out more](http://www.introductiontomlwithkubeflow.com/).
