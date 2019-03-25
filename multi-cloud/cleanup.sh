@@ -1,6 +1,7 @@
 #!/bin/bash
 
 GZONE=${GZONE:="us-central1-a"} # For TPU access if we decide to go there
+export G_KF_APP=${G_KF_APP:="g-kf-app"}
 pushd gcp-app-kfctl
 kfctl.sh delete k8s
 kfctl.sh delete platform
