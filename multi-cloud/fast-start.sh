@@ -2,6 +2,13 @@
 
 set -ex
 
+if [[ ! -z "$SKIP_AZURE" ]]; then
+  export IF_AZURE="& Azure"
+fi
+
+echo "Prepairing to set up I will be deploying on GCP${IF_AZURE}"
+sleep 5
+
 echo "Getting sudo cached..."
 sudo ls
 echo "Setting up SSH if needed"
