@@ -5,13 +5,14 @@ source ~/.bashrc
 
 set -ex
 
-if [[ ! -z "$SKIP_AZURE" ]]; then
+if [[ -z "$SKIP_AZURE" ]]; then
   export IF_AZURE="& Azure"
 fi
 
 echo "Prepairing to set up I will be deploying on GCP${IF_AZURE}"
 echo "Press enter if this OK or ctrl-d to change the settings"
 echo "Azure is controlled with the SKIP_AZURE env variable"
+echo "p.s. did you remember to run me with tee?"
 read panda
 
 echo "Getting sudo cached..."
@@ -76,7 +77,7 @@ gcloud services enable file.googleapis.com storage-component.googleapis.com \
        storage-api.googleapis.com stackdriver.googleapis.com containerregistry.googleapis.com \
        iap.googleapis.com compute.googleapis.com container.googleapis.com &
 gke_api_enable_pid=$?
-if [[ ! -z "$SKIP_AZURE" ]]; then
+if [[ -z "$SKIP_AZURE" ]]; then
   echo "Setting up Azure"
   if ! command -v az >/dev/null 2>&1; then
     sudo apt-get install apt-transport-https lsb-release software-properties-common dirmngr -y
@@ -121,7 +122,7 @@ kfctl.sh apply platform &
 APPLY_GCP_PLATFORM_PID=$!
 popd
 
-if [[ ! -z "$SKIP_AZURE" ]]; then
+if [[ -z "$SKIP_AZURE" ]]; then
   echo "Starting up Azure K8s cluster"
   az configure --defaults location=westus
   az group exists -n kf-westus || az group create -n kf-westus
@@ -189,3 +190,4 @@ fi
 
 echo "When you are ready to connect to your Azure cluster run:"
 echo "az aks get-credentials --name azure-kf-test --resource-group westus"
+echo "All done!"

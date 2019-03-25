@@ -14,3 +14,5 @@ az aks delete --name AZURE_CLUSTER_NAME
 rm fast-start.sh
 curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh -o fast-start.sh
 chmod a+x fast-start.sh
+
+echo "Note: we don't cleanup the bucket right now"
