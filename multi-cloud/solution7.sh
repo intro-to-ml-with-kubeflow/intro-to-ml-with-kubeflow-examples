@@ -4,11 +4,11 @@
 
 gcloud auth configure-docker
 
-
-## TODO: Download-
-# 1) hacky-s3-copy/Dockerfile
-# 2) hacky-s3-copy/beam-me-up-scotty.py
-# 3) requirements.txt
+mkdir hacky-s3
+cd hacky-s3
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/hacky-s3-copy/Dockerfile
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/hacky-s3-copy/beam-me-up-scotty.py
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/hacky-s3-copy/requirements.txt
 
 GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null)
 ##
