@@ -118,7 +118,10 @@ if [[ -z "$CLIENT_ID" ]]; then
   export SKIP_IAP="true"
 fi
 kfctl.sh generate platform
-kfctl.sh apply platform &
+echo "Waiting on enabling just to avoid race conditions"
+wait $gke_api_enable_pid || echo "Services already enabled"
+echo "Apply the platform. Sometimes the deployment manager behaves weirdly so retry"
+kfctl.sh apply platform || (echo "retrying platform application" && kfctl.sh apply platform)
 APPLY_GCP_PLATFORM_PID=$!
 popd
 
