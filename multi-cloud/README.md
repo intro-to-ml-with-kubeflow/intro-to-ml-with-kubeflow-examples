@@ -409,14 +409,16 @@ cd $EXAMPLE_SELDON/workflows
 
 **ELSE IF** you monkeyed with the model, you'll need to build a new image and configure the pipeline to use it.
 
-Building a new image requires configuring your own Docker credentials so that it can be pushed.
-Using the Google container registry is configured with:
+Building a new image locally is simple, however since we're deploying this on a cluster we'll need to put the image in something called a container registry.
+To give your local Docker permission to your the [Google container registry](https://cloud.google.com/container-registry/) is configured with:
 
 ```bash
 gcloud auth configure-docker
 ```
 
-To get your Docker information 
+**TODO: Finish manual build**
+
+Now that it's all set up and pushed, we can run the previous pipeline pointing to our custom image in the container registry.
 
 ```bash
 export EXAMPLE_SELDON=~/example-seldon
