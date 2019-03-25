@@ -97,7 +97,7 @@ export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
 export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
 " >> ~/.bashrc
   gcloud iam service-accounts create ${STORAGE_SERVICE_ACCOUNT} \
-	 --display-name "GCP Service Account for use with kubeflow examples"
+	 --display-name "GCP Service Account for use with kubeflow examples" || echo "SA exists, just modifying"
 
   gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
 	 serviceAccount:${STORAGE_SERVICE_ACCOUNT_EMAIL} \
