@@ -85,28 +85,6 @@ else
   echo "Skipping Azure setup since configured as such"
 fi
 
-echo "Setting up a GCP-SA for storage"
-export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
-export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
-export KEY_FILE=${HOME}/secrets/${STORAGE_SERVICE_ACCOUNT_EMAIL}.json
-
-if [ ! -f ${KEY_FILE} ]; then
-  echo "Creating GCP SA storage account"
-  echo "
-export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
-export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
-" >> ~/.bashrc
-  gcloud iam service-accounts create ${STORAGE_SERVICE_ACCOUNT} \
-	 --display-name "GCP Service Account for use with kubeflow examples" || echo "SA exists, just modifying"
-
-  gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
-	 serviceAccount:${STORAGE_SERVICE_ACCOUNT_EMAIL} \
-	 --role=roles/storage.admin
-  gcloud iam service-accounts keys create ${KEY_FILE} \
-	 --iam-account ${STORAGE_SERVICE_ACCOUNT_EMAIL}
-else
-	echo "using existing GCP SA"
-fi
 
 echo "Creating bucket"
 export BUCKET_NAME=kubeflow-${GOOGLE_PROJECT}
@@ -159,6 +137,30 @@ popd
 
 echo "Connecting to google cluster"
 wait $APPLY_GCP_PLATFORM_PID || echo "GCP cluster ready"
+echo "Creating SA creds now that platform has settled"
+echo "Setting up a GCP-SA for storage"
+export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
+export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
+export KEY_FILE=${HOME}/secrets/${STORAGE_SERVICE_ACCOUNT_EMAIL}.json
+
+if [ ! -f ${KEY_FILE} ]; then
+  echo "Creating GCP SA storage account"
+  echo "
+export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
+export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
+" >> ~/.bashrc
+  gcloud iam service-accounts create ${STORAGE_SERVICE_ACCOUNT} \
+	 --display-name "GCP Service Account for use with kubeflow examples" || echo "SA exists, just modifying"
+
+  gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
+	 serviceAccount:${STORAGE_SERVICE_ACCOUNT_EMAIL} \
+	 --role=roles/storage.admin
+  gcloud iam service-accounts keys create ${KEY_FILE} \
+	 --iam-account ${STORAGE_SERVICE_ACCOUNT_EMAIL}
+else
+	echo "using existing GCP SA"
+fi
+
 gcloud container clusters get-credentials ${G_KF_APP} --zone $GZONE
 # Upload the SA creds for storage access
 kubectl create secret generic user-gcp-sa \
