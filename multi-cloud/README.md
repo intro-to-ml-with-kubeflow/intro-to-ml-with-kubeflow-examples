@@ -8,6 +8,8 @@ If you don't already have a username and password for Google Cloud & Azure from 
 
 **Note:** If you find bugs, or have suggestions please consider e-mailing us, or submitting a PR if you know how to fix or improve it. There is also a shared [note's document](https://docs.google.com/document/d/1V6Q8z-BiaFCvdBaLg1n3BDTZpXsNroN24YFHXH7Ri68/edit?usp=sharing) that you are more than welcome to contribute to (and we can get you some coffee or SWAG as thanks)
 
+**Note:** There is no need to make a GKE cluster manually before starting this tutorial, we will configure one as we go along.
+
 ## Motivation
 
 We've picked a relatively un-complicated machine learning example, the data is already prepared, so that you can focus on exploring Kubeflow and how to deploy Kubeflow on multiple clouds.
@@ -19,7 +21,7 @@ We also train a default model so you don't get hung up on that, but it isn't a v
 
 ## For when thing's go wrong
 
-Hopefully it hasn't broken for you, but incase something goes wrong feel free to come up here and take a look.
+Hopefully it hasn't broken for you, but in case something goes wrong feel free to come up here and take a look.
 
 #### Solution guide
 
@@ -28,7 +30,7 @@ If at any point you get lost, that's totally normal. Feel free to look at the fa
 
 #### Debugging
 
-There's a few different tools for debugging whats going wrong.
+There are a few different tools for debugging what's going wrong.
 The `kubectl` program gives you a way to get the description of a pod which can include useful error information.
 
 ```bash
@@ -42,13 +44,20 @@ kubectl logs -n kubeflow [podname]
 ```
 
 
-In kubeflow it's common for there to be multiple containers, so you may need to add `-c main` (or similar) to get the logs.
+In Kubeflow it's common for there to be multiple containers, so you may need to add `-c main` (or similar) to get the logs.
 
 #### If you want to start over
 
 **Note:*** If you get into a really bad state there is also a cleanup script you may find useful.
-Manually deleting the Kubernetes cluster can leave you in a weird state, since the GCP deployment has a number of ancilary service deployed along side.
+Manually deleting the Kubernetes cluster can leave you in a weird state, since the GCP deployment has a number of ancillary services deployed along side.
 The [cleanup script is at https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh).
+
+```bash
+curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/cleanup.sh -o cleanup.sh
+chmod a+x cleanup.sh
+./cleanup.sh
+source ~/.bashrc
+```
 
 ## Set up
 
@@ -58,8 +67,8 @@ The provided set up script is designed to be used within a Google Cloud Console 
 
 ### Logging in to cloud console
 
-If you already have a gcloud account you may find it easier to use incognito mode. You can log in to the cloud console by going to https://console.cloud.google.com . 
-Once you're in the default project should already be selected but if not you can select it by clicking on the project drop down in the top left
+If you already have a gcloud account you may find it easier to use incognito mode. You can log in to the cloud console by going to https://console.cloud.google.com.
+Once you're in the default project should already be selected, but if not you can select it by clicking on the project drop down in the top left
 
 ![Project drop down location](./imgs/select_project_left_top.png)
 
@@ -84,7 +93,7 @@ This will give you a cloud shell, but before you dive in please enable boost mod
 #### Optional: Using screen
 
 Since conference WiFi is unpredictable, you may wish to use [screen](https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/).
-This will allow you to re-connect your terminal session in another connection 
+This will allow you to re-connect your terminal session in another connection
 
 ### Setting up your instance & clusters
 
@@ -93,9 +102,11 @@ While there are many ways to set up Kubeflow, in the interest of speed we will s
 
 * Download Kubeflow and it dependencies
 * Download Google & Azure's command line tools (if needed)
-* Enable various components in 
+* Enable various components in
 * Set up a GKE and EKS cluster (named google-kf-test & azure-kf-test)
 * Creates your first Kubeflow App on GKE with some special customizations to avoid waiting for certificate provissioning
+
+If you wish to skip building an Azure cluster you can set: `SKIP_AZURE=1` as an environmental variable to the below script.
 
 ```bash
 curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh -o fast-start.sh
@@ -106,6 +117,8 @@ source ~/.bashrc
 ```
 
 At that point it's going to be on you to start your Kubeflow adventure!
+
+**Note:** Look up to see how to cleanup, in case you run into problems. tl;dr The [cleanup script is at https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/cleanup.sh).
 
 #### Alternatives
 
@@ -191,7 +204,7 @@ Ksonnet Packages which are shipped with kubeflow can be installed by going into 
 Our example uses [seldon core](https://www.seldon.io/) for model serving, called `seldon` inside of Kubeflow.
 
 
-You can make sure it's installed by running `ks pkg list` and looking for `*` next to seldon:
+Once inside the `ks_app` directory, you can make sure it's installed by running `ks pkg list` and looking for `*` next to seldon:
 
 ```
 programmerboo@cloudshell:~/g-kf-app-4/ks_app (workshop-test-234519)$ ks pkg list
@@ -389,13 +402,32 @@ it out pretty easily on your own once this is done.
 
 IF you didn't monkey with the model:
 ```bash
+export EXAMPLE_SELDON=~/example-seldon
 cd $EXAMPLE_SELDON/workflows
 ~/argo submit training-sk-mnist-workflow.yaml -n kubeflow
 ```
 
-ELSE IF you monkeyed with the model, you'll need to train and build a new image:
+ELSE IF you monkeyed with the model, you'll need to train and build a new image.
+
+Building a new image requires configuring your own Docker credentials so that it can be pushed.
+The example workflow is expecting you to supply a Kubernetes Secret with the following values:
+
+```yml
+apiVersion: v1
+data:
+  password: <YOUR_PASSWORD_BASE64>
+  username: <YOUR_USERNAME_BASE64>
+kind: Secret
+metadata:
+  name: docker-credentials
+  namespace: kubeflow
+type: Opaque
+```
+
+Once you define such a secret, run `kubectl apply -f secret.yml` to apply it to the `kubeflow` namespace, before running the below commands.
 
 ```bash
+export EXAMPLE_SELDON=~/example-seldon
 cd $EXAMPLE_SELDON/workflows
 ~/argo submit training-sk-mnist-workflow.yaml -n kubeflow -p build-push-image=true
 ```
@@ -415,14 +447,26 @@ kubectl get pods -n kubeflow -w | grep sk-train
 
 These will hopefully show a successfully running set of pods / job.
 
+You should follow along as the Pod goes from `Pending` --> `ContainerCreating` --> `Running` --> `Completed` using the get kubectl pods command.
+
+In addition, you can use the `~/argo get [WORKFLOW_NAME] -n kubeflow`, `~/argo list [WORKFLOW_NAME] -n kubeflow`, `~/argo describe [WORKFLOW_NAME] -n kubeflow`, and `~/argo delete [WORKFLOW_NAME] -n kubeflow` to interact with workflows that you create.
+
 ### Serve the Model
 
 Once training has finished, we can serve it with:
 
 ```
 cd $EXAMPLE_SELDON/workflows
-~/argo submit serving-sk-mnist-workflow.yaml -n kubeflow -p deploy-model=true
+~/argo submit serving-sk-mnist-workflow.yaml -n kubeflow  -p deploy-model=true
 ```
+
+To query the service: you will firstly grab one of the service endpoints by running `kubectl describe svc ambassador -n kubeflow | grep Endpoints`, which grabs the endpoints of the running ambassador deployment. Next you will run `~/argo list -n kubeflow | grep seldon-sk-deploy` to grab the successful deployment name. Now you can curl by hitting the REST endpoint:
+```bash
+# The version should be v0.1 to start
+http://<ambassadorEndpoint>/seldon/<deploymentName>/api/<version>/predictions
+```
+
+You may also port-forward the ambassador service for a better dev experience.
 
 #### Getting the model ready for serving on another cloud
 
@@ -452,7 +496,7 @@ A non-zero percentage of you probably came here looking for Tensorflow on Kubern
 Now we train a Tensorflow model really quickly:
 
 ```bash
-argo submit training-tf-mnist-workflow.yaml -n kubeflow -p build-push-image=true
+argo submit training-tf-mnist-workflow.yaml -n kubeflow
 ```
 
 And party on*
