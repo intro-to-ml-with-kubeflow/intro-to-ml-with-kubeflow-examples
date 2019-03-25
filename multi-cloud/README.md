@@ -228,7 +228,7 @@ kubeflow tf-training             *
 If it is not installed (although the default path should install it), go ahead and install it now.
 You can also try installing the `pachyderm` package, which can be useful later.
 
-If this doesn't work for you, remember we have the [solutions](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution2.sh) in the [repo](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud].
+If this doesn't work for you, remember we have the [solutions](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/solution2.sh) in the [repo](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud).
 
 Once you've installed your new component you have the opportunity to configure it with:
 
@@ -402,14 +402,6 @@ cd $EXAMPLE_SELDON/workflows
 Which will build and push the new docker image as part of the work flow. This workflow
 has a `build-push-image` parameter that will reload the image. You can check that out [here]().
 
-#### Configuring your job to save the results into GCS/S3/etc.
-
-This saves the model results to a persistent-volume-claim, however we can't move this between clouds.
-If you want you can configure an [S3 compatable backend credintals as in the IBM guide](https://github.com/intro-to-ml-with-kubeflow/ibm-install-guide/blob/master/once-cluster-is-up.sh).
-
-
-
-
 ### Ok now monitor it.
 
 The easiest way to monitor the model progress is using the following two shell commands:
@@ -431,12 +423,38 @@ cd $EXAMPLE_SELDON/workflows
 ~/argo submit serving-sk-mnist-workflow.yaml -n kubeflow -p deploy-model=true
 ```
 
+#### Getting the model ready for serving on another cloud
+
+This workflow saves the model results to a persistent-volume-claim, however we can't move this between clouds.
+To support this we will configure using GCS or another [S3 compatable backend credintals as in the IBM guide](https://github.com/intro-to-ml-with-kubeflow/ibm-install-guide/blob/master/once-cluster-is-up.sh).
+
+
+Tensorflow has the ability to write to object stores, and the [tfjob operator component has been improved to make this easier](https://github.com/kubeflow/examples/pull/499/files) (however it's not in the current release)
+using secrets for managing the object store credentials.
+
+
+For now, and since we're using sklearn anyways, we'll use a special version of this code Trevor.
+
+
+**Note:** This is not great practice, longer term you'll want to use something like the update tfjob operator or otherwise store and fetch credentials rather than putting them in source.
+
 
 #### Query the Model
 
 #### Monitor the serving
 
 If you set up the optional seldon analytics...
+
+### Optional: s/sklearn/tensorflow/
+
+A non-zero percentage of you probably came here looking for Tensorflow on Kubernetes, and random forest isn't all that good for mnist anyways.
+Now we train a Tensorflow model really quickly:
+
+```bash
+argo submit training-tf-mnist-workflow.yaml -n kubeflow -p build-push-image=true
+```
+
+And party on*
 
 
 ## Starting a new Kubeflow project for Azure/IBM
@@ -478,6 +496,9 @@ If you're running short on time, feel free to skip re-training your model and in
 We hope this has been useful to you and increased your interest in learning more about Kubeflow.
 The Kubeflow project [has a collection of examples on GitHub](https://github.com/kubeflow/examples).
 There is also a [discussion list](https://groups.google.com/forum/#!forum/kubeflow-discuss) and [the Kubeflow slack](http://kubeflow.slack.com) [and invite link](https://kubeflow.slack.com/join/shared_invite/enQtNDg5MTM4NTQyNjczLWUyZGI1ZmExZWExYWY4YzlkOWI4NjljNjJhZjhjMjEwNGFjNmVkNjg2NTg4M2I0ZTM5NDExZWI5YTIyMzVmNzM) for your questions.
+
+
+Boris @ LightBend has written a series of blog posts on how to use [Kubeflow With OpenShift](https://www.lightbend.com/blog/how-to-deploy-kubeflow-on-lightbend-platform-openshift-kubeflow-tensorflow-jobs).
 
 
 Some of us are also working on [a book about Kubeflow, and you can join the mailing list to find out more](http://www.introductiontomlwithkubeflow.com/).

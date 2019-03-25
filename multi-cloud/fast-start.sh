@@ -85,25 +85,25 @@ else
   echo "Skipping Azure setup since configured as such"
 fi
 
-echo "Setting up a GCP-SA"
-export SERVICE_ACCOUNT=user-gcp-sa
-export SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
-export KEY_FILE=${HOME}/secrets/${SERVICE_ACCOUNT_EMAIL}.json
+echo "Setting up a GCP-SA for storage"
+export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
+export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
+export KEY_FILE=${HOME}/secrets/${STORAGE_SERVICE_ACCOUNT_EMAIL}.json
 
 if [ ! -f ${KEY_FILE} ]; then
-  echo "Creating GCP SA account"
+  echo "Creating GCP SA storage account"
   echo "
-export SERVICE_ACCOUNT=user-gcp-sa
-export SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
+export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
+export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
 " >> ~/.bashrc
-  gcloud iam service-accounts create ${SERVICE_ACCOUNT} \
+  gcloud iam service-accounts create ${STORAGE_SERVICE_ACCOUNT} \
 	 --display-name "GCP Service Account for use with kubeflow examples"
 
   gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
-	 serviceAccount:${SERVICE_ACCOUNT_EMAIL} \
+	 serviceAccount:${STORAGE_SERVICE_ACCOUNT_EMAIL} \
 	 --role=roles/storage.admin
   gcloud iam service-accounts keys create ${KEY_FILE} \
-	 --iam-account ${SERVICE_ACCOUNT_EMAIL}
+	 --iam-account ${STORAGE_SERVICE_ACCOUNT_EMAIL}
 else
 	echo "using existing GCP SA"
 fi
