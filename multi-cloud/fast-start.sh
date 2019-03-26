@@ -193,9 +193,9 @@ else
 fi
 
 echo "Make sure the GCP user SA has storage admin for fulling from GCR"
-  gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
-	 serviceAccount:${SERVICE_ACCOUNT_EMAIL} \
-	 --role=roles/storage.admin
+gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
+       serviceAccount:${SERVICE_ACCOUNT_EMAIL} \
+       --role=roles/storage.admin || echo "Skipping changing SA since doesn't exist"
 
 
 gcloud container clusters get-credentials ${G_KF_APP} --zone $GZONE
