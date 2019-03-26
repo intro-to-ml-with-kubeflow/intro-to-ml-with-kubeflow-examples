@@ -96,7 +96,34 @@ kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --service
 ```
 
 
-We also are going to create the persistent volume claim where the model will be stored.
+Now persisten volume claims, have to claim something against a persistent volume.
+
+In google, GCP handles this, but in IBM we have to declare our own Persistent Volume to
+be claimed against.
+
+to do that download this file:
+
+```
+cd ~/
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/ibm/training/pv-volume.yaml
+```
+
+Now, here's the tricky part. You have update the yaml and change the path to whatever you get when you run these commands
+```
+cd ~/
+pwd
+```
+
+Then
+```
+pico pv-volume.yaml
+```
+
+and change the last line.
+(Also, I'm not sure if this is nessicary or I'm cargo culting, but it does seem to make it all work).
+
+
+Finally we also are going to create the persistent volume claim where the model will be stored and submit the job.
 
 ```
 kubectl create -f https://raw.githubusercontent.com/rawkintrevo/intro-to-ml-with-kubeflow-examples/master/multi-cloud/config/pv-claim.yaml
@@ -104,10 +131,11 @@ cd ~/example-seldon/workflows
 argo submit training-sk-mnist-workflow.yaml -n kubeflow
 ```
 
-
 To check it:
 ```
 argo list -n kubeflow
 ```
 
 At this point its just like gcp.
+
+Also this takes about 60 seconds to run, so if it hasn't completed by then- time to start bug shooting.
