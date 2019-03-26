@@ -1,4 +1,5 @@
 
+**NOTE: You cannot serve on the clusters from the "training" section.  Ask instructor for deatils**
 
 ### Step 1: Create Bluemix Acct
 
