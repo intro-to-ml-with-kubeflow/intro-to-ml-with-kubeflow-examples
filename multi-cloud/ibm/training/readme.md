@@ -70,8 +70,7 @@ cd ibm-training
 OK- let's make a Kubeflow App
 
 ```
-#export KS_INIT_EXTRA_ARGS="--api-spec=version:v1.12.6"
-export KS_INIT_EXTRA_ARGS="--api-spec=file:swagger.json"
+export KS_INIT_EXTRA_ARGS="--api-spec=version:v1.12.6"
 ## need this bc IBM throws a stupid `-IKS` on the end of the version. It's not a race car IBM...
 kfctl.sh init ibm-app --platform none
 cd ibm-app
@@ -83,31 +82,24 @@ kfctl.sh generate k8s
 kfctl.sh apply k8s
 ```
 
-but this hits an error...
-find objects: Received status code '404' when trying to retrieve OpenAPI schema for cluster version 'v1.12.6+IKS' from URL 'https://raw.githubusercontent.com/kubernete
-s/kubernetes/v1.12.6+IKS/api/openapi-spec/swagger.json'
 
-And now we learn a hard lesson about how being special doesn't make you useful.
+TODO- remember we want ks-0.13 not 11
+wget https://github.com/ksonnet/ksonnet/releases/download/v0.13.1/ks_0.13.1_linux_amd64.tar.gz
+tar -xzf ks_0.13.1_linux_amd64.tar.gz
 
-run
+Hopefully that all worked.
 ```
-kubectl version -o yaml
-```
+kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --serviceaccount=kubeflow:default
 
-and see that under `serverVersion` we have `gitVersion: v1.12.6+IKS`
-
-this by the way is going to break `util.sh` for anything other than v1.12.6 installs.
-
-
-```
-pico ~/kf/scripts/util.sh
+kubectl create -f https://raw.githubusercontent.com/rawkintrevo/intro-to-ml-with-kubeflow-examples/master/multi-cloud/config/pv-claim.yaml
+cd ~/example-seldon/workflows
+argo submit training-sk-mnist-workflow.yaml -n kubeflow
 ```
 
-go to about line 62
 
+To check it:
+```
+argo list -n kubeflow
+```
 
-
-ks init ${APP_NAME} --api-spec=file:swagger.json
-
-
-
+At this point its just like gcp.
