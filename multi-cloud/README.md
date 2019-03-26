@@ -116,7 +116,7 @@ If you wish to skip building an Azure cluster you can set: `SKIP_AZURE=1` as an 
 ```bash
 curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh -o fast-start.sh
 chmod a+x fast-start.sh
-./fast-start.sh 2>&1 | tee startup-logs
+SKIP_AZURE=1 ./fast-start.sh 2>&1 | tee startup-logs
 echo $?
 source ~/.bashrc
 ```
@@ -630,7 +630,8 @@ Tensorflow has the ability to write to object stores, and the [tfjob operator co
 using secrets for managing the object store credentials.
 
 
-For now, and since we're using sklearn anyways, we'll use a special version of this code Trevor.
+Instead, for now, we'll use another pipeline step to upload the results from our training pipleine into an object store.
+Since this depends on which object store you want to put this in we'll talk about this in the cloud specific guides linked to bellow.
 
 
 **Note:** This is not great practice, longer term you'll want to use something like the update tfjob operator or otherwise store and fetch credentials rather than putting them in source.
@@ -658,7 +659,7 @@ And party on*
 
 Now that we've got everything working on GCP, it's time to take our model and serve it on another cloud provider.
 
-First we'll connect to our Azure cluster:
+For an Azure cluster
 
 ```bash
 az aks get-credentials --name azure-kf-test --resource-group westus
@@ -675,23 +676,13 @@ kfctl.sh generate k8s
 kfctl.sh apply k8s
 ```
 
-#### Let's go cross cloud!
-
-OK- read this to get your IBM cloud set up (just need GUI, no cloud-cli tools)
-https://console.bluemix.net/docs/services/cloud-object-storage/basics/order-storage.html#order-storage
+For an IBM cluster it's very similar and covered in both the [IBM training](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud/ibm/training) and [IBM serving guides](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud/ibm/serving).
 
 
-1. Create a Cloud Object Storage Service
+You don't need to retrain your model on IBM just to serve it, if you follow the IBM serving guide, step 3 covers how to set this up.
 
-2. Create Credentials
 
-3. Train and save your model to your Object Storage Service via [this](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/ibm/training/readme.md)
-
-4. Deploy your model from your Object Storage Service
-
-5. Serve and Query your model :) [this](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/ibm/serving/readme.md)
-
-For Azure, you are on your own. But it is largely the same idea.
+For Azure, you are on your own. But it is largely the same idea (e.g. use something similar to boto to upload the result etc.)
 
 ## Next steps and other resources
 
