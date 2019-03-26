@@ -214,7 +214,13 @@ Our example uses [seldon core](https://www.seldon.io/) for model serving, called
 
 **Note:** All `ks` commands must be done within the `ks_app` directory.
 
-Once inside the `ks_app` directory, you can make sure it's installed by running `ks pkg list` and looking for `*` next to seldon:
+Once inside the `ks_app` directory, you can install `seldon`:
+
+```bash
+ks pkg install kubeflow/seldon
+```
+
+You can make sure it's installed by running `ks pkg list` and looking for `*` next to seldon:
 
 ```
 programmerboo@cloudshell:~/g-kf-app-4/ks_app (workshop-test-234519)$ ks pkg list
