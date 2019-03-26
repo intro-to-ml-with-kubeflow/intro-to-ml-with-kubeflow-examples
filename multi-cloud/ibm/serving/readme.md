@@ -25,12 +25,34 @@ ibmcloud plugin install container-registry #for docker
 
 ### Step 2: Create Cloud Storage Service
 
+OK- read this to get your IBM cloud set up (just need GUI, no cloud-cli tools)
+https://console.bluemix.net/docs/services/cloud-object-storage/basics/order-storage.html#order-storage
+
+There is a video on how to do this at https://www.youtube.com/watch?v=GO2ODP5p3po&feature=youtu.be
+
 ### Step 3: Push Model from GCP to your Cloud Storage
 
-see `../hacky-s3-copy`
+Now you've got the credentials you need! It's time to go ahead and clone our repo and get do a kind of hacky copy into S3.
+
+```bash
+cd ~/
+git clone https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples.git
+export WORKSHOP_HOME=~/intro-to-ml-with-kubeflow-examples.git
+pushd $WORKSHOP_HOME/multi-cloud/hacky-s3-copy
+```
+
+
+Look inside of the `beam-me-up-scotty.py` script and hard code your credentials.
+
+**Note:** Normally you'd use secrets, but since this is going to be deprecated anyways we'll just hard code it.
+
+Now you can build and push this image, we have a template to run it called hacky-s3-copy.yaml that expects it to be at `gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord`.
+If you get lost `solution7.sh` will show you how.
 
 
 ### Step 4: Create K8s cluster on IBM
+
+**Note:** We have some pre-baked IBM K8s clusters you can have, come talk to us!
 
 Log in to Bluemix-
 
@@ -183,4 +205,4 @@ seldon-sk-deploy-lfbzc   Succeeded   9s    3s
 
 ### Step 7: Testing
 
-Need to make a thing that tests
+At this point, you can go ahead and test your deployment. Or grab a drink :)
