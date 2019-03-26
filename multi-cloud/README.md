@@ -27,6 +27,9 @@ Hopefully it hasn't broken for you, but in case something goes wrong feel free t
 
 If at any point you get lost, that's totally normal. Feel free to look at the fancy (we use bash!) [solution shell scripts https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud).
 
+In addition to the solution guide there are two videos walking through [part 1 on GCP](https://www.youtube.com/watch?v=rY-by2MDqvs) and [part 2 on IBM](https://www.youtube.com/watch?v=rY-by2MDqvs).
+The second one is a little rough, sorry.
+
 
 #### Debugging
 
