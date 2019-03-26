@@ -28,8 +28,6 @@ if [ ! -f ~/cleanup.sh ]; then
 fi
 
 
-echo "Updating apt just incase"
-sudo apt-get update || echo "WARNING: apt update failure"
 echo "Setting up SSH if needed"
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
     ssh-keygen
