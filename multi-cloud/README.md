@@ -43,6 +43,11 @@ The logs of the pod also often contain useful information:
 kubectl logs -n kubeflow [podname]
 ```
 
+You can `exec` into a pod:
+
+```bash
+kubectl exec -it [podname] -n kubeflow -- /bin/bash
+```
 
 In Kubeflow it's common for there to be multiple containers, so you may need to add `-c main` (or similar) to get the logs.
 
@@ -203,6 +208,7 @@ Ksonnet Packages which are shipped with kubeflow can be installed by going into 
 
 Our example uses [seldon core](https://www.seldon.io/) for model serving, called `seldon` inside of Kubeflow.
 
+**Note:** All `ks` commands must be done within the `ks_app` directory.
 
 Once inside the `ks_app` directory, you can make sure it's installed by running `ks pkg list` and looking for `*` next to seldon:
 
@@ -313,13 +319,16 @@ kubectl get all --all-namespaces
 And also check the custom resource definitions (Seldon should have added something here):
 
 ```bash
-kubectl get crd
+$ kubectl get crd
+...
+seldondeployments.machinelearning.seldon.io
+...
 ```
 
 
-#### Optional: Adding Helm/Tiller for seldon monitoring
+#### Optional: Adding Helm/Tiller for Seldon monitoring
 
-We don't require it for our example, but seldon has some additional monitoring tools you can install using helm/tiller.
+We don't require it for our example, but Seldon has some additional monitoring tools you can install using Helm/Tiller. You can launch the Seldon Analytics Dashboard [here](https://github.com/kubeflow/example-seldon#setup)
 
 #### Optional: Adding vendor/external components to your Kubeflow application
 
@@ -354,7 +363,8 @@ kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --service
 
 #### A place for your model to call home.
 
-A persistent volume claim provides a way to store data with a lifecycle independent of the pod.
+A persistent volume claim provides a way to store data with a lifecycle independent of the pod. It is a resource in the cluster just like a node is a cluster resource.
+
 We'll use the persistent volume as a place to store the model during training, and then read it back for serving in a different pod.
 
 ```
@@ -396,9 +406,9 @@ Some people just want to do the basics- but not you- you're  a hard charger- you
 want to do all the stuff. In this little section we're going to edit the model.
 
 The original model that is being trained is a `RandomForrestClassifier` which is
-a pretty trashy way to categorize handwritten digits.
+a pretty rudimentary way to categorize handwritten digits, albeit giving 95% accuracy.
 
-Luckily `sklearn` has a nice consistent API so we can swap out about any classifier in its place.
+Luckily `sklearn` has a nice consistent API, so we can swap out about any classifier in its place.
 
 To do this, in the place where you cloned `example-seldon` let's go edit the training file.
 
@@ -418,8 +428,7 @@ declare classifier as what ever new and better one you want.
 
 While you're in here, please take a look at various things like the rest of `create_model.py`, `Dockerfile`, and `build_and_push.sh`.
 
-These are all interesting things, but going in to the finer details of creating a workflow is a bit out of scope, and we feel you can figure
-it out pretty easily on your own once this is done.
+These are all interesting things, but going in to the finer details of creating a workflow is a bit out of scope, and we feel you can figure it out pretty easily on your own once this is done.
 
 
 ### Ok Now train it.
@@ -432,7 +441,6 @@ cd $EXAMPLE_SELDON/workflows
 ```
 
 **ELSE IF** you monkeyed with the model, you'll need to build a new image, put it somewhere your Kubernetes cluster can access and configure the pipeline to use it.
-
 
 Building a Docker image is fairly straight forward provided that you already have Docker installed.
 The `Dockerfile` specifies what goes in a Docker image. To build this into an image you will go back to the `models/sk_mnist/train/`.
@@ -460,12 +468,11 @@ docker build --force-rm=true -t skmnistclassifier_trainer:0.3 .
 
 
 Since we're deploying this on a cluster we'll need to put the image in something called a container registry.
-To give your local Docker permission to your the [Google container registry](https://cloud.google.com/container-registry/) is configured with:
+To give your local Docker permission, the [Google container registry](https://cloud.google.com/container-registry/) is configured with:
 
 ```bash
 gcloud auth configure-docker
 ```
-
 
 Your Google container registry](https://cloud.google.com/container-registry/) is at `gcr.io/${GOOGLE_PROJECT}`, so we'll tag our image to this base and push it up:
 
@@ -488,16 +495,16 @@ cd $EXAMPLE_SELDON/workflows
 ~/argo submit training-sk-mnist-workflow.yaml -n kubeflow -p docker-user=gcr.io/${GOOGLE_PROJECT} -p version=0.3
 ```
 
-**Note**: There is also an (optional) build push step in the workflow, however with GCR it's a bit easier to just build it by hand. If you want you can explore doing the build-push as part of the workflow as well (although it requires your code is pushed to github).
+**Note**: There is also an (optional) build push step in the workflow, however with GCR it's a bit easier to just build it by hand. If you want you can explore doing the build-push as part of the workflow as well (although it requires your code to be pushed to Github).
 
-### Ok now monitor it.
+### Ok now let's monitor it.
 
 The easiest way to monitor the model progress is using the following two shell commands:
 
 ```
 kubectl get pods -n kubeflow -w | grep sk-train
 ## AND
-~/argo list -n kubeflow
+watch ~/argo list -n kubeflow
 ```
 
 These will hopefully show a successfully running set of pods / job.
@@ -516,18 +523,93 @@ cd $EXAMPLE_SELDON/workflows
 ```
 
 We already have a port-forward of the ambassador service, which in addition to exposing the Web UIs also exposes the model serving.
-If you want to access the ambassador from inside Kubeflow (e.g. Jupyter), just use the ambassador hostname.
 
+If you want to access the ambassador from inside Kubeflow (e.g. Jupyter), just use the Ambassador hostname (e.g. "ambassador") which is essentially the same as `kubectl get svc/ambassador -n kubeflow -o json | jq -r .spec.clusterIP`.
 
 The deployment name is based on your pipeline, ours is `mnist-classifier`.
-Now you can curl by hitting the REST endpoint:
+
+You can query the Seldon deployments with the following:
+
+```bash
+$ kubectl get seldondeployment -n kubeflow
+mnist-classifier
+```
+
+### Query the Model
+
+You can query the model by hitting the following REST endpoint with a CURL request:
 
 ```bash
 # The version should be v0.1 to start
 http://<ambassadorEndpoint>/seldon/<deploymentName>/api/<version>/predictions
 ```
 
+**OR** you can do predictions on the model in an interactive way, via a Jupyter
+notebook launched from the Ambassador. This can be done by clicking
+Web Preview > Preview on port 8080 > Jupyter hub (as discussed above), and
+launching a Python3 kernel.
 
+In the Jupyter notebook, which has an [example](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/query_seldon.ipynb) here, you will take an example
+MNIST image and run an example prediction on it.
+
+Firstly, you will need to install the necessary python modules:
+
+```python
+import requests
+import numpy as np
+from tensorflow.examples.tutorials.mnist import input_data
+!pip3 install matplotlib
+from matplotlib import pyplot as plt
+```
+
+and define functions that will download the MNIST Dataset and an image generator:
+
+```python
+def download_mnist():
+    return input_data.read_data_sets("MNIST_data/", one_hot = True)
+def gen_image(arr):
+    two_d = (np.reshape(arr, (28, 28)) * 255).astype(np.uint8)
+    plt.imshow(two_d,cmap=plt.cm.gray_r, interpolation='nearest')
+    return plt
+```
+
+You would then retrieve a single batch which includes a tuple of `(feature, class)`,
+and build a CURL request which contains the `feature`.
+
+```python
+mnist = download_mnist()
+batch_xs, batch_ys = mnist.train.next_batch(1)
+chosen=0
+gen_image(batch_xs[chosen]).show()
+data = batch_xs[chosen].reshape((1,784))
+features = ["X"+str(i+1) for i in range (0,784)]
+request = {"data":{"names":features,"ndarray":data.tolist()}}
+```
+
+Now we are ready to make a CURL request :)
+
+```python
+deploymentName = "mnist-classifier"
+AMBASSADOR_API_IP="ambassador"
+uri = "http://"+AMBASSADOR_API_IP+"/seldon/"+deploymentName+"/api/v0.1/predictions"
+response = requests.post(
+    uri,
+    json=request)
+```
+
+and print the response:
+
+```python
+print(response.text)
+```
+
+You can now peak at the `data:ndarray` to see which class
+(indexed respectively to `data:names`) scored the highest.
+
+Check to see if that class is the same as `batch_ys` (the truth label)
+or the image that is shown.
+
+**CONGRATS** You have just deployed, served, and queried an end-to-end ML model.
 
 #### Getting the model ready for serving on another cloud
 
@@ -545,15 +627,15 @@ For now, and since we're using sklearn anyways, we'll use a special version of t
 **Note:** This is not great practice, longer term you'll want to use something like the update tfjob operator or otherwise store and fetch credentials rather than putting them in source.
 
 
-#### Query the Model
-
 #### Monitor the serving
 
-If you set up the optional seldon analytics...
+If you set up the optional Seldon analytics, you should be able to monitor and analyze your models
+via the Prediction analytics in the Seldon Core API Dashboard (available on Graphana)
 
 ### Optional: s/sklearn/tensorflow/
 
 A non-zero percentage of you probably came here looking for Tensorflow on Kubernetes, and random forest isn't all that good for mnist anyways.
+
 Now we train a Tensorflow model really quickly:
 
 ```bash
@@ -621,4 +703,3 @@ Create credentials.
 When you create the creds, you click on the little triange to expand them, then look at this- and figure it out.
 
 see this https://console.bluemix.net/docs/services/cloud-object-storage/libraries/python.html#using-python
-
