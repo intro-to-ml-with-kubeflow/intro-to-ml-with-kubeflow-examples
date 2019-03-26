@@ -106,13 +106,6 @@ This will allow you to re-connect your terminal session in another connection
 ### Setting up your instance & clusters
 
 While there are many ways to set up Kubeflow, in the interest of speed we will start with using a fast setup script in this directory (`fast_setup.sh`).
-`fast_setup.sh` will do the following for you:
-
-* Download Kubeflow and it dependencies
-* Download Google & Azure's command line tools (if needed)
-* Enable various components in
-* Set up a GKE and EKS cluster (named google-kf-test & azure-kf-test)
-* Creates your first Kubeflow App on GKE with some special customizations to avoid waiting for certificate provissioning
 
 If you wish to skip building an Azure cluster you can set: `SKIP_AZURE=1` as an environmental variable to the below script.
 
@@ -123,6 +116,14 @@ SKIP_AZURE=1 ./fast-start.sh 2>&1 | tee startup-logs
 echo $?
 source ~/.bashrc
 ```
+
+`fast_setup.sh` will do the following for you:
+
+* Download Kubeflow and it dependencies
+* Download Google & Azure's command line tools (if needed)
+* Enable various components in
+* Set up a GKE and EKS cluster (named google-kf-test & azure-kf-test)
+* Creates your first Kubeflow App on GKE with some special customizations to avoid waiting for certificate provissioning
 
 At that point it's going to be on you to start your Kubeflow adventure!
 
