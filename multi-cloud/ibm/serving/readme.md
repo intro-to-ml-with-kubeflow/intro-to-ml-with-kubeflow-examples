@@ -18,6 +18,11 @@ cd Bluemix_CLI
 Now you can login with
 ```bash
 ibmcloud login
+```
+
+This command ^^ is interactive. So just run that.  When prompted for region- make sure to pick `us-south`
+
+```
 ibmcloud plugin install container-service
 ibmcloud plugin install container-registry #for docker
 ```
