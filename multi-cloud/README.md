@@ -463,9 +463,11 @@ The above explanation was just added so we can have a picture of a cat with some
 The `t` "tags" (or names) the image, specifying a user, container, and version.
 We're going to keep the same image name (`skmnistclassifier_trainer`), but for now we're not going to associate it with any particular user and we're going to increase the version number to 0.3 so we can tell the difference with our own version.
 
+
 ```bash
 docker build --force-rm=true -t skmnistclassifier_trainer:0.3 .
 ```
+
 
 
 Since we're deploying this on a cluster we'll need to put the image in something called a container registry.
