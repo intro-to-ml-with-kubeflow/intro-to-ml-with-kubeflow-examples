@@ -71,6 +71,8 @@ if ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ||
   echo "gcloud config set project $latest_project" >> ~/.bashrc
 fi
 GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null)
+echo "export GOOGLE_PROJECT=$GOOGLE_PROJECT" >> ~/.bashrc
+
 
 echo "Enabling Google Cloud APIs async for speedup"
 gcloud services enable file.googleapis.com storage-component.googleapis.com \
@@ -155,6 +157,8 @@ echo "Connecting to google cluster"
 wait $APPLY_GCP_PLATFORM_PID || echo "GCP cluster ready"
 echo "Creating SA creds now that platform has settled"
 echo "Setting up a GCP-SA for storage"
+export SERVICE_ACCOUNT=user-gcp-sa
+export SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
 export STORAGE_SERVICE_ACCOUNT=user-gcp-sa-storage
 export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT}.iam.gserviceaccount.com
 export KEY_FILE=${HOME}/secrets/${STORAGE_SERVICE_ACCOUNT_EMAIL}.json
@@ -174,12 +178,18 @@ export STORAGE_SERVICE_ACCOUNT_EMAIL=${STORAGE_SERVICE_ACCOUNT}@${GOOGLE_PROJECT
   gcloud iam service-accounts keys create ${KEY_FILE} \
 	 --iam-account ${STORAGE_SERVICE_ACCOUNT_EMAIL}
 else
-	echo "using existing GCP SA"
+	echo "using existing GCP storage SA"
 fi
+
+echo "Make sure the GCP user SA has storage admin for fulling from GCR"
+  gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
+	 serviceAccount:${SERVICE_ACCOUNT_EMAIL} \
+	 --role=roles/storage.admin
+
 
 gcloud container clusters get-credentials ${G_KF_APP} --zone $GZONE
 # Upload the SA creds for storage access
-kubectl create secret generic user-gcp-sa \
+kubectl create secret generic user-gcp-sa-storage \
   --from-file=user-gcp-sa.json="${KEY_FILE}"
 
 if [ ! -d ${G_KF_APP} ]; then
