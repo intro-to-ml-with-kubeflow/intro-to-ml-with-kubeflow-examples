@@ -515,13 +515,19 @@ cd $EXAMPLE_SELDON/workflows
 ~/argo submit serving-sk-mnist-workflow.yaml -n kubeflow  -p deploy-model=true
 ```
 
-To query the service: you will firstly grab one of the service endpoints by running `kubectl describe svc ambassador -n kubeflow | grep Endpoints`, which grabs the endpoints of the running ambassador deployment. Next you will run `~/argo list -n kubeflow | grep seldon-sk-deploy` to grab the successful deployment name. Now you can curl by hitting the REST endpoint:
+We already have a port-forward of the ambassador service, which in addition to exposing the Web UIs also exposes the model serving.
+If you want to access the ambassador from inside Kubeflow (e.g. Jupyter), just use the ambassador hostname.
+
+
+The deployment name is based on your pipeline, ours is `mnist-classifier`.
+Now you can curl by hitting the REST endpoint:
+
 ```bash
 # The version should be v0.1 to start
 http://<ambassadorEndpoint>/seldon/<deploymentName>/api/<version>/predictions
 ```
 
-You may also port-forward the ambassador service for a better dev experience.
+
 
 #### Getting the model ready for serving on another cloud
 
