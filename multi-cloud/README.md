@@ -266,13 +266,6 @@ ks component list
 ```
 
 
-**Possibly not needed**
-Create cluster role binding.
-```bash
-kubectl create clusterrolebinding kf-admin \
-     --clusterrole=cluster-admin --user=$(gcloud config get-value account)
-```
-
 Now we can use `kfctl.sh` to apply our newly generated yaml. Make sure to run this in the root of your kubeflow project.
 
 ```
@@ -316,13 +309,6 @@ curl -sSL -o ~/argo https://github.com/argoproj/argo/releases/download/v2.2.1/ar
 chmod +x ~/argo
 ```
 
-To "install" the `argo` command:
-
-```bash
-kubectl create ns argo
-kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.1/manifests/install.yaml
-```
-
 Then we want to give the Kubeflow default service account permission to run everything it needs in the workflow:
 
 ```bash
@@ -331,7 +317,8 @@ kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --service
 
 #### A place for your model to call home.
 
-A persistent volume claim.
+A persistent volume claim provides a way to store data with a lifecycle independent of the pod.
+We'll use the persistent volume as a place to store the model during training, and then read it back for serving in a different pod.
 
 ```
 kubectl create -f https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/config/pv-claim.yaml -n kubeflow
