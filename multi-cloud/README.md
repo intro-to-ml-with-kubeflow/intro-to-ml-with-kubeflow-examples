@@ -443,9 +443,13 @@ Looking at the `Makefile` we can see that the image is normally built with `dock
 
 The `--force-rm` forces removal the intermediate containers during the build. When you build a docker container you can think of it as building something akin to a layer cake, where the different layers are stacked on top of each other to make something delicious (except instead it uses something called [union filesystem](https://medium.com/@paccattam/drooling-over-docker-2-understanding-union-file-systems-2e9bf204177c) by default).
 
-**TODO**: Add a cat with a layer cake image here.
+
+**TODO**: Add a cat with a layer cake creative commons commercial used licensed image here. **Pull requests welcome**
+
 
 The above explanation was just added so we can have a picture of a cat with some cake :) **Note** Three hours can be a long time! Remember to drink water/coffee/eat snacks as necessary. While your model trains can be a great time for a break.
+
+
 
 The `t` "tags" (or names) the image, specifying a user, container, and version.
 We're going to keep the same image name (`skmnistclassifier_trainer`), but for now we're not going to associate it with any particular user and we're going to increase the version number to 0.3 so we can tell the difference with our own version.
@@ -475,7 +479,6 @@ Once an image is tagged, you still need to explicitly push it to the container r
 docker push gcr.io/${GOOGLE_PROJECT}/skmnistclassifier_trainer:0.3
 ```
 
-**TODO: Finish manual build**
 
 Now that it's all set up and pushed, we can run the previous pipeline pointing to our custom image in the container registry.
 
@@ -512,13 +515,19 @@ cd $EXAMPLE_SELDON/workflows
 ~/argo submit serving-sk-mnist-workflow.yaml -n kubeflow  -p deploy-model=true
 ```
 
-To query the service: you will firstly grab one of the service endpoints by running `kubectl describe svc ambassador -n kubeflow | grep Endpoints`, which grabs the endpoints of the running ambassador deployment. Next you will run `~/argo list -n kubeflow | grep seldon-sk-deploy` to grab the successful deployment name. Now you can curl by hitting the REST endpoint:
+We already have a port-forward of the ambassador service, which in addition to exposing the Web UIs also exposes the model serving.
+If you want to access the ambassador from inside Kubeflow (e.g. Jupyter), just use the ambassador hostname.
+
+
+The deployment name is based on your pipeline, ours is `mnist-classifier`.
+Now you can curl by hitting the REST endpoint:
+
 ```bash
 # The version should be v0.1 to start
 http://<ambassadorEndpoint>/seldon/<deploymentName>/api/<version>/predictions
 ```
 
-You may also port-forward the ambassador service for a better dev experience.
+
 
 #### Getting the model ready for serving on another cloud
 
