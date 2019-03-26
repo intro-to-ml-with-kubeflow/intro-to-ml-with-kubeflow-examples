@@ -28,6 +28,8 @@ if [ ! -f ~/cleanup.sh ]; then
 fi
 
 
+echo "Updating apt just incase"
+sudo apt-get update || echo "WARNING: apt update failure"
 echo "Setting up SSH if needed"
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
     ssh-keygen
@@ -193,9 +195,9 @@ else
 fi
 
 echo "Make sure the GCP user SA has storage admin for fulling from GCR"
-  gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
-	 serviceAccount:${SERVICE_ACCOUNT_EMAIL} \
-	 --role=roles/storage.admin
+gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT} --member \
+       serviceAccount:${SERVICE_ACCOUNT_EMAIL} \
+       --role=roles/storage.admin || echo "Skipping changing SA since doesn't exist"
 
 
 gcloud container clusters get-credentials ${G_KF_APP} --zone $GZONE
