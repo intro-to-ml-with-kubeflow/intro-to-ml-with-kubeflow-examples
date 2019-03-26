@@ -534,7 +534,12 @@ The deployment name is based on your pipeline, ours is `mnist-classifier`.
 You can query the Seldon deployments with the following:
 
 ```bash
-$ kubectl get seldondeployment -n kubeflow
+kubectl get seldondeployment -n kubeflow
+```
+
+and since we trained the MNIST classifer, this results in:
+
+```
 mnist-classifier
 ```
 
