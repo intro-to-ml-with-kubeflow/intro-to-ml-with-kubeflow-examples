@@ -214,6 +214,10 @@ Our example uses [seldon core](https://www.seldon.io/) for model serving, called
 
 **Note:** All `ks` commands must be done within the `ks_app` directory.
 
+```bash
+cd ks_app
+```
+
 Once inside the `ks_app` directory, you can install `seldon`:
 
 ```bash
