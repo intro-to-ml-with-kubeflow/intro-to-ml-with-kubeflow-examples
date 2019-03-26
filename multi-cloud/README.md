@@ -557,6 +557,7 @@ notebook launched from the Ambassador. This can be done by clicking
 Web Preview > Preview on port 8080 > Jupyter hub (as discussed above), and
 launching a Python3 kernel.
 
+
 In the Jupyter notebook, which has an [example](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/query_seldon.ipynb) here, you will take an example
 MNIST image and run an example prediction on it.
 
