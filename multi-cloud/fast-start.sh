@@ -9,14 +9,25 @@ if [[ -z "$SKIP_AZURE" ]]; then
   export IF_AZURE="& Azure"
 fi
 
+set +x
+
 echo "Prepairing to set up I will be deploying on GCP${IF_AZURE}"
 echo "Press enter if this OK or ctrl-d to change the settings"
 echo "Azure is controlled with the SKIP_AZURE env variable"
 echo "p.s. did you remember to run me with tee?"
+set -x
 read panda
 
 echo "Getting sudo cached..."
 sudo ls
+
+echo "Fetching cleanup script if not present"
+if [ ! -f ~/cleanup.sh ]; then
+  curl https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/cleanup.sh -o ~/cleanup.sh
+  chmod a+x cleanup.sh
+fi
+
+
 echo "Setting up SSH if needed"
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
     ssh-keygen
