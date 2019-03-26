@@ -433,6 +433,7 @@ These are all interesting things, but going in to the finer details of creating 
 
 ### Ok Now train it.
 
+
 **IF** you didn't monkey with the model:
 ```bash
 export EXAMPLE_SELDON=~/example-seldon
