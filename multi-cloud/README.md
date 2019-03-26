@@ -666,18 +666,23 @@ kfctl.sh generate k8s
 kfctl.sh apply k8s
 ```
 
-### Getting your model ready
+#### Let's go cross cloud!
 
-If you're running short on time, feel free to skip re-training your model and instead copy your model over.
-
-#### Optional: re-training
-
+OK- read this to get your IBM cloud set up (just need GUI, no cloud-cli tools)
+https://console.bluemix.net/docs/services/cloud-object-storage/basics/order-storage.html#order-storage
 
 
-#### Optional: copy your model.
+1. Create a Cloud Object Storage Service
 
+2. Create Credentials
 
-### Serving
+3. Train and save your model to your Object Storage Service via [this](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/ibm/training/readme.md)
+
+4. Deploy your model from your Object Storage Service
+
+5. Serve and Query your model :) [this](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/master/multi-cloud/ibm/serving/readme.md)
+
+For Azure, you are on your own. But it is largely the same idea.
 
 ## Next steps and other resources
 
@@ -690,16 +695,3 @@ Boris @ LightBend has written a series of blog posts on how to use [Kubeflow Wit
 
 
 Some of us are also working on [a book about Kubeflow, and you can join the mailing list to find out more](http://www.introductiontomlwithkubeflow.com/).
-
-#### Let's go cross cloud!
-
-OK- read this to get your IBM cloud set up (just need gui, no cloud cli tools)
-https://console.bluemix.net/docs/services/cloud-object-storage/basics/order-storage.html#order-storage
-
-Create a Cloud Object Storage Service
-
-Create credentials.
-
-When you create the creds, you click on the little triange to expand them, then look at this- and figure it out.
-
-see this https://console.bluemix.net/docs/services/cloud-object-storage/libraries/python.html#using-python
