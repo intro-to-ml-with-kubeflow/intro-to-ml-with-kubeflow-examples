@@ -265,12 +265,42 @@ You can verify the components with:
 ks component list
 ```
 
-
-Now we can use `kfctl.sh` to apply our newly generated yaml. Make sure to run this in the root of your kubeflow project.
+You should see `seldon` in this list, if not double check that your generate succeeded.
 
 ```
-cd ..
-kfctl.sh apply k8s
+COMPONENT
+=========
+ambassador
+application
+argo
+centraldashboard
+cert-manager
+cloud-endpoints
+iap-ingress
+jupyter
+katib
+metacontroller
+notebooks
+openvino
+pipeline
+profiles
+pytorch-operator
+seldon
+spartakus
+tf-job-operator
+```
+
+
+Now you can apply the new component
+
+```bash
+ks apply default -c seldon
+```
+
+You can also apply all of the components:
+
+```bash
+ks apply default
 ```
 
 
@@ -279,6 +309,13 @@ Now you can see what's running in your cluster with:
 ```bash
 kubectl get all --all-namespaces
 ```
+
+And also check the custom resource definitions (Seldon should have added something here):
+
+```bash
+kubectl get crd
+```
+
 
 #### Optional: Adding Helm/Tiller for seldon monitoring
 
