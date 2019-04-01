@@ -17,6 +17,7 @@ echo "Download and run 'fast-start.sh'"
 wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/fast-start.sh
 chmod +x fast-start.sh
 ./fast-start.sh
+# shellcheck disable=SC1090
 source ~/.bashrc
 echo "OK... That seemed to go well."
 

@@ -5,4 +5,5 @@ curl -sSL -o ~/argo https://github.com/argoproj/argo/releases/download/v2.2.1/ar
 chmod +x ~/argo
 kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --serviceaccount=kubeflow:default
 cd ~/
-export PATH=`pwd`:$PATH
+PATH=$(pwd):$PATH
+export PATH

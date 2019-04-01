@@ -14,8 +14,8 @@ gcloud auth configure-docker
 GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null)
 ##
 
-docker build -t gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord .
-docker push gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord
+docker build -t "gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord" .
+docker push "gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord"
 
 wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/hacky-s3-copy/hacky-s3-copy.yaml
 
