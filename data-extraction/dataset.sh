@@ -4,7 +4,7 @@ set -ex
 
 
 export PROJECT=${PROJECT:=boos-demo-projects-are-rad}
-export DATASET=intro_to_ml_with_kf_4
+export DATASET=${DATASET:=intro_to_ml_with_kf_4}
 export BUCKET=${BUCKER:=kf-gh-demo}
 
 
@@ -39,6 +39,6 @@ bq query --location=us \
 for TABLE in "github_issues" "github_comments" "stackoverflow"
 do
   echo "Extracting $TABLE"
-  bq --location=us extract --destination_format avro\
-     ${PROJECT}:${DATASET}.${TABLE} gs://${BUCKET}/data/${TABLE}
+  bq --location=us extract --destination_format=AVRO\
+     ${PROJECT}:${DATASET}.${TABLE} gs://${BUCKET}/data/${TABLE}/data-*.avro
 done
