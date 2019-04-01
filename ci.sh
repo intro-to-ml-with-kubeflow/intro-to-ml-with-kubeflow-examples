@@ -3,7 +3,7 @@
 set -ex
 
 # Check all the shell scripts
-find ./ -iregex '^.+\.sh$' -type f -print0 | xargs -0 shellcheck -e SC1091
+find ./ -iregex '^.+\.sh$' -type f -print0 | xargs -0 shellcheck -e SC1091 -e SC2164
 # Check for cases where I use tags rather than tag
 bad_tags=$(grep -r "tags::" ./ | grep -v "ci.sh:")
 if [[ ! -z "$bad_tags" ]]; then
