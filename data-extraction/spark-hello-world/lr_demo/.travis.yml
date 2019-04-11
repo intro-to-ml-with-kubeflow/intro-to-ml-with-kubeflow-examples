@@ -1,0 +1,17 @@
+language: scala
+
+# These directories are cached to S3 at the end of the build
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/
+    - $HOME/.sbt/launchers
+    - $HOME/build
+
+jdk:
+  - oraclejdk8
+scala:
+  - 2.11.8
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+sudo: false
