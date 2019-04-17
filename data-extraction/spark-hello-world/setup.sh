@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-SPARK_DEMO_DIR=${SPARK_DEMO_DIR:=~/spark_demo_2}
+SPARK_DEMO_DIR=${SPARK_DEMO_DIR:=~/spark_demo_3}
 SPARK_LR_DIR="$(pwd)/lr_demo"
 SPARK_DEMO_GCS=${SPARK_DEMO_GCS:=gs://boo-spark-kf-demo}
 
@@ -17,14 +17,14 @@ export KUBEFLOW_VERSION
 ./download.sh
 
 PATH="$(pwd)/scripts":$PATH
-kfctl.sh init mydemoapp --platform gcp
+kfctl.sh init mydemoapp --platform none
 pushd mydemoapp
 source env.sh
-kfctl.sh generate platform
-kfctl.sh apply platform
+#kfctl.sh generate platform
+#kfctl.sh apply platform
 kfctl.sh generate k8s
 kfctl.sh apply k8s
-pushd ks
+pushd ks_app
 # Set up the Spark operator
 ks pkg install kubeflow/spark
 ks generate spark-operator spark-operator --name=spark-operator
@@ -38,7 +38,7 @@ ks apply default -c spark-pi
 
 # Create a Spark job with the operator to train an LR model
 
-pushd $SPARK_MNIST_DIR
+pushd $SPARK_MNIST_DIR/lr_demo
 sbt assembly
 gsutil cp target/scala-2.11/basic.lr-assembly-0.0.1.jar "$SPARK_DEMO_GCS/jars"
 gsutil cp sample.csv "$SPARK_DEMO_GCS/input/part0.csv"
