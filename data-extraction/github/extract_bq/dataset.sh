@@ -35,8 +35,14 @@ bq query --location=us \
    --use_legacy_sql=false \
    "$(cat github_issues_query.bsql)"
 
+bq query --location=us \
+   --destination_table ${PROJECT}:${DATASET}.github_push_events \
+   --replace \
+   --use_legacy_sql=false \
+   `cat github_push_events.bsql`
+
 # And extract to avro
-for TABLE in "github_issues" "github_comments" "stackoverflow"
+for TABLE in "github_issues" "github_comments" "github_push_events" "stackoverflow"
 do
   echo "Extracting $TABLE"
   bq --location=us extract --destination_format=AVRO\
