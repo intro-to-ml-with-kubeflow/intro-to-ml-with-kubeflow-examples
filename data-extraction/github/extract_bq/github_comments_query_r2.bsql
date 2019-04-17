@@ -20,6 +20,6 @@ SELECT pull_request_url,
    IFNULL(JSON_EXTRACT(payload, '$.comment.position'), "-1") AS comment_position,
    JSON_EXTRACT(payload, '$.comment.commit_id') AS comment_commit_id,
    JSON_EXTRACT(payload, '$.comment.path') AS comment_file_path
-   FROM `githubarchive.day.2014*`
+   FROM `githubarchive.day.201*`
    WHERE type = "PullRequestReviewCommentEvent")
    WHERE diff_hunk_length < 40000 GROUP BY pull_request_url
