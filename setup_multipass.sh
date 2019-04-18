@@ -1,3 +1,4 @@
+#!/bin/bash
 
 multipass launch bionic -n kubeflow -m 8G -d 40G -c 4
 multipass exec kubeflow -- sudo snap install microk8s --classic
