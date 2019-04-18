@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hacky-s3-copy
+spec:
+  template:
+    spec:
+      volumes:
+        - name: nfs-1
+          persistentVolumeClaim:
+            claimName: nfs-1
+      containers:
+        - name: hacky-s3-copy
+          image: gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord
+          volumeMounts:
+            - name: nfs-1
+              mountPath: /data
+      restartPolicy: Never
+  backoffLimit: 1
+
