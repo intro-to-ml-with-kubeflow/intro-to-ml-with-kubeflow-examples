@@ -1,25 +1,37 @@
-SELECT pull_request_url,
- ANY_VALUE(pull_patch_url) as pull_patch_url,
- ANY_VALUE(created_date) as created_date,
- ARRAY_AGG(comment_position) as comments_positions,
- ARRAY_AGG(diff_hunk) as diff_hunks,
- ARRAY_AGG(comment_original_position) as comments_original_positions,
- ARRAY_AGG(comment_commit_id IGNORE NULLS) as comment_commit_ids,
- ARRAY_AGG(comment_file_path IGNORE NULLS) as comment_file_paths  FROM (
-   SELECT *,
+WITH pr_review_comments AS (
+  SELECT *,
+   -- Initial JSON extraction of the fields we care about
    JSON_EXTRACT(payload, '$.comment.created_at') as created_date,
+   -- Back in 2014 we didn't have the action, let's assume its created because that's "good enough"
    IFNULL(JSON_EXTRACT(payload, '$.action'), "created") AS action,
+   -- 2014 format change where the pull request URL is stored, and subsequent fields
    IFNULL(JSON_EXTRACT(payload, '$.pull_request.url'), 
           JSON_EXTRACT(payload, '$.comment.pull_request_url')) AS pull_request_url,
    SUBSTR(IFNULL(JSON_EXTRACT(payload, '$.diff_hunk'),
           JSON_EXTRACT(payload, '$.comment.diff_hunk')), 0, 40000) AS diff_hunk,
-   length(IFNULL(JSON_EXTRACT(payload, '$.diff_hunk'),
-          JSON_EXTRACT(payload, '$.comment.diff_hunk'))) as diff_hunk_length,
    JSON_EXTRACT(payload, '$.pull_request.patch_url') AS pull_patch_url,
-   IFNULL(JSON_EXTRACT(payload, '$.comment.original_position'), "-1") AS comment_original_position,
-   IFNULL(JSON_EXTRACT(payload, '$.comment.position'), "-1") AS comment_position,
+   -- Note these may be null, but at least one of them should be not null
+   STRUCT<original_position INT64, new_position INT64>
+     ( CAST(JSON_EXTRACT(payload, '$.comment.original_position') as INT64),
+      CAST(JSON_EXTRACT(payload, '$.comment.position') as INT64)
+     ) AS comment_positions,
    JSON_EXTRACT(payload, '$.comment.commit_id') AS comment_commit_id,
    JSON_EXTRACT(payload, '$.comment.path') AS comment_file_path
-   FROM `githubarchive.day.201*`
-   WHERE type = "PullRequestReviewCommentEvent")
-   WHERE diff_hunk_length < 40000 GROUP BY pull_request_url
+   FROM `githubarchive.day.2019*`
+   WHERE type = "PullRequestReviewCommentEvent"
+), pr_review_comments_filtered AS (
+  SELECT 
+  *
+  FROM pr_review_comments
+  -- Filter out diffs which are too large for us to care about, they're "probably" binary
+  WHERE length(diff_hunk) < 40000
+) SELECT 
+ pull_request_url,
+ ANY_VALUE(pull_patch_url) as pull_patch_url,
+ ANY_VALUE(created_date) as created_date,
+ ARRAY_AGG(diff_hunk) as diff_hunks,
+ ARRAY_AGG(comment_positions) as comments_positions,
+ ARRAY_AGG(comment_commit_id IGNORE NULLS) as comment_commit_ids,
+ ARRAY_AGG(comment_file_path IGNORE NULLS) as comment_file_paths
+FROM pr_review_comments_filtered
+GROUP BY pull_request_url
