@@ -32,7 +32,7 @@ WITH pr_review_comments AS (
  ANY_VALUE(pull_patch_url) as pull_patch_url,
  ANY_VALUE(created_date) as created_date,
  ARRAY_AGG(diff_hunk) as diff_hunks,
- ARRAY_AGG(comment_positions) as comments_positions,
+ ARRAY_AGG(comment_positions) as comment_positions,
  ARRAY_AGG(comment_commit_id IGNORE NULLS) as comment_commit_ids,
  ARRAY_AGG(comment_file_path IGNORE NULLS) as comment_file_paths
 FROM pr_review_comments_filtered
