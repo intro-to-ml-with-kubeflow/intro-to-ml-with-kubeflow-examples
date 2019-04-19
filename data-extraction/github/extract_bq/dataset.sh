@@ -4,8 +4,8 @@ set -ex
 
 
 export PROJECT=${PROJECT:=boos-demo-projects-are-rad}
-export DATASET=${DATASET:=intro_to_ml_with_kf_4}
-export BUCKET=${BUCKET:=kf-gh-demo}
+export DATASET=${DATASET:=intro_to_ml_with_kf_7}
+export BUCKET=${BUCKET:=kf-gh-demo-2}
 
 
 # Set up buckets and datasets
