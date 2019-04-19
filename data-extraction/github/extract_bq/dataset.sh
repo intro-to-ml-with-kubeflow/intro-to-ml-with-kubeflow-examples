@@ -4,8 +4,8 @@ set -ex
 
 
 export PROJECT=${PROJECT:=boos-demo-projects-are-rad}
-export DATASET=${DATASET:=intro_to_ml_with_kf_5}
-export BUCKET=${BUCKER:=kf-gh-demo}
+export DATASET=${DATASET:=intro_to_ml_with_kf_7}
+export BUCKET=${BUCKET:=kf-gh-demo-2}
 
 
 # Set up buckets and datasets
@@ -21,19 +21,25 @@ bq query --location=us \
    --destination_table ${PROJECT}:${DATASET}.stackoverflow \
    --replace \
    --use_legacy_sql=false \
-   `cat stack_overflow_questions.bsql`
+   "$(cat stack_overflow_questions.bsql)"
 
 bq query --location=us \
    --destination_table ${PROJECT}:${DATASET}.github_comments \
    --replace \
    --use_legacy_sql=false \
-   `cat github_comments_query_r2.bsql`
+   "$(cat github_comments_query_r2.bsql)"
 
 bq query --location=us \
    --destination_table ${PROJECT}:${DATASET}.github_issues \
    --replace \
    --use_legacy_sql=false \
-   `cat github_issues_query.bsql`
+   "$(cat github_issues_query.bsql)"
+
+bq query --location=us \
+   --destination_table ${PROJECT}:${DATASET}.github_push_events \
+   --replace \
+   --use_legacy_sql=false \
+   `cat github_push_events.bsql`
 
 bq query --location=us \
    --destination_table ${PROJECT}:${DATASET}.github_push_events \
@@ -46,5 +52,5 @@ for TABLE in "github_issues" "github_comments" "github_push_events" "stackoverfl
 do
   echo "Extracting $TABLE"
   bq --location=us extract --destination_format=AVRO\
-     ${PROJECT}:${DATASET}.${TABLE} gs://${BUCKET}/data/${TABLE}/data-*.avro
+     "${PROJECT}:${DATASET}.${TABLE}" "gs://${BUCKET}/data/${TABLE}/data-*.avro"
 done
