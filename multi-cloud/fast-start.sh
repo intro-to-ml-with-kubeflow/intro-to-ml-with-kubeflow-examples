@@ -7,6 +7,9 @@ source helper.sh
 
 set -ex
 
+wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/helper.sh
+
+
 if [[ -z "$SKIP_AZURE" ]]; then
   export IF_AZURE="& Azure"
 fi
@@ -215,6 +218,8 @@ if [ ! -d ${G_KF_APP} ]; then
     exit 1
   fi
 fi
+
+echo "export PATH=~/:\$PATH" >> ~/.bashrc
 
 echo "When you are ready to connect to your Azure cluster run:"
 echo "az aks get-credentials --name azure-kf-test --resource-group westus"
