@@ -9,6 +9,7 @@ spec:
         - name: nfs-1
           persistentVolumeClaim:
             claimName: nfs-1
+            readOnly: True
       containers:
         - name: hacky-s3-copy
           image: gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord
