@@ -3,15 +3,17 @@
 set -ex
 
 echo "Setup GCP"
-./solution1.sh
+source solution1.sh
 source ~/.bashrc
 echo "Install seldon"
-./solution2.sh
+source solution2.sh
 echo "Optional: Set up monitoring"
-./solution2b.sh
+source solution2b.sh
 echo "Install argo"
-./solution3.sh
+source solution3.sh
 echo "Train the model"
-./solution4.sh
+source solution4.sh
 echo "Serve the model"
-./solution5.sh
+source solution5.sh
+echo "Uploading the model to S3 so we can access it from IBM"
+source solution7.sh
