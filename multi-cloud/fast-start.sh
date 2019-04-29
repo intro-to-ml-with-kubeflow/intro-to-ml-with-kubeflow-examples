@@ -3,11 +3,14 @@
 # Long story, buy me a drink, we modify the PATH in here in previous installs.
 # shellcheck disable=SC1090
 source ~/.bashrc
-source helper.sh
 
 set -ex
 
-wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/helper.sh
+if [ ! -f helper.sh ]; then
+  wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/helper.sh
+fi
+
+source helper.sh
 
 
 if [[ ! -z "$ENABLE_AZURE" ]]; then
