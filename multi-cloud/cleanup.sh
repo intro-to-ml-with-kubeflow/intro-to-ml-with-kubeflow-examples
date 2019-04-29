@@ -5,8 +5,10 @@ export G_KF_APP=${G_KF_APP:="g-kf-app"}
 pushd ${G_KF_APP} && kfctl.sh delete k8s && kfctl.sh delete platform
 popd
 rm -rf ${G_KF_APP}
-
 gcloud deployment-manager deployments delete ${G_KF_APP}
+rm -rf ~/kf
+
+
 
 AZURE_CLUSTER_NAME=${AZURE_CLUSTER_NAME:="azure-kf-test"}
 az aks delete --name AZURE_CLUSTER_NAME
