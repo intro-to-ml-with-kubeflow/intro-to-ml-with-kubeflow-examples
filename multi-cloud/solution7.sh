@@ -19,4 +19,6 @@ docker push "gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord"
 
 wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/hacky-s3-copy/hacky-s3-copy.yaml
 
+
 kubectl create -f hacky-s3-copy.yaml -n kubeflow
+echo "If you hit an error about image not found, make sure you made your GCP container repo public"
