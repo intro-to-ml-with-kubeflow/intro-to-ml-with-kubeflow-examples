@@ -38,7 +38,7 @@ echo "Installing some dependencies"
 pip install --user pyyaml
 echo "Downloading Kubeflow"
 export KUBEFLOW_SRC=~/kf
-export KUBEFLOW_TAG=v0.4.1
+export KUBEFLOW_TAG=v0.5.0
 export KF_SCRIPTS=$KUBEFLOW_SRC/scripts
 export PATH=$PATH:$KF_SCRIPTS
 if [ ! -d ~/kf ]; then
