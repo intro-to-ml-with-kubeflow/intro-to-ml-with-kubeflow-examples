@@ -650,6 +650,7 @@ Since this depends on which object store you want to put this in we'll talk abou
 
 **Note:** This is not great practice, longer term you'll want to use something like the update tfjob operator or otherwise store and fetch credentials rather than putting them in source.
 
+**Note2** If you're getting errors on `hacky-s3-copy` make sure GCP container repo is set to public. 
 
 #### Monitor the serving
 
