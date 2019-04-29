@@ -16,7 +16,8 @@ fi
 
 set +x
 
-echo "Prepairing to set up I will be deploying on GCP${IF_AZURE}"
+echo "Prepairing to set up I will be deploying on:"
+cecho "RED" "GCP${IF_AZURE}"
 echo "Press enter if this OK or ctrl-d to change the settings"
 echo "Azure is controlled with the ENABLE_AZURE env variable"
 echo "p.s. did you remember to run me with tee?"
