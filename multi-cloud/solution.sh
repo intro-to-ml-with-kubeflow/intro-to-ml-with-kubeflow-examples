@@ -4,6 +4,7 @@ set -ex
 
 echo "Setup GCP"
 ./solution1.sh
+source ~/.bashrc
 echo "Install seldon"
 ./solution2.sh
 echo "Optional: Set up monitoring"
