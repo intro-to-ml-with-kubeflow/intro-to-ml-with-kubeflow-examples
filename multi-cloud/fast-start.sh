@@ -26,7 +26,7 @@ echo "Azure is controlled with the ENABLE_AZURE env variable"
 echo "p.s. did you remember to run me with tee?"
 set -x
 # shellcheck disable=2034
-read -r panda
+read -r panda || echo "k"
 
 echo "Getting sudo cached..."
 sudo ls

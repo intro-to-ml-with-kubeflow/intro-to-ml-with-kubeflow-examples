@@ -13,7 +13,7 @@ wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-wit
 echo "You are going to need to edit beam-up-scotty.py to point to your creds."
 echo "Press enter when done!"
 # shellcheck disable=2034
-read -r panda
+read -r panda || echo "k"
 
 
 gcloud auth configure-docker
@@ -28,7 +28,7 @@ wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-wit
 echo "Yay now, your going to need to edit hacky-s3-copy.yaml to point to your GOOGLE_PROJECT"
 echo "Press enter when done"
 # shellcheck disable=2034
-read -r panda
+read -r panda || echo "k"
 
 
 kubectl create -f hacky-s3-copy.yaml -n kubeflow
