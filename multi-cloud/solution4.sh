@@ -8,4 +8,4 @@ kubectl create -f https://raw.githubusercontent.com/rawkintrevo/intro-to-ml-with
 ## The `-p build-push-image=true` works weather you _need_ to build the image or nah.
 
 cd example-seldon/workflows
-argo submit training-sk-mnist-workflow.yaml -n kubeflow -p build-push-image=true
+argo submit training-sk-mnist-workflow.yaml -n kubeflow -p build-push-image=false
