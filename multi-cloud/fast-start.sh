@@ -41,6 +41,8 @@ export KUBEFLOW_SRC=~/kf
 export KUBEFLOW_TAG=v0.5.0
 export KF_SCRIPTS=$KUBEFLOW_SRC/scripts
 export PATH=$PATH:$KF_SCRIPTS
+export KUBEFLOW_USERNAME=kf
+export KUBEFLOW_PASSWORD=awesome
 if [ ! -d ~/kf ]; then
   mkdir -p $KUBEFLOW_SRC
   pushd $KUBEFLOW_SRC
@@ -126,20 +128,22 @@ export G_KF_APP=${G_KF_APP:="g-kf-app"}
 export ZONE=${ZONE:="us-central1-a"}
 export GZONE=$ZONE
 echo "export G_KF_APP=$G_KF_APP" >> ~/.bashrc
-kfctl.sh init ${G_KF_APP} --platform gcp
+kfctl.sh init ${G_KF_APP} --platform gcp --use_basic_auth -V
 pushd ${G_KF_APP}
 source env.sh
+# This is a hack, the KF 0.5 scripts still require this :(
 if [[ -z "$CLIENT_ID" ]]; then
   export CLIENT_ID=${CLIENT_ID:="fake_client_id"}
   export CLIENT_SECRET=${CLIENT_SECRET:="fake_client_secret"}
   export SKIP_IAP="true"
 fi
-kfctl.sh generate platform
+
+kfctl.sh generate all -V --zone $GZONE
 echo "Waiting on enabling just to avoid race conditions"
 wait $gke_api_enable_pid || echo "Services already enabled"
 echo "Apply the platform. Sometimes the deployment manager behaves weirdly so retry"
-kfctl.sh apply platform || (echo "retrying platform application" && kfctl.sh apply platform)
-APPLY_GCP_PLATFORM_PID=$!
+kfctl.sh apply all -V || (echo "retrying platform application" && kfctl.sh apply all -V) || (echo "Platform application failed" && exit 1)
+echo "Platform applied."
 popd
 
 if [[ -z "$SKIP_AZURE" ]]; then
@@ -154,21 +158,6 @@ if [[ -z "$SKIP_AZURE" ]]; then
 							--node-osdisk-size 30 &
 fi
 
-pushd ${G_KF_APP}
-kfctl.sh generate k8s
-# Disabling IAP IAM check
-echo "Skip IAP if we aren't set up for it"
-if [[ ! -z "$SKIP_IAP" ]]; then
-  pushd ks_app
-  # Disable IAP check in Jupyter Hub
-  ks param set jupyter jupyterHubAuthenticator null
-  popd
-fi
-popd
-
-
-echo "Connecting to google cluster"
-wait $APPLY_GCP_PLATFORM_PID || echo "GCP cluster ready"
 echo "Creating SA creds now that platform has settled"
 echo "Setting up a GCP-SA for storage"
 export SERVICE_ACCOUNT=user-gcp-sa
@@ -218,3 +207,5 @@ fi
 echo "When you are ready to connect to your Azure cluster run:"
 echo "az aks get-credentials --name azure-kf-test --resource-group westus"
 echo "All done!"
+
+echo "Please run source ~/.bashrc now"
