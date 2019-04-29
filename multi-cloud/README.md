@@ -413,6 +413,10 @@ cd ~/
 git clone https://github.com/kubeflow/example-seldon
 ```
 
+#### *Required*: Tag the serving layer as read-only for the PV
+
+Go into `workflows/serving-sk-mnist-workflow.yaml` and underneath `claimName: "nfs-1"` your going to add the new line `readOnly: True`.
+This will allow our serving layer to read from the PV claim while allowing us to also access it from a second container and copy the results into a second cloud without shutting down our serving.
 
 #### Optional- Monkey with the existing model.
 
