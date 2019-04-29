@@ -2,7 +2,7 @@
 
 ## Adding Seldon
 export G_KF_APP=${G_KF_APP:="g-kf-app"}
-pushd $G_KF_APP
+pushd ~/$G_KF_APP
 # Now we install some extra components, which we need to do in the KS app directory
 # We'll install seldon on Google for serving (don't worry we'll do it again elsewhere)
 pushd ks_app
