@@ -183,7 +183,11 @@ kubectl --namespace default \
 	  --docker-password=$TOKEN_PASS \
 	  --docker-email=a@b.com
 ```
-#### Build source images for serving
+#### Build source images for fetching the model & serving
+
+Go into `$WORKSHOP_HOME/multi-cloud/ibm/serving`
+
+You will now need to edit `SKMnist.py` to have your credentials in it.
 
 ```
 ./s2i build . seldonio/seldon-core-s2i-python3:0.5 us.icr.io/$NAMESPACE/skmnistclassifier_runtime:0.1
@@ -194,7 +198,7 @@ docker push us.icr.io/$NAMESPACE/skmnistclassifier_runtime:0.1
 
 Now we download the workflow and send it to argo. Please feel free to inspect it.
 
-We wish we had the time to.
+We wish we had the time to...
 
 ```
 wget https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/ibm/serving/serving-sk-mnist-workflow.yaml
