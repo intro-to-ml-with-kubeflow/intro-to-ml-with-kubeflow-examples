@@ -278,6 +278,12 @@ For now, we don't need to configure anything inside of seldon, so we can use the
 If you change the configuration of a component (or if it's the first time installing it), you need to regenerate the yaml files for that component. This is done `ks generate`. We'll do this using the seldon prototype and seldon component:
 
 ```bash
+ks generate seldon seldon
+```
+
+You can (re-)generate the config for any other component with a command like this:
+
+```bash
 ks generate [prototype] [component]
 ```
 
