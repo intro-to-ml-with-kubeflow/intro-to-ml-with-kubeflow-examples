@@ -43,7 +43,7 @@ Now you've got the credentials you need! It's time to go ahead and clone our rep
 ```bash
 cd ~/
 git clone https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples.git
-export WORKSHOP_HOME=~/intro-to-ml-with-kubeflow-examples.git
+export WORKSHOP_HOME=~/intro-to-ml-with-kubeflow-examples
 pushd $WORKSHOP_HOME/multi-cloud/hacky-s3-copy
 ```
 
