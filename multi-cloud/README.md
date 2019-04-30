@@ -643,7 +643,7 @@ or the image that is shown.
 #### Getting the model ready for serving on another cloud
 
 This workflow saves the model results to a persistent-volume-claim, however we can't move this between clouds.
-To support this we will configure using GCS or another [S3 compatable backend credintals as in the IBM guide](https://github.com/intro-to-ml-with-kubeflow/ibm-install-guide/blob/master/once-cluster-is-up.sh).
+To support this we will configure using GCS or another [S3 compatible backend credentials as in the IBM guide](https://github.com/intro-to-ml-with-kubeflow/ibm-install-guide/blob/master/once-cluster-is-up.sh).
 
 
 Tensorflow has the ability to write to object stores, and the [tfjob operator component has been improved to make this easier](https://github.com/kubeflow/examples/pull/499/files) (however it's not in the current release)
