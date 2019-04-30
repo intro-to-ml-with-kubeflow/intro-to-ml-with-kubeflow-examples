@@ -226,7 +226,7 @@ fi
 echo "export PATH=~/:\$PATH" >> ~/.bashrc
 
 echo "When you are ready to connect to your Azure cluster run:"
-echo "az aks get-credentials --name azure-kf-test --resource-group westus"
+echo "az aks get-credentials --name azure-kf-test --resource-group kf-westus"
 echo "All done!"
 echo "Remember to source your bash rc with:"
 cecho "RED" "source ~/.bashrc"

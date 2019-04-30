@@ -689,7 +689,7 @@ Now that we've got everything working on GCP, it's time to take our model and se
 For an Azure cluster
 
 ```bash
-az aks get-credentials --name azure-kf-test --resource-group westus
+az aks get-credentials --name azure-kf-test --resource-group kf-westus
 ```
 
 Since Azure platform isn't supported in 0.4.1  we'll instead use it as a "raw" k8s cluster.

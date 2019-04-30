@@ -57,7 +57,7 @@ If you get lost `solution7.sh` will show you how.
 You can connect to your cluster:
 
 ```bash
-az aks get-credentials --name azure-kf-test --resource-group westus
+az aks get-credentials --name azure-kf-test --resource-group kf-westus
 ```
 
 Make your an Azure container registry:
