@@ -10,6 +10,8 @@ If you don't already have a username and password for Google Cloud & Azure from 
 
 **Note:** There is no need to make a GKE cluster manually before starting this tutorial, we will configure one as we go along.
 
+**Note:** If you're super adventorious you can check out the 0.5.0 instructions [click chere](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/blob/explore-upgrading-kf-multicloud-example-to-0.5.0/multi-cloud/README.md) (although it's going to be a little rough I did literally one run through on 0.5.0 and it seemed to work, but YDY).
+
 ## Motivation
 
 We've picked a relatively un-complicated machine learning example, the data is already prepared, so that you can focus on exploring Kubeflow and how to deploy Kubeflow on multiple clouds.
@@ -695,13 +697,16 @@ kfctl.sh generate k8s
 kfctl.sh apply k8s
 ```
 
-For an IBM cluster it's very similar and covered in both the [IBM serving guides](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud/ibm/serving) and [IBM training](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud/ibm/training).
+For an IBM cluster it's very similar and covered in both the [IBM serving guides](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud/ibm/serving).
+
+
+For today we aren't going to [training on IBM](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud/ibm/training), since the free teir clusters aren't big enough to handle the overhead and training. If you do have your own IBM account feel free to go ahead.
 
 
 You don't need to retrain your model on IBM just to serve it, if you follow the IBM serving guide, step 3 covers how to set this up.
 
 
-For Azure, you are on your own. But it is largely the same idea (e.g. use something similar to boto to upload the result etc.)
+For Azure, things are very similar to the IBM guide, and however you're going to want to change the upload script, which we discuss in the [Azure serving guides](https://github.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/tree/master/multi-cloud/azure/serving).
 
 ## Next steps and other resources
 
