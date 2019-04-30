@@ -8,13 +8,13 @@ spec:
       volumes:
         - name: nfs-1
           persistentVolumeClaim:
-            claimName: nfs-1
+            claimName: "nfs-1"
             readOnly: True
       containers:
         - name: hacky-s3-copy
           image: gcr.io/$GOOGLE_PROJECT/hacky-s3-copy:oh-lord
           volumeMounts:
-            - name: nfs-1
+            - name: "nfs-1"
               mountPath: /data
       restartPolicy: Never
   backoffLimit: 1
