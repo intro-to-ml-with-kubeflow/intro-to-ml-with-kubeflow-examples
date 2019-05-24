@@ -35,5 +35,7 @@ do
   # We use the * here so that we have multiple files, required for > 1GB
   bq --location=us extract --destination_format=AVRO\
      "${PROJECT}:${DATASET}.${TABLE_NAME}" \
-     "gs://${BUCKET}/data/${TABLE_NAME}/data-*.avro"
+     "gs://${BUCKET}/data/${TABLE_NAME}/data-*.avro" &
 done
+# Wait for all the table exports to finish
+wait
