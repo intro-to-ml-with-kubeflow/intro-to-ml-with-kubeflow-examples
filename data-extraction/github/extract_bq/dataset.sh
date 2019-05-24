@@ -36,6 +36,7 @@ done
 for QUERY_NAME in $(ls *.bsql)
 do
   wait $(cat ${QUERY_NAME}.pid) || echo "Query finished early"
+  rm ${QUERY_NAME}.pid
   # And extract the result to avro
   echo "Extracting $TABLE"
   # We use the * here so that we have multiple files, required for > 1GB
