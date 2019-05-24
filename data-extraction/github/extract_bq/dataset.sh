@@ -32,8 +32,8 @@ do
        "$(cat ${QUERY_NAME})"
   # And extract the result to avro
   echo "Extracting $TABLE"
+  # We use the * here so that we have multiple files, required for > 1GB
   bq --location=us extract --destination_format=AVRO\
      "${PROJECT}:${DATASET}.${TABLE_NAME}" \
-     # We use the * here so that we have multiple files, required for > 1GB
      "gs://${BUCKET}/data/${TABLE_NAME}/data-*.avro"
 done
