@@ -29,7 +29,13 @@ do
      --destination_table ${PROJECT}:${DATASET}.${TABLE_NAME} \
      --replace \
      --use_legacy_sql=false \
-       "$(cat ${QUERY_NAME})"
+     "$(cat ${QUERY_NAME})" &
+  query_pid=$!
+  echo "${query_pid}" > ${QUERY_NAME}.pid
+done
+for QUERY_NAME in $(ls *.bsql)
+do
+  wait $(cat ${QUERY_NAME}.pid) || echo "Query finished early"
   # And extract the result to avro
   echo "Extracting $TABLE"
   # We use the * here so that we have multiple files, required for > 1GB
