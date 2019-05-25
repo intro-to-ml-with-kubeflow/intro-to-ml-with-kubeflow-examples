@@ -1,0 +1,6 @@
+version: '2'
+
+services:
+  man:
+    build: .
+    image: kf-steps/bq-extract:v2
