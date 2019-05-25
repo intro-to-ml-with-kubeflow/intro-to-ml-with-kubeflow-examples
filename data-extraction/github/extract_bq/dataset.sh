@@ -9,6 +9,13 @@ export BUCKET=${BUCKET:=kf-gh-demo}
 export EXPIRATION=${EXPIRATION:259200}
 export RUN_ID=${RUN_ID:1}
 
+if ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ||
+    [ -z "$GOOGLE_PROJECT" ]; then
+  echo "Default project not configured. Press enter to auto-configure or Ctrl-D to exit"
+  latest_project=$(gcloud projects list | tail -n 1 | cut -f 1  -d' ')
+  gcloud config set project "$latest_project"
+fi
+
 # Set up buckets and datasets
 gsutil mb -p ${PROJECT}  -l us gs://${BUCKET}/ --retention ${EXPIRATION}s || true
 

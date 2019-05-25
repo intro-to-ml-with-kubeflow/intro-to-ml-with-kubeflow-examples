@@ -1,17 +1,10 @@
-# For our base we use ubuntu disco because I'm lazy
-FROM ubuntu:disco
-# We want UTF8 for colors, curl for updates, gnpug to add new keys
-RUN apt-get update && \
-    apt-get install -y locales curl gnupg && \
-    rm -rf /var/lib/apt/lists/* && \
-    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG en_US.utf8
-# Install the gcloud tool so we can dump the gh tables
-RUN CLOUD_SDK_REPO="cloud-sdk-$(grep VERSION_CODENAME /etc/os-release | cut -d '=' -f 2)" && \
-    echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-    apt-get update -y && \
-    apt-get install google-cloud-sdk -y
+# This image includes the gcloud command we need for export
+# For a first run locally you will need to authenticate:
+# docker run -ti --name gcloud-config --entrypoint "/doauth.sh" kf-steps/bq-extract:v2
+# docker run --volumes-from gcloud-config google/cloud-sdk
+# In GKE creds should already exist
+FROM google/cloud-sdk:247.0.0
+# Copy over the shell script and queries
 COPY *.sh /
 COPY *.bsql /
 # Make our step semi-configurable
@@ -21,4 +14,5 @@ ARG dataset=intro_to_ml_with_kf
 ARG bucket=kf-gh-demo
 ENV DATASET=$dataset
 ENV BUCKET=$bucket
-ENTRYPOINT ["dataset.sh"]
+VOLUME ["/root/.config"]
+ENTRYPOINT ["/dataset.sh"]
