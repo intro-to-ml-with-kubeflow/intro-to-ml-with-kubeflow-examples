@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kubeflow
+resources:
+- deployment.yaml
+images:
+- name: bq-extract
+  newName: gcr.io/$(projectName)/kf-steps/bq-extract:v4
+vars:
+- fieldref:
+    fieldPath: data.secretName
+  name: secretName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: github-data-extract
+- fieldref:
+    fieldPath: data.trainingName
+  name: trainingName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: github-data-extract
+- fieldref:
+    fieldPath: data.projectName
+  name: projectName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: github-data-extract
+configurations:
+- params.yaml
+configMapGenerator:
+- literals:
+  - secretName=user-gcp-sa
+  name: github-data-extract
