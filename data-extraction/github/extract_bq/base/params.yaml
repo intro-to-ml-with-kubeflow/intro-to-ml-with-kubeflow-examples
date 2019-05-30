@@ -1,11 +1,11 @@
 varReference:
 - path: metadata/name
   kind: Job
-- path: spec/template/extractor/containers/name
+- path: spec/template/spec/containers/name
   kind: Job
-- path: spec/template/extractor/containers/image
+- path: spec/template/spec/containers/image
   kind: Job
-- path: spec/template/extractor/env/value
+- path: spec/template/spec/containers/env/value
   kind: Job
-- path: spec/template/extractor/volumes/secret/secretName
+- path: spec/template/spec/volumes/secret/secretName
   kind: Job

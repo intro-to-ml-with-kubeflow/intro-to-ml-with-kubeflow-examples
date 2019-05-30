@@ -5,7 +5,7 @@ resources:
 - deployment.yaml
 images:
 - name: bq-extract
-  newName: gcr.io/$(projectName)/kf-steps/bq-extract:v4
+  newName: gcr.io/$(projectName)/kf-steps/bq-extract:v8
 vars:
 - fieldref:
     fieldPath: data.secretName
@@ -33,4 +33,6 @@ configurations:
 configMapGenerator:
 - literals:
   - secretName=user-gcp-sa
+  - projectName=boos-demo-projects-are-rad
+  - trainingName=gh-data-extract
   name: github-data-extract

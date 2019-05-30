@@ -6,8 +6,15 @@ set -ex
 export PROJECT=${PROJECT:=boos-demo-projects-are-rad}
 export DATASET=${DATASET:=intro_to_ml_with_kf}
 export BUCKET=${BUCKET:=kf-gh-demo}
-export EXPIRATION=${EXPIRATION:259200}
-export RUN_ID=${RUN_ID:1}
+export EXPIRATION=${EXPIRATION:=259200}
+export RUN_ID=${RUN_ID:=1}
+
+# If we have a SA file activate it
+if [[ ! -z ${GOOGLE_APPLICATION_CREDENTIALS} &&  -f ${GOOGLE_APPLICATION_CREDENTIALS} ]]; then
+  gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+else
+  echo "No SA found (checked ${GOOGLE_APPLICATION_CREDENTIALS})"
+fi
 
 if ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ||
     [ -z "$GOOGLE_PROJECT" ]; then
@@ -17,7 +24,7 @@ if ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ||
 fi
 
 # Set up buckets and datasets
-gsutil mb -p ${PROJECT}  -l us gs://${BUCKET}/ --retention ${EXPIRATION}s || true
+gsutil ls gs://${BUCKET}/ || gsutil mb -p ${PROJECT}  -l us --retention ${EXPIRATION}s gs://${BUCKET}/  
 
 bq --location=us \
    mk --dataset --default_table_expiration ${EXPIRATION} \
@@ -42,7 +49,7 @@ do
 done
 for QUERY_NAME in $(ls *.bsql)
 do
-  wait $(cat ${QUERY_NAME}.pid) || echo "Query finished early"
+  wait $(cat ${QUERY_NAME}.pid)
   rm ${QUERY_NAME}.pid
   # And extract the result to avro
   echo "Extracting $TABLE"
@@ -50,6 +57,11 @@ do
   bq --location=us extract --destination_format=AVRO\
      "${PROJECT}:${DATASET}.${TABLE_NAME}" \
      "gs://${BUCKET}/data/${TABLE_NAME}/data-*.avro" &
+  echo "${query_pid}" > ${QUERY_NAME}.export_pid
 done
-# Wait for all the table exports to finish
-wait
+# Wait for all the table exports to finish. If we wait on all it eats the errors
+for QUERY_NAME in $(ls *.bsql)
+do
+  wait $(cat ${QUERY_NAME}.export_pid)
+  rm ${QUERY_NAME}.export_pid
+done

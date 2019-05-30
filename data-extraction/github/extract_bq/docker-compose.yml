@@ -6,5 +6,5 @@ services:
       dockerfile: Dockerfile
       context: ./
       args:
-        bucket: kf-gh-demo-3
-    image: kf-steps/bq-extract:v4
+        bucket: kf-gh-demo-3-k8s
+    image: kf-steps/bq-extract:v8

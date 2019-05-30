@@ -5,7 +5,7 @@ metadata:
   namespace: kubeflow
 spec:
   template:
-    extractor:
+    spec:
       containers:
         - name: $(trainingName)-gh-job
           image: bq-extract
