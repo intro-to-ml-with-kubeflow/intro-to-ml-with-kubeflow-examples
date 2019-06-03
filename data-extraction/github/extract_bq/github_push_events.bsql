@@ -1,0 +1,17 @@
+CREATE TEMP FUNCTION json2array(json STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js AS """
+  return JSON.parse(json).map(x=>JSON.stringify(x));
+"""; 
+
+SELECT url, ANY_VALUE(message) as message FROM (
+SELECT
+  JSON_EXTRACT(commit, '$.message') as message,
+  JSON_EXTRACT(commit, '$.url') as url
+FROM (
+  SELECT json2array(commits) array_commits
+  FROM (
+    SELECT *, json_extract(payload, "$.commits") as commits
+    FROM `githubarchive.day.201*`
+    WHERE length(payload) < 40000)
+  WHERE type='PushEvent' AND commits IS NOT NULL), UNNEST(array_commits) commit) WHERE length(message) > 4 GROUP BY url
