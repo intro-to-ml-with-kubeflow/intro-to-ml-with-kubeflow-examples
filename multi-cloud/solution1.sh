@@ -34,6 +34,8 @@ kubectl get all --all-namespaces
 
 echo "Connecting to your kubeflow ambassador"
 echo "Step 1) Setting up port forwarding"
+#tag::connectambassador[]
 kubectl port-forward svc/ambassador -n kubeflow 8080:80 &
+#end::connectambassador[]
 echo "Now it's your turn to launch the cloudshell web preview to port 8080"
 
