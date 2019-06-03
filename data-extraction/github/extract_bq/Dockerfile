@@ -18,11 +18,12 @@
 #
 # cd default
 # kustomize edit add configmap github-data-extract --from-literal=projectName=${PROJECT_NAME}
-# kustomize generate . | kubectl apply -f -
-# You can either add https://www.googleapis.com/auth/bigquery to the user-gcp-sa account
-# TODO
-# Manually run on this:
-# kubectl run kf-steps bq-extract --image=gcr.io/${PROJECT_NAME}/kf-steps/bq-extract:v4 --namespace=kubeflow
+# kustomize build . | kubectl apply -f -
+#
+# Verify:
+#
+# kubectl get jobs |grep gh-data
+
 FROM google/cloud-sdk:247.0.0
 # Copy over the shell script and queries
 COPY *.sh /

@@ -16,6 +16,8 @@ spec:
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /secret/gcp-credentials/$(secretName).json
+            - name: BUCKET
+              value: $(bucket)
       restartPolicy: OnFailure
       volumes:
         - name: secret-volume
