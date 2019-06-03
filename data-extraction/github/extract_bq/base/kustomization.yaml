@@ -28,6 +28,13 @@ vars:
     apiVersion: v1
     kind: ConfigMap
     name: github-data-extract
+- fieldref:
+    fieldPath: data.bucket
+  name: bucket
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: github-data-extract
 configurations:
 - params.yaml
 configMapGenerator:
@@ -35,4 +42,5 @@ configMapGenerator:
   - secretName=user-gcp-sa
   - projectName=boos-demo-projects-are-rad
   - trainingName=gh-data-extract
+  - bucket=kf-gh-demo-kustomized
   name: github-data-extract
