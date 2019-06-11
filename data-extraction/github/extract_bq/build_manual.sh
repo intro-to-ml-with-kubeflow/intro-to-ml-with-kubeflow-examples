@@ -10,12 +10,13 @@ docker run -ti --name gcloud-config --entrypoint "/doauth.sh" kf-steps/bq-extrac
 docker run --volumes-from gcloud-config google/cloud-sdk
 #end::manualrun[]
 #tag::push[]
-docker tag kf-steps/bq-extract:v8 gcr.io/${PROJECT_NAME}/kf-steps/bq-extract:v8
-docker push gcr.io/${PROJECT_NAME}/kf-steps/bq-extract:v8
+TARGET="gcr.io/${PROJECT_NAME}/kf-steps/bq-extract:v8"
+docker tag kf-steps/bq-extract:v8 "${TARGET}"
+docker push "${TARGET}"
 #end::push[]
 #tag::run[]
 cd default
-kustomize edit add configmap github-data-extract --from-literal=projectName=${PROJECT_NAME}
+kustomize edit add configmap github-data-extract --from-literal="projectName=${PROJECT_NAME}"
 kustomize build . | kubectl apply -f -
 #end::run[]
 #tag::verify[]
