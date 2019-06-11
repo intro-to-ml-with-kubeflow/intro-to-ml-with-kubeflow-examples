@@ -3,7 +3,6 @@
 set -ex
 
 
-export PROJECT=${PROJECT:=boos-demo-projects-are-rad}
 export DATASET=${DATASET:=intro_to_ml_with_kf}
 export BUCKET=${BUCKET:=kf-gh-demo}
 export EXPIRATION=${EXPIRATION:=259200}
@@ -16,9 +15,13 @@ else
   echo "No SA found (checked ${GOOGLE_APPLICATION_CREDENTIALS})"
 fi
 
+if [[ ! -z "${PROJECT}" ]]; then
+  gcloud config set project "${PROJECT}"
+fi
+
 if ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ||
     [ -z "$GOOGLE_PROJECT" ]; then
-  echo "Default project not configured. Press enter to auto-configure or Ctrl-D to exit"
+  echo "Default project not configured :("
   latest_project=$(gcloud projects list | tail -n 1 | cut -f 1  -d' ')
   gcloud config set project "$latest_project"
 fi
