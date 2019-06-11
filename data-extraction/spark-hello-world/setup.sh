@@ -6,8 +6,8 @@ SPARK_LR_DIR="$(pwd)/lr_demo"
 SPARK_DEMO_GCS=${SPARK_DEMO_GCS:=gs://boo-spark-kf-demo}
 
 # Set up kubeflow
-mkdir $SPARK_DEMO_DIR
-pushd $SPARK_DEMO_DIR
+mkdir "$SPARK_DEMO_DIR"
+pushd "$SPARK_DEMO_DIR"
 pwd
 
 wget https://raw.githubusercontent.com/kubeflow/kubeflow/master/scripts/download.sh
@@ -38,7 +38,7 @@ ks apply default -c spark-pi
 
 # Create a Spark job with the operator to train an LR model
 
-pushd $SPARK_MNIST_DIR/lr_demo
+pushd "$SPARK_MNIST_DIR/lr_demo"
 sbt assembly
 gsutil cp target/scala-2.11/basic.lr-assembly-0.0.1.jar "$SPARK_DEMO_GCS/jars"
 gsutil cp sample.csv "$SPARK_DEMO_GCS/input/part0.csv"
