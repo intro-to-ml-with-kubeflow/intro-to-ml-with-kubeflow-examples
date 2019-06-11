@@ -6,7 +6,9 @@ docker build . -t kf-steps/bq-extract:v8
 # We also have a docker compose file
 docker-compose build
 #tag::manualrun[]
+# Put google creds in a local volume
 docker run -ti --name gcloud-config --entrypoint "/doauth.sh" kf-steps/bq-extract:v2
+# Run with those creds
 docker run --volumes-from gcloud-config google/cloud-sdk
 #end::manualrun[]
 #tag::push[]
@@ -15,8 +17,8 @@ docker tag kf-steps/bq-extract:v8 "${TARGET}"
 docker push "${TARGET}"
 #end::push[]
 #tag::run[]
-cd default
-kustomize edit add configmap github-data-extract --from-literal="projectName=${PROJECT_NAME}"
+cd bucket_kustomize
+kustomize edit add configmap github-data-extract --from-literal="projectName=${PROJECT_NAME}" --from-literal="bucket=${BUCKET}"
 kustomize build . | kubectl apply -f -
 #end::run[]
 #tag::verify[]
