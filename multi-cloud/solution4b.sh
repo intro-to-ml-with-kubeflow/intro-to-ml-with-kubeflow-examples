@@ -10,12 +10,13 @@ kubectl create -f https://raw.githubusercontent.com/rawkintrevo/intro-to-ml-with
 ## So we build our image manually
 docker build --force-rm=true -t skmnistclassifier_trainer:0.3 .
 gcloud auth configure-docker
-docker tag skmnistclassifier_trainer:0.3 gcr.io/${GOOGLE_PROJECT}/skmnistclassifier_trainer:0.3
-docker push gcr.io/${GOOGLE_PROJECT}/skmnistclassifier_trainer:0.3
+IMAGE_NAME="gcr.io/${GOOGLE_PROJECT}/skmnistclassifier_trainer:0.3"
+docker tag skmnistclassifier_trainer:0.3 "${IMAGE_NAME}"
+docker push "${IMAGE_NAME}"
 
 
 cd example-seldon/workflows
 argo submit training-sk-mnist-workflow.yaml -n kubeflow \
      -p build-push-image=false \
-     -p docker-user=gcr.io/${GOOGLE_PROJECT} \
+     -p docker-user="gcr.io/${GOOGLE_PROJECT}" \
      -p version=0.3
