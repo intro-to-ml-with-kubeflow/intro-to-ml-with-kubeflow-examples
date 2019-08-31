@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: iot-data-extraction
+  namespace: kubeflow
+spec:
+  template:
+    spec:
+      containers:
+      - env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /secret/gcp-credentials/user-gcp-sa.json
+        image: IMAGE_NAME
+        name: gh-data-extract-gh-job
+        volumeMounts:
+        - mountPath: /secret/gcp-credentials
+          name: secret-volume
+          readOnly: true
+      restartPolicy: OnFailure
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: user-gcp-sa

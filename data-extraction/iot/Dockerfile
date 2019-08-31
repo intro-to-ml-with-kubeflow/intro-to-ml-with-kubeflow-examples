@@ -5,8 +5,9 @@
 # 01-mything.ipynb
 # 02-step2.ipynb
 # as they will be executed in lexiographical order.
+#tag::spec[]
 FROM gcr.io/kubeflow-images-public/tensorflow-1.6.0-notebook-cpu
 RUN pip install ktext==0.34
 
 COPY ./ /workdir /
-
+#end::spec[]
