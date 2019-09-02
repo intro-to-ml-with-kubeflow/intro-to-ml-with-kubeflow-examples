@@ -6,6 +6,6 @@ source install-kustomize.sh
 popd
 mkdir -p /tmp/abc
 pushd /tmp/abc
-ks init boop
+kfctl init boop
 popd
 rm -rf /tmp/abc
