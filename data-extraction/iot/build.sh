@@ -3,7 +3,7 @@
 CONTAINER_REGISTRY="gcr.io/${PROJECT_NAME}"
 #tag::buildandpush[]
 TARGET="${CONTAINER_REGISTRY}/kf-steps/iot-extract:v2"
-docker build . -t ${TARGET}
+docker build . -t "${TARGET}"
 docker push "${TARGET}"
 #end::buildandpush[]
 #tag::run[]

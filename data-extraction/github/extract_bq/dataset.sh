@@ -27,12 +27,12 @@ if ! GOOGLE_PROJECT=$(gcloud config get-value project 2>/dev/null) ||
 fi
 
 # Set up buckets and datasets
-gsutil ls gs://${BUCKET}/ || gsutil mb -p ${PROJECT}  -l us --retention ${EXPIRATION}s gs://${BUCKET}/  
+gsutil ls "gs://${BUCKET}/" || gsutil mb -p "${PROJECT}"  -l us --retention "${EXPIRATION}s" "gs://${BUCKET}/"
 
 bq --location=us \
    mk --dataset --default_table_expiration ${EXPIRATION} \
    --default_partition_expiration ${EXPIRATION} \
-   --description kubeflow_pipeline_data ${PROJECT}:${DATASET} \
+   --description kubeflow_pipeline_data "${PROJECT}:${DATASET}" \
   || echo "BQ Dataset ${DATASET} exists re-using"
 
 # Run all of the queries in the container.

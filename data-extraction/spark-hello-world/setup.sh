@@ -2,7 +2,6 @@
 set -ex
 
 SPARK_DEMO_DIR=${SPARK_DEMO_DIR:=~/spark_demo_3}
-SPARK_LR_DIR="$(pwd)/lr_demo"
 SPARK_DEMO_GCS=${SPARK_DEMO_GCS:=gs://boo-spark-kf-demo}
 
 # Set up kubeflow
