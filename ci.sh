@@ -10,3 +10,4 @@ if [[ ! -z "$bad_tags" ]]; then
   echo "Found bad tags $bad_tags replace tags with tag"
   exit 1
 fi
+./runthrough.sh
