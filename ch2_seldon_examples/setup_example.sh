@@ -2,31 +2,22 @@
 
 
 #tag::generate_kf_app[]
-# Platform can be one of: minikube, gcp, docker-for-desktop, ack, or null/none/generic
-kfctl.sh init hello_kubeflow --platform none
+# Platform can be one of: aws,gcp, or none
+kfctl init hello_kubeflow --platform none
 pushd hello_kubeflow
-source env.sh
 kfctl.sh generate k8s
-pushd ks_app
-## Install Seldon
-# TODO:(holden & trevor) -- Do we need to configure this?
-ks param set ambassador ambassadorServiceType NodePort
-ks pkg install kubeflow/seldon
-ks generate seldon seldon
-ks apply default -c seldon
-## end install seldon
 popd
 kfctl.sh apply k8s
 pushd ks_app
 #end::generate_kf_app[]
 
 #tag::setup_components[]
-# Set up Helm
+# Set up Helm for monitoring
 kubectl -n kube-system create sa tiller
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
 helm init --service-account tiller
 kubectl rollout status deploy/tiller-deploy -n kube-system
-# Setup SAD
+# Setup SAD, skip if no helm
 helm install seldon-core-analytics \
 	--name seldon-core-analytics \
 	--set grafana_prom_admin_password=password \
