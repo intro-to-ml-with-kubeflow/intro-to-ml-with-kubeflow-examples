@@ -4,6 +4,7 @@ set -ex
 
 echo "Setup GCP"
 source solution1.sh
+# shellcheck disable=SC1090
 source ~/.bashrc
 echo "Install seldon"
 source solution2.sh

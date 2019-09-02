@@ -6,6 +6,7 @@ git clone https://github.com/kubeflow/example-seldon
 kubectl create -f https://raw.githubusercontent.com/intro-to-ml-with-kubeflow/intro-to-ml-with-kubeflow-examples/master/multi-cloud/config/pv-claim.yaml
 
 echo "Hey friends, you get to edit YAML now, sorry."
+# shellcheck disable=SC2034
 read -r panda
 
 ## The `-p build-push-image=true` doesn't work unless you have your own docker
