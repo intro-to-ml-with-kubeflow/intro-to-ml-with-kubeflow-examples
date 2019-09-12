@@ -5,7 +5,7 @@
 # Platform can be one of: aws,gcp, or minikube
 # You can leave off --platform for a vanilla distribution
 # On gcp add --project [nameofproject]
-kfctl init hello-kubeflow --platform $KF_PLATFORM
+kfctl init hello-kubeflow --platform $KF_PLATFORM $KF_PROJ
 echo "For now we need to hack the app.yaml :("
 exit 1
 pushd hello-kubeflow
