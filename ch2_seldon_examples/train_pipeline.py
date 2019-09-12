@@ -17,7 +17,8 @@ def mnist_train_pipeline(
         name="create_pvc",
         resource_name="nfs-1",
         modes=dsl.VOLUME_MODE_RWO,
-        size="10g")
+        size="10G")
+    volume = vop.volume
     train = dsl.ContainerOp(
         name='sk-train',
         image=f"{docker_org}/skmnistclassifier_trainer:{container_version}",
