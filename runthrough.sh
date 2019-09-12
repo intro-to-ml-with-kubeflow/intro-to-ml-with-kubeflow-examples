@@ -2,7 +2,7 @@
 set -ex
 example_home=$(pwd)
 KF_PLATFORM=minikube
-explort KF_PLATFORM
+export KF_PLATFORM
 pushd dev-setup
 source install-kf.sh
 source install-kustomize.sh
