@@ -6,6 +6,8 @@
 # You can leave off --platform for a vanilla distribution
 # On gcp add --project [nameofproject]
 kfctl init hello-kubeflow --platform $KF_PLATFORM
+echo "For now we need to hack the app.yaml :("
+exit 1
 pushd hello-kubeflow
 kfctl generate all -V
 # On GCP this will create a cluster
