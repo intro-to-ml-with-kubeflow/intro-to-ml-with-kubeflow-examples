@@ -5,7 +5,7 @@
 # Platform can be one of: aws,gcp, or minikube
 # You can leave off --platform for a vanilla distribution
 # On gcp add --project [nameofproject]
-kfctl init hello-kubeflow --platform $PLATFORM
+kfctl init hello-kubeflow --platform $KF_PLATFORM
 pushd hello-kubeflow
 kfctl generate all -V
 # On GCP this will create a cluster
