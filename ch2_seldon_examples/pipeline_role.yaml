@@ -1,0 +1,9 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: kubeflow
+  name: pipeline-runner
+rules:
+- apiGroups: ["machinelearning.seldon.io"]
+  resources: ["seldondeployments"]
+  verbs: ["*"]

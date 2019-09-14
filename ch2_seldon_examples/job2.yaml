@@ -1,0 +1,74 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  annotations:
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "A simple end to end sci-kit
+      seldon kf pipeline", "inputs": [{"name": "output"}, {"name": "project"}, {"default":
+      "index.docker.io/seldonio", "name": "docker_org"}, {"default": "0.2", "name":
+      "container_version"}], "name": "Simple sci-kit KF Pipeline"}'
+  generateName: simple-sci-kit-kf-pipeline-
+spec:
+  arguments:
+    parameters:
+    - name: output
+    - name: project
+    - name: docker-org
+      value: index.docker.io/seldonio
+    - name: container-version
+      value: '0.2'
+  entrypoint: simple-sci-kit-kf-pipeline
+  serviceAccountName: pipeline-runner
+  templates:
+  - name: create-pvc
+    outputs:
+      parameters:
+      - name: create-pvc-manifest
+        valueFrom:
+          jsonPath: '{}'
+      - name: create-pvc-name
+        valueFrom:
+          jsonPath: '{.metadata.name}'
+      - name: create-pvc-size
+        valueFrom:
+          jsonPath: '{.status.capacity.storage}'
+    resource:
+      action: create
+      manifest: "apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: '{{workflow.name}}-nfs-1'\n\
+        spec:\n  accessModes:\n  - ReadWriteOnce\n  resources:\n    requests:\n  \
+        \    storage: 10G\n"
+  - dag:
+      tasks:
+      - name: create-pvc
+        template: create-pvc
+      - arguments:
+          parameters:
+          - name: container-version
+            value: '{{inputs.parameters.container-version}}'
+          - name: create-pvc-name
+            value: '{{tasks.create-pvc.outputs.parameters.create-pvc-name}}'
+          - name: docker-org
+            value: '{{inputs.parameters.docker-org}}'
+        dependencies:
+        - create-pvc
+        name: sk-train
+        template: sk-train
+    inputs:
+      parameters:
+      - name: container-version
+      - name: docker-org
+    name: simple-sci-kit-kf-pipeline
+  - container:
+      image: '{{inputs.parameters.docker-org}}/skmnistclassifier_trainer:{{inputs.parameters.container-version}}'
+      volumeMounts:
+      - mountPath: /data
+        name: create-pvc
+    inputs:
+      parameters:
+      - name: container-version
+      - name: create-pvc-name
+      - name: docker-org
+    name: sk-train
+  volumes:
+  - name: create-pvc
+    persistentVolumeClaim:
+      claimName: '{{inputs.parameters.create-pvc-name}}'
