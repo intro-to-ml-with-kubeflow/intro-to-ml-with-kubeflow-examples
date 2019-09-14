@@ -1,6 +1,6 @@
 #!/bin/bash
 
-example_path=$(pwd)
+example_path=$(dirname \"$0\")
 #tag::generate_kf_app[]
 # Platform can be one of: aws,gcp, or minikube
 # You can leave off --platform for a vanilla distribution
@@ -21,6 +21,9 @@ kubectl apply -f ${example_path}/tiller_rbac.yaml
 helm init --service-account tiller 
 kubectl rollout status deploy/tiller-deploy -n kube-system
 helm install seldon-core-operator --namespace kubeflow --repo https://storage.googleapis.com/seldon-charts --set usageMetrics.enabled=true --set istio.enabled=true
+# We also need to make this accessiable to the pipeline user
+kubectl apply -f ${example_path}/pipeline_role.yaml
+kubectl apply -f ${example_path}/pipeline_rolebinding.yaml
 #end::seldon[]
 
 
