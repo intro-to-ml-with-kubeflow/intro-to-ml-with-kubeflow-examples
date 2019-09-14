@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+example_path=$(pwd)
 #tag::generate_kf_app[]
 # Platform can be one of: aws,gcp, or minikube
 # You can leave off --platform for a vanilla distribution
@@ -14,6 +14,14 @@ kfctl generate all -V
 kfctl apply all -V
 popd
 #end::generate_kf_app[]
+
+#install::seldon[]
+# For now seldon needs to be installed with helm
+kubectl apply -f ${example_path}/tiller_rbac.yaml
+helm init --service-account tiller 
+kubectl rollout status deploy/tiller-deploy -n kube-system
+helm install seldon-core-operator --namespace kubeflow --repo https://storage.googleapis.com/seldon-charts --set usageMetrics.enabled=true --set istio.enabled=true
+#end::seldon[]
 
 
 # TODO(trevor): what version/tag?

@@ -1,7 +1,6 @@
 #!/bin/bash
 #tag::buildPipeline[]
 dsl-compile --py train_pipeline.py --output job.yaml
-kubectl apply --namespace kubeflow -f job.yaml
 #end::buildPipeline[]
 #tag::connectToWebUI[]
 # If you're on minikube and not using a loadbalancer:
