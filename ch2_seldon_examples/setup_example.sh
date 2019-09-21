@@ -32,11 +32,3 @@ kubectl apply -f ${example_path}/pipeline_rolebinding.yaml
 # Clone the base seldon example
 git clone https://github.com/kubeflow/example-seldon
 #end::cloneSeldonExample[]
-
-## TODO check if nfs-1 exists before trying to create
-#tag::createPV[]
-export NAMESPACE=kubeflow
-# TODO move this into the pipeline
-kubectl create -f https://raw.githubusercontent.com/rawkintrevo/intro-to-ml-with-kubeflow-examples/master/ch2_seldon_examples/pv-volume.yaml -n $NAMESPACE
-kubectl create -f https://raw.githubusercontent.com/rawkintrevo/intro-to-ml-with-kubeflow-examples/master/ch2_seldon_examples/pv-claim.yaml -n $NAMESPACE
-#end::createPV[]
