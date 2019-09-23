@@ -16,11 +16,14 @@ TARGET="gcr.io/${PROJECT_NAME}/kf-steps/bq-extract:v8"
 docker tag kf-steps/bq-extract:v8 "${TARGET}"
 docker push "${TARGET}"
 #end::push[]
-#tag::run[]
+#tag::run_kustomize[]
 cd bucket_kustomize
 kustomize edit add configmap github-data-extract --from-literal="projectName=${PROJECT_NAME}" --from-literal="bucket=${BUCKET}"
 kustomize build . | kubectl apply -f -
-#end::run[]
+#end::run_kustomize[]
+#tag::run_k8s[]
+kubectl apply --namespace kubeflow -f job.yaml
+#end::run_k8s[]
 #tag::verify[]
 kubectl get jobs |grep gh-data
 #end::verify[]

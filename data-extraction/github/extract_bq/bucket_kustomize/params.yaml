@@ -1,5 +1,0 @@
-varReference:
-- path: spec/template/spec/containers/env/value
-  kind: Job
-- path: spec/template/spec/containers/image
-  kind: Job
