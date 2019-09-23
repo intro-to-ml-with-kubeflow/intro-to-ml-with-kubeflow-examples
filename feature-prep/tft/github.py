@@ -33,8 +33,6 @@ input_data_schema = dataset_schema.from_feature_spec(dict(
 
 input_data_metadata = dataset_metadata.DatasetMetadata(input_data_schema)
 
-transformed_data, transform_fn = (
-    my_data | tft_beam.AnalyzeAndTransformDataset(preprocessing_fn))
 with beam.Pipeline() as pipeline:
     with tft_beam.Context(temp_dir=tempfile.mkdtemp()):
         columns = text_fields + ["commented", "add", "line_length"]
@@ -44,7 +42,7 @@ with beam.Pipeline() as pipeline:
             | 'ReadInputData' >> beam.io.ReadFromText(train_data_file)
             | 'CleanInputData' >> MapAndFilterErrors(converter.decode))
         input_dataset = (input_data, input_data_metadata)
-        transformed_dataset, transformed_schema = (
+        transformed_dataset, transform_fn = (
             input_dataset | tft_beam.AnalyzeAndTransformDataset(preprocessing_fn))
         transformed_data, transfored_metadata = transformed_dataset
         transformed_data_coder = tft.coders.ExampleProtoCoder(
