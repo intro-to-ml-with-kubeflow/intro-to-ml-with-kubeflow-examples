@@ -2,12 +2,12 @@
 
 example_path=$(dirname \"$0\")
 #tag::generate_kf_app[]
-# Platform can be one of: aws,gcp, or minikube
-# You can leave off --platform for a vanilla distribution
-# On gcp add --project [nameofproject]
-kfctl init hello-kubeflow --platform $KF_PLATFORM $KF_PROJ
-echo "For now we need to hack the app.yaml :("
-exit 1
+# Pick the correct config file for your platform from https://github.com/kubeflow/manifests/tree/master/kfdef
+# And download it.
+# You can edit the configuration at this point if you need to.
+# For generic k8s with istio:
+wget https://raw.githubusercontent.com/kubeflow/manifests/master/kfdef/kfctl_k8s_istio.yaml
+kfctl init hello-kubeflow --config kfctl_k8s_istio.yaml
 pushd hello-kubeflow
 kfctl generate all -V
 # On GCP this will create a cluster

@@ -5,7 +5,8 @@ KF_PLATFORM=${KF_PLATFORM:-minikube}
 
 export KF_PLATFORM
 pushd dev-setup
-source install-kf.sh
+# Skip for now since we need 0.7
+# source install-kf.sh
 source install-kustomize.sh
 source install-kf-pipeline-sdk.sh
 popd
