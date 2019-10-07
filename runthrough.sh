@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ex
-example_home=$(pwd)
+example_repo_home="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 KF_PLATFORM=${KF_PLATFORM:-minikube}
 
 export KF_PLATFORM
@@ -12,6 +12,6 @@ source install-kf-pipeline-sdk.sh
 popd
 mkdir -p /tmp/abc
 pushd /tmp/abc
-source ${example_home}/ch2_seldon_examples/setup_example.sh
+${example_repo_home}/ch2_seldon_examples/setup_example.sh
 popd
 # rm -rf /tmp/abc
