@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-notebook-0
+  namespace: programmerboo
+spec:
+  selector:
+    statefulset: spark-notebook
+  ports:
+    - protocol: TCP
+      port: 39235
+      targetPort: 39235
+      name: tcp-spark-notebook-driver
