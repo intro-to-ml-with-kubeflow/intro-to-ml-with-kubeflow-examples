@@ -8,14 +8,20 @@ unset ch2_example_path
 ch2_example_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 echo "Using path ${ch2_example_path} for our example path"
 #tag::generate_kf_app[]
-# Pick the correct config file for your platform from https://github.com/kubeflow/manifests/tree/master/kfdef
+# Pick the correct config file for your platform from https://github.com/kubeflow/manifests/tree/[version]/kfdef
 # And download it.
 # You can edit the configuration at this point if you need to.
 # For generic k8s with istio:
-wget https://raw.githubusercontent.com/kubeflow/manifests/master/kfdef/kfctl_k8s_istio.yaml
+KFDEF=https://raw.githubusercontent.com/kubeflow/manifests/master/kfdef/kfctl_k8s_istio.yaml
+# For GCP
+if [ "$PLATFORM" == "gcp" ]; then
+  KFDEF=https://github.com/kubeflow/manifests/blob/master/kfdef/kfctl_gcp_iap.yaml
+fi
+curl ${KFDEF} -o kfctl_kfdef.yaml
+pwd
 mkdir hello-kubeflow
 pushd hello-kubeflow
-kfctl apply --file=../kfctl_k8s_istio.yaml
+kfctl apply --file=../kfctl_kfdef.yaml
 popd
 #end::generate_kf_app[]
 
