@@ -16,6 +16,8 @@ RUN set -ex && \
 
 ADD  https://www-us.apache.org/dist/spark/spark-2.4.4/spark-2.4.4-bin-hadoop2.7.tgz /tmp/
 RUN  cd /opt && tar -xvf /tmp/spark-2.4.4-bin-hadoop2.7.tgz && mv spark-2.4.4-bin-hadoop2.7 spark && cd spark/python && pip install -e .
+# Install some useful libraries
+RUN pip install pandas pyarrow==0.11.0 spacy
 
 WORKDIR /opt/spark/work-dir
 RUN chmod g+w /opt/spark/work-dir
