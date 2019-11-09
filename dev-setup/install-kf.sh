@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ ! -f ~/bin/kubelfow ]; then
+if [ ! -f ~/bin/kfctl ]; then
   #tag::install[]
   PLATFORM=$(uname) # Either Linux or Darwin
   export PLATFORM
