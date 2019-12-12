@@ -3,6 +3,11 @@ set -ex
 example_repo_home="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 KF_PLATFORM=${KF_PLATFORM:-minikube}
 
+if [ "$PLATFORM" == "gcp" ]; then
+  # In GCP we also need a default zone
+  gcloud config set compute/zone us-west1-d
+fi
+
 export KF_PLATFORM
 pushd dev-setup
 # Skip for now since we need 0.7
