@@ -23,8 +23,8 @@ curl ${KFDEF} -o kfctl_kfdef.yaml
 pwd
 mkdir hello-kubeflow
 pushd hello-kubeflow
-kfctl build --file=../kfctl_kfdef.yaml
-kfctl apply
+kfctl build -V --file=../kfctl_kfdef.yaml
+kfctl apply -V --file=../kfctl_kfdef.yaml
 popd
 #end::generate_kf_app[]
 
