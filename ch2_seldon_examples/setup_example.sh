@@ -13,10 +13,11 @@ echo "Using path ${ch2_example_path} for our example path"
 # You can edit the configuration at this point if you need to.
 # For generic k8s with istio:
 export MANIFEST_V=${MANIFEST_V:-v0.7-branch}
-KFDEF=https://raw.githubusercontent.com/kubeflow/manifests/${MANIFEST_V}/kfdef/kfctl_k8s_istio.yaml
+manifest_root=https://raw.githubusercontent.com/kubeflow/manifests/
+KFDEF=${manifest_root}${MANIFEST_V}/kfdef/kfctl_k8s_istio.yaml
 # For GCP
 if [ "$PLATFORM" == "gcp" ]; then
-  KFDEF=https://github.com/kubeflow/manifests/blob/master/${MANIFEST_V}/kfctl_gcp_iap.yaml
+  KFDEF=${manifest_root}${MANIFEST_V}/kfdef/kfctl_gcp_iap.yaml
 fi
 curl ${KFDEF} -o kfctl_kfdef.yaml
 pwd
