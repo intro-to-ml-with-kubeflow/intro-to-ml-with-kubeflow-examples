@@ -5,7 +5,7 @@ KF_PLATFORM=${KF_PLATFORM:-minikube}
 
 if [ "$PLATFORM" == "gcp" ]; then
   # In GCP we also need a default zone
-  gcloud config set compute/zone us-west1-d
+  gcloud config set compute/zone us-west1
 fi
 
 export KF_PLATFORM
