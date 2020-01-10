@@ -1,0 +1,34 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  creationTimestamp: "2019-10-14T20:09:50Z"
+  generation: 1
+  name: notebook-programmerboo-spark-notebook
+  namespace: programmerboo
+  ownerReferences:
+  - apiVersion: kubeflow.org/v1beta1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Notebook
+    name: spark-notebook
+    uid: 93fb0c0e-eebe-11e9-a454-42010a8e0119
+  resourceVersion: "3616573"
+  selfLink: /apis/networking.istio.io/v1alpha3/namespaces/programmerboo/virtualservices/notebook-programmerboo-spark-notebook
+  uid: 9404145c-eebe-11e9-a454-42010a8e0119
+spec:
+  gateways:
+  - kubeflow/kubeflow-gateway
+  hosts:
+  - '*'
+  http:
+  - match:
+    - uri:
+        prefix: /notebook/programmerboo/spark-notebook
+    rewrite:
+      uri: /notebook/programmerboo/spark-notebook
+    route:
+    - destination:
+        host: spark-notebook.programmerboo.svc.cluster.local
+        port:
+          number: 80
+    timeout: 300s
