@@ -1,0 +1,102 @@
+Name:         random-example
+Namespace:    kubeflow
+Labels:       controller-tools.k8s.io=1.0
+Annotations:  <none>
+API Version:  kubeflow.org/v1alpha3
+Kind:         Experiment
+Metadata:
+  Creation Timestamp:  2019-12-22T22:53:25Z
+  Finalizers:
+    update-prometheus-metrics
+  Generation:        2
+  Resource Version:  720692
+  Self Link:         /apis/kubeflow.org/v1alpha3/namespaces/kubeflow/experiments/random-example
+  UID:               dc6bc15a-250d-11ea-8cae-42010a80010f
+Spec:
+  Algorithm:
+    Algorithm Name:        random
+    Algorithm Settings:    <nil>
+  Max Failed Trial Count:  3
+  Max Trial Count:         12
+  Metrics Collector Spec:
+    Collector:
+      Kind:  StdOut
+  Objective:
+    Additional Metric Names:
+      accuracy
+    Goal:                   0.99
+    Objective Metric Name:  Validation-accuracy
+    Type:                   maximize
+  Parallel Trial Count:     3
+  Parameters:
+    Feasible Space:
+      Max:           0.03
+      Min:           0.01
+    Name:            --lr
+    Parameter Type:  double
+    Feasible Space:
+      Max:           5
+      Min:           2
+    Name:            --num-layers
+    Parameter Type:  int
+    Feasible Space:
+      List:
+        sgd
+        adam
+        ftrl
+    Name:            --optimizer
+    Parameter Type:  categorical
+  Trial Template:
+    Go Template:
+      Raw Template:  apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{.Trial}}
+  namespace: {{.NameSpace}}
+spec:
+  template:
+    spec:
+      containers:
+      - name: {{.Trial}}
+        image: docker.io/kubeflowkatib/mxnet-mnist-example
+        command:
+        - "python"
+        - "/mxnet/example/image-classification/train_mnist.py"
+        - "--batch-size=64"
+        {{- with .HyperParameters}}
+        {{- range .}}
+        - "{{.Name}}={{.Value}}"
+        {{- end}}
+        {{- end}}
+      restartPolicy: Never
+Status:
+  Conditions:
+    Last Transition Time:  2019-12-22T22:53:25Z
+    Last Update Time:      2019-12-22T22:53:25Z
+    Message:               Experiment is created
+    Reason:                ExperimentCreated
+    Status:                True
+    Type:                  Created
+    Last Transition Time:  2019-12-22T22:55:10Z
+    Last Update Time:      2019-12-22T22:55:10Z
+    Message:               Experiment is running
+    Reason:                ExperimentRunning
+    Status:                True
+    Type:                  Running
+  Current Optimal Trial:
+    Observation:
+      Metrics:
+        Name:   Validation-accuracy
+        Value:  0.981091
+    Parameter Assignments:
+      Name:          --lr
+      Value:         0.025139701133432946
+      Name:          --num-layers
+      Value:         4
+      Name:          --optimizer
+      Value:         sgd
+  Start Time:        2019-12-22T22:53:25Z
+  Trials:            12
+  Trials Running:    2
+  Trials Succeeded:  10
+Events:              <none>Type something here!
