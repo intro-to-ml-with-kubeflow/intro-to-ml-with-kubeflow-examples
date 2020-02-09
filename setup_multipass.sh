@@ -33,3 +33,4 @@ multipass exec kubeflow -- kubectl -n kube-system create sa tiller
 multipass exec kubeflow -- kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
 multipass exec kubeflow -- helm init --service-account tiller
 multipass exec kubeflow -- kubectl rollout status deploy/tiller-deploy -n kube-system
+
