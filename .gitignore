@@ -105,3 +105,6 @@ venv.bak/
 
 # Emacs
 *~
+
+# Ignore kfctl's downloaded
+kfctl*.t*z
