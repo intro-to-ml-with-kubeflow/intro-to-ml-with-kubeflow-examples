@@ -13,26 +13,27 @@ example_path=$(dirname \"$0\")
 # https://github.com/kubeflow/manifests/tree/[version]/kfdef
 # You can download & edit the configuration at this point if you need to.
 # For generic k8s with istio:
-export MANIFEST_V=${MANIFEST_V:-v0.7-branch}
+export MANIFEST_BRANCH=${MANIFEST_BRANCH:-v1.0-branch}
+export MANIFEST_VERSION=${MANIFEST_VERSION:-v1.0.0}
 manifest_root=https://raw.githubusercontent.com/kubeflow/manifests/
-KFDEF=${manifest_root}${MANIFEST_V}/kfdef/kfctl_k8s_istio.yaml
-# For GCP
+# On most enviroments this will create a "vanilla" kubeflow install using istio.
+KFDEF=${manifest_root}${MANIFEST_BRANCH}/kfdef/kfctl_k8s_istio.${MANIFEST_VERSION}.yaml
+# On GCP this will create a cluster with basic authentication
 if [ "$PLATFORM" == "gcp" ]; then
-  KFDEF=${manifest_root}${MANIFEST_V}/kfdef/kfctl_gcp_basic_auth.0.7.1.yaml
+  KFDEF=${manifest_root}${MANIFEST_BRANCH}/kfdef/kfctl_gcp_iap.${MANIFEST_VERSION}.yaml
+  # Set up IAP
+  # TODO(holden)
   # Set up environment variables for GCP
-  export PROJECT=<your GCP project ID>
+  export PROJECT=${PROJECT:-"<your GCP project name>"}
   gcloud config set project ${PROJECT}
-  export ZONE=<your GCP zone>
+  export ZONE=${ZONE:-"<your GCP zone>"}
   gcloud config set compute/zone ${ZONE}
-
-  # Configure username and password for basic authentication
-  export KUBEFLOW_USERNAME=<your username>
-  export KUBEFLOW_PASSWORD=<your password>
 fi
 pwd
-mkdir hello-kubeflow
-pushd hello-kubeflow
-# On GCP this will create a cluster with basic authentication
+export KF_PROJECT_NAME=${KF_PROJECT_NAME:-hello-kf-mk}
+mkdir ${KF_PROJECT_NAME}
+pushd ${KF_PROJECT_NAME}
+# kfctl build -f $KFDEF -V
 kfctl apply -f $KFDEF -V
 
 popd
