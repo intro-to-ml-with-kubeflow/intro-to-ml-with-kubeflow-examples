@@ -11,7 +11,7 @@ fi
 
 pushd dev-setup
 command -v kfctl >/dev/null 2>&1 || source install-kf.sh
-command -v customize >/dev/null 2>&1 || source install-kustomize.sh
+command -v kustomize >/dev/null 2>&1 || source install-kustomize.sh
 source install-kf-pipeline-sdk.sh
 popd
 mkdir -p /tmp/abc
