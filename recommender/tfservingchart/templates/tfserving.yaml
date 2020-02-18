@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: kubeflow
+  name: recommendermodelserver
+  labels:
+    app: recommendermodelserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recommendermodelserver
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: recommendermodelserver
+    spec:
+      containers:
+        - name: serving
+          image: "{{ .Values.image.server }}:{{ .Values.image.version }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          ports:
+            - containerPort: 8500
+              name: grpc
+              protocol: TCP
+            - containerPort: 8501
+              name: http
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          livenessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            tcpSocket:
+              port: htttp
+          resources:
+            limits:
+              cpu: "2"
+              memory: 2Gi
+            requests:
+              cpu: "1"
+              memory: 1Gi
+          env:
+            - name: "AWS_REGION"
+              value: "us-west-1"
+            - name: "S3_REGION"
+              value: "us-west-1"
+            - name: "S3_ENDPOINT"
+              value: "minio-service.kubeflow.svc.cluster.local:9000"
+            - name: "S3_USE_HTTPS"
+              value: "0"
+            - name: "S3_VERIFY_SSL"
+              value: "0"
+            - name: "AWS_ACCESS_KEY_ID"
+              valueFrom: { secretKeyRef: { name: "minioaccess", key: "AWS_ACCESS_KEY_ID" } }
+            - name: "AWS_SECRET_ACCESS_KEY"
+              valueFrom: { secretKeyRef: { name: "minioaccess", key: "AWS_SECRET_ACCESS_KEY" } }
+            - name: "MODEL_BASE_PATH"
+              value: "s3://models"
+            - name: "MODEL_NAME"
+              value: "recommender"
+          volumes:
+            - name: secret-volume
+              secret:
+                secretName: minioaccess
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kubeflow
+  name: recommendermodelserver
+spec:
+  selector:
+    app: recommendermodelserver
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: 8500
+      targetPort: 8500
+    - name: http
+      protocol: TCP
+      port: 8501
+      targetPort: 8501
