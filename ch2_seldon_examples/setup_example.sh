@@ -30,7 +30,7 @@ if [ "$PLATFORM" == "gcp" ]; then
   gcloud config set compute/zone ${ZONE}
 fi
 pwd
-export KF_PROJECT_NAME=${KF_PROJECT_NAME:-hello-kf-mk}
+export KF_PROJECT_NAME=${KF_PROJECT_NAME:-hello-kf-${PLATFORM}}
 mkdir ${KF_PROJECT_NAME}
 pushd ${KF_PROJECT_NAME}
 # kfctl build -f $KFDEF -V
