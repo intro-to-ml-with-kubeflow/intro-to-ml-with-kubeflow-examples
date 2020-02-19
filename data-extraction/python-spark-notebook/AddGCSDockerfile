@@ -6,9 +6,9 @@ ENV SPARK_HOME /opt/spark
 
 # Add access to GCS
 RUN rm $SPARK_HOME/jars/guava-14.0.1.jar
-ADD http://central.maven.org/maven2/com/google/guava/guava/23.0/guava-23.0.jar $SPARK_HOME/jars
+ADD http://maven-central.storage.googleapis.com/maven2/com/google/guava/guava/27.1-jre/guava-27.1-jre.jar $SPARK_HOME/jars
 # Add the connector jar needed to access Google Cloud Storage using the Hadoop FileSystem API.
 ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop2.jar $SPARK_HOME/jars
 
 # Add SparklingML if we are in Python
-RUN (which python && pip install pandas pyarrow==0.11.0 spacy && pip3 pandas pyarrow==0.11.0 spacy) || echo "No python"
+RUN (which python && pip install pandas pyarrow==0.11.0 spacy && pip3 install pandas pyarrow==0.11.0 spacy) || echo "No python"
