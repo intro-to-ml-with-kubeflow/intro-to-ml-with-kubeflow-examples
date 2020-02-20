@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build a notebook with Spark
 set -ex
-V=${V:-"4"}
+V=${V:-"5"}
 REPO=${REPO:-"gcr.io/$PROJECT"}
 TARGET=${TARGET:-"$REPO/kubeflow/spark-notebook:v$V"}
 BASE=${BASE:-"gcr.io/kubeflow-images-public/tensorflow-1.15.2-notebook-cpu:1.0.0"}
@@ -11,7 +11,8 @@ docker push "${TARGET}"
 SPARK_TARGET=${SPARK_TARGET:-"$REPO/kubeflow/spark-worker"}
 tmp_dir=$(mktemp -d -t spark-build-XXXXXXXXXX)
 pushd ${tmp_dir}
-wget https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz
+# Sometimes the US mirror fails
+wget https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz || wget https://www-eu.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz
 tar -xvf spark-2.4.5-bin-hadoop2.7.tgz
 pushd spark-2.4.5-bin-hadoop2.7
 ./bin/docker-image-tool.sh -r $SPARK_TARGET -t v2.4.5 build
