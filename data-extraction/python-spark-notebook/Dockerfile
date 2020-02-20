@@ -16,8 +16,9 @@ RUN set -ex && \
     rm /bin/sh && \
     ln -sv /bin/bash /bin/sh
 
-ADD  https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz /tmp/
-RUN  cd /opt && tar -xvf /tmp/spark-2.4.5-bin-hadoop2.7.tgz && mv spark-2.4.5-bin-hadoop2.7 spark && cd spark/python && pip install -e .
+RUN  cd /tmp && \
+     (wget https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz || wget https://www-eu.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz) && \
+     cd /opt && tar -xvf /tmp/spark-2.4.5-bin-hadoop2.7.tgz && rm /tmp/spark-* && mv spark-2.4.5-bin-hadoop2.7 spark && cd spark/python && pip install -e .
 # Install some useful libraries
 RUN pip install pandas pyarrow==0.11.0 spacy numpy
 
@@ -26,7 +27,7 @@ RUN chmod -R 777 /opt/spark/work-dir
 
 # Add access to GCS
 RUN rm $SPARK_HOME/jars/guava-1*.jar
-ADD https://maven-central.storage.googleapis.com/maven2/com/google/guava/guava/27.1-jre/guava-27.1-jre.jar $SPARK_HOME/jars
+ADD https://maven-central.storage.googleapis.com/maven2/com/google/guava/guava/23.0/guava-23.0.jar $SPARK_HOME/jars
 # Add the connector jar needed to access Google Cloud Storage using the Hadoop FileSystem API.
 ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop2.jar $SPARK_HOME/jars
 # Switch to user back
