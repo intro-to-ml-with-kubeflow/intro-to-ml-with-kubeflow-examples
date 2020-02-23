@@ -8,7 +8,7 @@ USER root
 ENV SPARK_HOME /opt/spark
 
 # Install java because Spark needs it
-RUN apt-get update && apt-get install -yq openjdk-8-jdk && apt-get clean && \
+RUN apt-get update && apt-get install -yq openjdk-11-jre openjdk-11-jre-headless && apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
 # Install Spark
@@ -19,16 +19,22 @@ RUN set -ex && \
 RUN  cd /tmp && \
      (wget https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz || wget https://www-eu.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz) && \
      cd /opt && tar -xvf /tmp/spark-2.4.5-bin-hadoop2.7.tgz && rm /tmp/spark-* && mv spark-2.4.5-bin-hadoop2.7 spark && cd spark/python && pip install -e .
+RUN conda install python=3.7
 # Install some useful libraries
 RUN pip install pandas pyarrow==0.11.0 spacy numpy
 
-WORKDIR /opt/spark/work-dir
-RUN chmod -R 777 /opt/spark/work-dir
 
 # Add access to GCS
 RUN rm $SPARK_HOME/jars/guava-1*.jar
 ADD https://maven-central.storage.googleapis.com/maven2/com/google/guava/guava/23.0/guava-23.0.jar $SPARK_HOME/jars
 # Add the connector jar needed to access Google Cloud Storage using the Hadoop FileSystem API.
 ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop2.jar $SPARK_HOME/jars
-# Switch to user back
+
+# Fix permissions
+WORKDIR /opt/spark/work-dir
+RUN chmod -R 777 /opt/spark/
+
+
+# Switch the user back, using jovyan as a user is bad but the base image
+# depends on it.
 USER jovyan
