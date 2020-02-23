@@ -1,13 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: spark-notebook-0-driver
-  namespace: programmerboo
+  name: spark-driver
+  namespace: kubeflow-programmerboo
 spec:
   selector:
-    statefulset: spark-notebook
+    notebook-name: spark-test-10
   ports:
-    - protocol: TCP
-      port: 39235
+    - port: 39235
       targetPort: 39235
-      name: http-spark-notebook-0-driver
+      name: spark-driver-port
+    - port: 39236
+      targetPort: 39236
+      name: spark-block-port
