@@ -10,5 +10,9 @@ ADD http://maven-central.storage.googleapis.com/maven2/com/google/guava/guava/23
 # Add the connector jar needed to access Google Cloud Storage using the Hadoop FileSystem API.
 ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop2.jar $SPARK_HOME/jars
 
-# Add SparklingML if we are in Python
-RUN (which python && pip install pandas pyarrow==0.11.0 spacy && pip3 install pandas pyarrow==0.11.0 spacy) || echo "No python"
+# Install python3.6 and some libraries
+RUN mkdir -p /usr/share/man/man1 # See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=863199
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -q python3.6 python3-pip && \
+    rm -rf /var/cache/apt
+RUN pip3 install pandas pyarrow==0.11.0 spacy
