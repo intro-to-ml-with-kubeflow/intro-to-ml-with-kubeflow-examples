@@ -8,8 +8,10 @@ USER root
 ENV SPARK_HOME /opt/spark
 
 # Install java because Spark needs it
-RUN apt-get update && apt-get install -yq openjdk-11-jre openjdk-11-jre-headless && apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -yq openjdk-8-jre openjdk-8-jre-headless && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Spark
 RUN set -ex && \
@@ -19,10 +21,6 @@ RUN set -ex && \
 RUN  cd /tmp && \
      (wget https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz || wget https://www-eu.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz) && \
      cd /opt && tar -xvf /tmp/spark-2.4.5-bin-hadoop2.7.tgz && rm /tmp/spark-* && mv spark-2.4.5-bin-hadoop2.7 spark && cd spark/python && pip install -e .
-RUN conda install python=3.7
-# Install some useful libraries
-RUN pip install pandas pyarrow==0.11.0 spacy numpy
-
 
 # Add access to GCS
 RUN rm $SPARK_HOME/jars/guava-1*.jar
