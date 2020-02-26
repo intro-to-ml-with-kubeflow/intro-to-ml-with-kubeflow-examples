@@ -19,14 +19,18 @@ RUN set -ex && \
     ln -sv /bin/bash /bin/sh
 
 RUN  cd /tmp && \
-     (wget https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz || wget https://www-eu.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz) && \
-     cd /opt && tar -xvf /tmp/spark-2.4.5-bin-hadoop2.7.tgz && rm /tmp/spark-* && mv spark-2.4.5-bin-hadoop2.7 spark && cd spark/python && pip install -e .
+     (wget https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.8.tgz || wget https://www-eu.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.8.tgz) && \
+     cd /opt && tar -xvf /tmp/spark-2.4.5-bin-hadoop2.8.tgz && rm /tmp/spark-* && mv spark-2.4.5-bin-hadoop2.7 spark && cd spark/python && pip install -e .
 
 # Add access to GCS
 RUN rm $SPARK_HOME/jars/guava-1*.jar
 ADD https://maven-central.storage.googleapis.com/maven2/com/google/guava/guava/23.0/guava-23.0.jar $SPARK_HOME/jars
 # Add the connector jar needed to access Google Cloud Storage using the Hadoop FileSystem API.
 ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop2.jar $SPARK_HOME/jars
+
+# Add the S3A connector
+ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.8.2/hadoop-aws-2.8.2.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.11.712/aws-java-sdk-1.11.712.jar $SPARK_HOME/jars
 
 # Fix permissions
 WORKDIR /opt/spark/work-dir
