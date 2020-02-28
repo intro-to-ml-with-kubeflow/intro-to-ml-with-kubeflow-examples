@@ -5,7 +5,7 @@ metadata:
   namespace: kubeflow-programmerboo
 spec:
   selector:
-    notebook-name: spark-test-18
+    notebook-name: spark-test-23
   ports:
     - port: 39235
       targetPort: 39235

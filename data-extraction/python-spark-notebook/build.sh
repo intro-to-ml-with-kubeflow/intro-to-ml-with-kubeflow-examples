@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build a notebook with Spark
 set -ex
-V=${V:-"19"}
+V=${V:-"23"}
 REPO=${REPO:-"gcr.io/$PROJECT"}
 TARGET=${TARGET:-"$REPO/kubeflow/spark-notebook:v$V"}
 BASE=${BASE:-"gcr.io/kubeflow-images-public/tensorflow-1.15.2-notebook-cpu:1.0.0"}
@@ -24,17 +24,18 @@ fi
 tmp_dir=$(mktemp -d -t spark-build-XXXXXXXXXX)
 pushd ${tmp_dir}
 tar -xvf /tmp/${SPARK_ARTIFACT}
-pushd ${SPARK_RELEASE}
 
-./bin/docker-image-tool.sh -r $SPARK_TARGET -t v${SPARK_VERSION} build --build-arg java_image_tag=11-jre-slim
-./bin/docker-image-tool.sh -r $SPARK_TARGET -t v${SPARK_VERSION} -p kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
-./bin/docker-image-tool.sh -r $SPARK_TARGET -t v${SPARK_VERSION} push
+pushd ${SPARK_RELEASE}
+./bin/docker-image-tool.sh -r $SPARK_TARGET -t v${SPARK_VERSION}-${V} build
+./bin/docker-image-tool.sh -r $SPARK_TARGET -t v${SPARK_VERSION}-${V} -p kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
+./bin/docker-image-tool.sh -r $SPARK_TARGET -t v${SPARK_VERSION}-${V} push
 popd
+
 popd
 # Add GCS to Spark images
-docker build --build-arg base=$SPARK_TARGET/spark:v${SPARK_VERSION} -t "${SPARK_TARGET}/spark-with-gcs:v${SPARK_VERSION}-$V" -f AddGCSDockerfile .
+docker build --build-arg base=$SPARK_TARGET/spark:v${SPARK_VERSION}-${V} -t "${SPARK_TARGET}/spark-with-gcs:v${SPARK_VERSION}-$V" -f AddGCSDockerfile .
 PYSPARK_WITH_GCS="${SPARK_TARGET}/spark-py-with-gcs:v${SPARK_VERSION}-$V"
-docker build --build-arg base=$SPARK_TARGET/spark-py:v${SPARK_VERSION} -t ${PYSPARK_WITH_GCS} -f AddGCSDockerfile .
+docker build --build-arg base=$SPARK_TARGET/spark-py:v${SPARK_VERSION}-${V} -t ${PYSPARK_WITH_GCS} -f AddGCSDockerfile .
 # Add Python 3.6 to PySpark images for notebook compat
 SPARK_PY36_WORKER="${SPARK_TARGET}/spark-py-36:v${SPARK_VERSION}-$V"
 docker build --build-arg base=${PYSPARK_WITH_GCS} -t ${SPARK_PY36_WORKER} -f AddPython3.6Dockerfile .
