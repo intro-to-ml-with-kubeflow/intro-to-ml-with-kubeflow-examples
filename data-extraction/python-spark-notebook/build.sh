@@ -1,36 +1,46 @@
 #!/bin/bash
 # Build a notebook with Spark
 set -ex
-V=${V:-"16"}
+V=${V:-"19"}
 REPO=${REPO:-"gcr.io/$PROJECT"}
 TARGET=${TARGET:-"$REPO/kubeflow/spark-notebook:v$V"}
 BASE=${BASE:-"gcr.io/kubeflow-images-public/tensorflow-1.15.2-notebook-cpu:1.0.0"}
-docker build . -t "${TARGET}" --build-arg base=$BASE
+SPARK_VERSION="3.0.0-preview2"
+SPARK_RELEASE="spark-3.0.0-preview2-bin-hadoop3.2"
+SPARK_ARTIFACT="${SPARK_RELEASE}.tgz"
+docker build . -t "${TARGET}" --build-arg sparkversion="${SPARK_VERSION}" --build-arg sparkrelease="${SPARK_RELEASE}" --build-arg base="${BASE}"
 docker push "${TARGET}"
 # Build Spark worker image
 SPARK_TARGET=${SPARK_TARGET:-"$REPO/kubeflow/spark-worker"}
+if [ ! -f /tmp/${SPARK_ARTIFACT} ]; then
+  pushd /tmp/
+  # Sometimes the US mirror fails
+  wget http://mirrors.ibiblio.org/apache/spark/spark-${SPARK_VERSION}/${SPARK_ARTIFACT} || \
+    wget https://www-us.apache.org/dists/spark/spark-${SPARK_VERSION}/${SPARK_ARTIFACT} || \
+    wget https://www-eu.apache.org/dist/spark/spark-${SPARK_VERSION}/${SPARK_ARTIFACT}
+  popd
+fi
+
 tmp_dir=$(mktemp -d -t spark-build-XXXXXXXXXX)
 pushd ${tmp_dir}
-# Sometimes the US mirror fails
-wget https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.8.tgz || wget https://www-eu.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.8.tgz
-tar -xvf spark-2.4.5-bin-hadoop2.8.tgz
-pushd spark-2.4.5-bin-hadoop2.8
-./bin/docker-image-tool.sh -r $SPARK_TARGET -t v2.4.5 -b java_image_tag=8 build
-./bin/docker-image-tool.sh -r $SPARK_TARGET -t v2.4.5 push
+tar -xvf /tmp/${SPARK_ARTIFACT}
+pushd ${SPARK_RELEASE}
+
+./bin/docker-image-tool.sh -r $SPARK_TARGET -t v${SPARK_VERSION} build --build-arg java_image_tag=11-jre-slim
+./bin/docker-image-tool.sh -r $SPARK_TARGET -t v${SPARK_VERSION} -p kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
+./bin/docker-image-tool.sh -r $SPARK_TARGET -t v${SPARK_VERSION} push
 popd
 popd
 # Add GCS to Spark images
-docker build --build-arg base=$SPARK_TARGET/spark:v2.4.5 -t "${SPARK_TARGET}/spark-with-gcs:v2.4.5-$V" -f AddGCSDockerfile .
-docker build --build-arg base=$SPARK_TARGET/spark-r:v2.4.5 -t "${SPARK_TARGET}/spark-r-with-gcs:v2.4.5-$V" -f AddGCSDockerfile .
-PYSPARK_WITH_GCS="${SPARK_TARGET}/spark-py-with-gcs:v2.4.5-$V"
-docker build --build-arg base=$SPARK_TARGET/spark-py:v2.4.5 -t ${PYSPARK_WITH_GCS} -f AddGCSDockerfile .
-# Add Python 3.6 to Spark images
-SPARK_PY36_WORKER="${SPARK_TARGET}/spark-py-36:v2.4.5-$V"
+docker build --build-arg base=$SPARK_TARGET/spark:v${SPARK_VERSION} -t "${SPARK_TARGET}/spark-with-gcs:v${SPARK_VERSION}-$V" -f AddGCSDockerfile .
+PYSPARK_WITH_GCS="${SPARK_TARGET}/spark-py-with-gcs:v${SPARK_VERSION}-$V"
+docker build --build-arg base=$SPARK_TARGET/spark-py:v${SPARK_VERSION} -t ${PYSPARK_WITH_GCS} -f AddGCSDockerfile .
+# Add Python 3.6 to PySpark images for notebook compat
+SPARK_PY36_WORKER="${SPARK_TARGET}/spark-py-36:v${SPARK_VERSION}-$V"
 docker build --build-arg base=${PYSPARK_WITH_GCS} -t ${SPARK_PY36_WORKER} -f AddPython3.6Dockerfile .
 
-docker push "${SPARK_TARGET}/spark-with-gcs:v2.4.5-$V"
-docker push "${SPARK_TARGET}/spark-r-with-gcs:v2.4.5-$V"
-docker push "${SPARK_TARGET}/spark-py-with-gcs:v2.4.5-$V"
+docker push "${SPARK_TARGET}/spark-with-gcs:v${SPARK_VERSION}-$V"
+docker push "${SPARK_TARGET}/spark-py-with-gcs:v${SPARK_VERSION}-$V"
 docker push "${SPARK_PY36_WORKER}"
 rm -rf ${tmp_dir}
 
