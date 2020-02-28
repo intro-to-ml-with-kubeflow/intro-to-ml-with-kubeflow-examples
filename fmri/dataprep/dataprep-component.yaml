@@ -1,0 +1,13 @@
+name: Process 4D fMRI data into 2D Matrix
+description: This is shockingly cool.
+inputs:
+  - {name: in, type: String, description='Input file name.'}
+  - {name: out, type: String, description='Output file name.'}
+implementation:
+  container:
+    image: rawkintrevo/py-fmri-prep
+    command: [
+      python, /pipelines/component/src/program.py,
+      {inputValue:  in},
+      inputValue:  out}
+    ]

@@ -1,0 +1,11 @@
+name: Synthetic fMRI Data on Demand
+description: This is shockingly cool.
+inputs:
+  - {name: out, type: String, description='Output file name.'}
+implementation:
+  container:
+    image: rawkintrevo/rawkintrevo/r-fmri-gen
+    command: [
+      Rscript, /pipelines/component/src/program.R,
+      --out,  {inputValue:  out},
+    ]
