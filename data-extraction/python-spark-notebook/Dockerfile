@@ -1,6 +1,8 @@
 # See https://www.kubeflow.org/docs/notebooks/custom-notebook/
 ARG base
 FROM $base
+ARG sparkversion
+ARG sparkrelease
 # We need to run as root for updates
 USER root
 
@@ -9,7 +11,7 @@ ENV SPARK_HOME /opt/spark
 
 # Install java because Spark needs it
 RUN apt-get update && \
-    apt-get install -yq openjdk-8-jre openjdk-8-jre-headless && \
+    apt-get install -yq openjdk-11-jre openjdk-11-jre-headless && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -18,9 +20,10 @@ RUN set -ex && \
     rm /bin/sh && \
     ln -sv /bin/bash /bin/sh
 
+RUN  echo "Setting up $sparkversion"
 RUN  cd /tmp && \
-     (wget https://www-us.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.8.tgz || wget https://www-eu.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.8.tgz) && \
-     cd /opt && tar -xvf /tmp/spark-2.4.5-bin-hadoop2.8.tgz && rm /tmp/spark-* && mv spark-2.4.5-bin-hadoop2.7 spark && cd spark/python && pip install -e .
+     (wget https://www-us.apache.org/dist/spark/spark-${sparkversion}/${sparkrelease}.tgz || wget https://www-eu.apache.org/dist/spark/spark-${sparkversion}/${sparkrelease}.tgz) && \
+     cd /opt && tar -xvf /tmp/${sparkrelease}.tgz && rm /tmp/${sparkrelease}.tgz && mv ${sparkrelease} spark && cd spark/python && pip install -e .
 
 # Add access to GCS
 RUN rm $SPARK_HOME/jars/guava-1*.jar
@@ -29,7 +32,7 @@ ADD https://maven-central.storage.googleapis.com/maven2/com/google/guava/guava/2
 ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop2.jar $SPARK_HOME/jars
 
 # Add the S3A connector
-ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.8.2/hadoop-aws-2.8.2.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.2.0/hadoop-aws-3.2.0.jar $SPARK_HOME/jars
 ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.11.712/aws-java-sdk-1.11.712.jar $SPARK_HOME/jars
 
 # Fix permissions
