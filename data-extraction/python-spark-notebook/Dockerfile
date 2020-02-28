@@ -11,7 +11,7 @@ ENV SPARK_HOME /opt/spark
 
 # Install java because Spark needs it
 RUN apt-get update && \
-    apt-get install -yq openjdk-11-jre openjdk-11-jre-headless && \
+    apt-get install -yq openjdk-8-jre openjdk-8-jre-headless && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -29,11 +29,11 @@ RUN  cd /tmp && \
 RUN rm $SPARK_HOME/jars/guava-1*.jar
 ADD https://maven-central.storage.googleapis.com/maven2/com/google/guava/guava/23.0/guava-23.0.jar $SPARK_HOME/jars
 # Add the connector jar needed to access Google Cloud Storage using the Hadoop FileSystem API.
-ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop2.jar $SPARK_HOME/jars
+ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop3.jar $SPARK_HOME/jars
 
 # Add the S3A connector
 ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.2.0/hadoop-aws-3.2.0.jar $SPARK_HOME/jars
-ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.11.712/aws-java-sdk-1.11.712.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.732/aws-java-sdk-bundle-1.11.732.jar $SPARK_HOME/jars
 
 # Fix permissions
 WORKDIR /opt/spark/work-dir
