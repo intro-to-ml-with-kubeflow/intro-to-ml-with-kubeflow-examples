@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-# Minio runs on port 9000, expose locally to use mc
-kubectl port-forward -n kubeflow svc/minio-service 9000:9000
+# Minio runs on port 9000 (both UI and service) so expose locally to use cli or UI
+kubectl port-forward -n kubeflow svc/minio-service 9000:9000 &
 
 # Kubeflow creates a minio user with password minio123 at install
 mc config host add minio http://localhost:9000 minio minio123
