@@ -1,0 +1,12 @@
+ARG base
+FROM $base
+# Run as root for updates
+USER root
+# Install Spamassassin
+RUN apt-get update && \
+    apt-get install -yq spamassassin spamc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/cache/apt
+# Switch back to the expected user
+USER jovyan
