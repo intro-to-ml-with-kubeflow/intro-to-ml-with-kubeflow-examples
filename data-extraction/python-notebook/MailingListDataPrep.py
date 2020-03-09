@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# Here we can install some packages our notebook needs. We can also install them in our container to speed things up & make it more reliable. But for prototyping this works great!
+
+# In[ ]:
 
 
-get_ipython().system('pip install lxml')
-get_ipython().system('pip install git+https://github.com/kubernetes-client/python.git')
+get_ipython().system('pip3 install --upgrade lxml')
+get_ipython().system('pip3 install --upgrade pandas')
 
 
-# In[2]:
+# We can use Jupyter notebooks just like normal inside of Kubeflow
+
+# In[ ]:
 
 
 from datetime import datetime
@@ -93,12 +97,9 @@ def contains_exception_in_task(body):
 # In[ ]:
 
 
-datesToScrape =  [(2019, i) for i in range(1,10)] # + \
-#                 [(2018, i) for i in range(1,13)] + \
-#                 [(2017, i) for i in range(1,13)] + 
+datesToScrape =  [(2019, i) for i in range(1,13)]
 
 records = []
-## todo, go back further
 for y,m in datesToScrape:
     print(m,"-",y)
     records += scrapeMailArchives("spark-dev", y, m)
@@ -163,89 +164,24 @@ train_pred = kmeans.predict(train)
 test_pred = kmeans.predict(test)
 
 
-# ### Now let's build some Pipelines!
-# 
-# Rawkintrevo is a rawkin dummy so check this link early and often: 
-# https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#standard-component-in-app
-# 
-# When I'm learning something new, I like to start with the dead simple example first and then "build it up" from there.  When it comes to composing Pipelines with Python, the dead simplest route are "Lightweight Python Functions" (link), and the dead simplest function is an echo. So here we're going to make our "Hello World" which is actually a numerical echo pipeline. That is to say, you put a number in, it spits the number out.
-# 
-# Let's start by importing `kfp` and defining our function.
+# Alternatively, by structuring our code correctly we can take advantage of pipelines
 
 # In[ ]:
 
 
-get_ipython().system("pip3 install 'kfp' ")
+get_ipython().system('pip3 install --upgrade kfp')
 
 
-# In[3]:
+# In[ ]:
 
 
 import kfp
 
-def deadSimpleIntEchoFn(i: int) -> int:
-    return i
+
+# In[ ]:
 
 
-# OK, nothing too crazy there, amirigh? Notice we typed everything. You don't _have_ to as far as I know, but really that's just good practice. Many a bug have been introduced by not strongly typing variables. I'm sure some Python-ados are cussing up a storm right now, and to them I say- go back to R, the adults are talking over here. 
-# 
-# Next step, we want to wrap our function `deadSimpleIntEchoFn` into a Kubeflow Pipelin Operation.  There's a nice little method to do this called `kfp.components.func_to_container_op`. This will return a factory function with a strongly typed signature. 
-# 
-
-# In[4]:
-
-
-simpleStronglyTypedFunction = kfp.components.func_to_container_op(deadSimpleIntEchoFn)
-
-
-# When we create a pipeline in the next step, the factory will construct a `ContainerOp`, which will run the original function (`deadSimpleIntEchoFn`) in a container. To prove that, check this out:
-
-# In[5]:
-
-
-foo = simpleStronglyTypedFunction(1)
-type(foo)
-
-
-# OK, I know that seems trivial, I myself am nearly bored to tears. But this will be important when we start trying to mount data volumes (of y'know, training data, and other stuff), in the second merry-go-round.
-# 
-# For now, let's finish off this patronizingly simple example by defining and compiling our Pipeline.
-
-# In[6]:
-
-
-@kfp.dsl.pipeline(
-  name='Dead Simple 1',
-  description='This is for all intents and purposes and echo pipeline. We take a number in, we spit it back out.'
-)
-def echo_pipeline(param_1: kfp.dsl.PipelineParam):
-  my_step = simpleStronglyTypedFunction(i= param_1)
-
-kfp.compiler.Compiler().compile(echo_pipeline,  
-  'echo-pipeline.zip')
-
-
-# OK, now to run this pipeline, you can go one of two ways. You can run it via code, or you can download `echo-pipeline.zip` go over to the Pipelines WebUI, upload it, do experiments, etc. I get paid by the page over here, so guess which one I'm going to take screen shots of? 
-# 
-# [Screenshots of rt click / download / uplaod ]
-# 
-# Jk, in the next example I'll show how to execute it with code too, but it's not nearly as pretty. I feel like people making these back end tools really never spend enough time on making the WebUI look good. Two notable exceptions are Apache Flink, and Kubeflow. 
-
-# ### A slightly less dead simple example
-# 
-# In this we're going ot pull down some data from the internet.  IRL you would probably want to connect to a database or a stream or whatever the cool kids are doing by the time you read this. 
-# 
-# First we'll declare our data fetching algorithm, which takes an Apache Email List, and a year and will get first a list of all the messages, then iterarte through and download each message. Note two things- it will get at MOST one year of data, and it sleeps in between calls. Don't be a jerk- if you want to try something on bigger data, got get your own set, the Apache Software Foundation is a charity- so don't abuse their mail archives just because. 
-
-# In[102]:
-
-
-def download_data() -> bool:
-    ## packages_to_install should cover this, but seems to be missing? so we have to hack
-    from pip._internal import main as pipmain
-    pipmain(['install', 'lxml', 'requests'])
-    
-    # / hacks
+def download_data(year: int) -> str:
     
     from datetime import datetime
     from lxml import etree
@@ -284,9 +220,7 @@ def download_data() -> bool:
             
         return output
 
-    datesToScrape =  [(2019, i) for i in range(1,2)] # + \
-    #                 [(2018, i) for i in range(1,13)] + \
-    #                 [(2017, i) for i in range(1,13)] + 
+    datesToScrape =  [(year, i) for i in range(1,2)]
 
     records = []
     ## todo, go back further
@@ -298,35 +232,58 @@ def download_data() -> bool:
     with open(output_path, 'w') as f:
         json.dump(records, f)
     
-    return True
+    return output_path
     
 
 
-# ### Doing Witchcraft
+# Now that we have some data, we want to get rid of any "bad" records
+
+# In[ ]:
+
+
+#tag::clean_data_fun[]
+def clean_data(input_path: str) -> str:
+    import json
+    import pandas as pd
+    
+    print("loading records...")
+    with open(input_path, 'r') as f:
+        records = json.load(f)
+    print("records loaded")
+    
+    # Drop records without a subject, body, or sender
+    records.dropna(subset=["subject", "body", "from"])
+    
+    output_path = '/data_processing/clean_data.json'
+    with open(output_path, 'w') as f:
+        json.dump(records, f)
+    
+    return output_path
+#end::clean_data_fun[]
+
+
+# ### Preparing the data
 # 
 # Remember earlier when we did that big (and arguably pointless) classification of emails from the Apache Spark mailing list? OK, now we're going to do it again, as a "lightweight" Python function in a Kubeflow Pipeline.  I hope the irony of the term "lightweight" isn't lost on anyone, because this is pretty blatent abuse of something that was originally presented for conveinience. 
 # 
-# First note, all of the imports and declarations of helper functions MUST be with in the "ligthweight" function.  This train wreck even has me upgrading `pandas`.  One could argue (and they would probably be correct) that I have two steps here- feature prep and ML, and as such I should split them. I would say that's fair, but I choose not to do so at this time.  Perhaps in some scripts later on?
+# First note, all of the imports and declarations of helper functions MUST be with in the "ligthweight" function. One could argue (and they would probably be correct) that I have two steps here- feature prep and ML, and as such I should split them. I would say that's fair, but I choose not to do so at this time.  Perhaps in some scripts later on?
 # 
 # As has been pointed out so many times before, we assume the reader either arleady understands what is going on with the KMeans clustering, or better yet, doesn't even care. I won't be digging into that right now. What I will point out- and maybe as a note to the editor, the model that is finally saved really ought to be persisted somewhere.  If the model isn't saved, then this basically pointless pipeline, is truly pointless. 
 # 
 
 # Now let's make sure we can read that data in the next step (before we write a big complicated model to do whatever torture to it).
 
-# In[120]:
+# In[ ]:
 
 
-def do_witchcraft(fn_input: bool):
-    
-    from pip._internal import main as pipmain
-    pipmain(['install', '--upgrade', 'pandas']) # df.to_numpy is new in 0.24 which isolder than whatever is shipped here
-    
+def prepare_features(input_path: str):
+   
     import json
     import re
     import pandas as pd
     
     print("loading records...")
-    with open('/data_processing/data.json', 'r') as f:
+    with open(input_path, 'r') as f:
         records = json.load(f)
     print("records loaded")
     
@@ -400,6 +357,75 @@ def do_witchcraft(fn_input: bool):
                                 domainFeatures])
 
 
+# 
+# ### The Kubeflow Bit.
+# 
+# Now we can put these two pieces together into a pipeline. Since the data is relatively small we will use a persistent volume put them together. Later on we can add training to this pipeline as well.
+# 
+# 
+
+# In[ ]:
+
+
+# Make a volume example. We redo it inside of the pipeline definition because we need to be inside
+#tag::makeVolume[]
+dvop = dsl.VolumeOp(
+    name="create_pvc",
+    resource_name="my-pvc-2",
+    size="5Gi",
+    modes=dsl.VOLUME_MODE_RWO)
+#end::makeVolume[]
+
+
+# In[ ]:
+
+
+#tag::makePipeline[]
+@kfp.dsl.pipeline(
+  name='Simple1',
+  description='Simple1'
+)
+def my_pipeline2(year: int):
+    dvop = dsl.VolumeOp(
+        name="create_pvc",
+        resource_name="my-pvc-2",
+        size="5Gi",
+        modes=dsl.VOLUME_MODE_RWO)
+    download_data_op = kfp.components.func_to_container_op(
+        download_data,
+        packages_to_install=['lxml', 'requests'])
+    clean_data_op = kfp.components.func_to_container_op(
+        clean_data,
+        packages_to_install=['pandas>=0.24'])
+    prepare_features_op = kfp.components.func_to_container_op(
+        prepare_features,
+        packages_to_install=['pandas>=0.24'])
+    step1 = download_data_op(year).add_pvolumes({"/data_processing": dvop.volume})
+    step2 = clean_data_op(input_path=step1.output).add_pvolumes({"/data_processing": dvop.volume})
+    step3 = prepare_features_op(input_path=step2.output).add_pvolumes({"/data_processing": dvop.volume})
+
+kfp.compiler.Compiler().compile(my_pipeline2, 'local-data-prep.zip')
+#end::makePipeline[]
+
+
+# In[ ]:
+
+
+client = kfp.Client()
+
+
+# In[ ]:
+
+
+my_experiment = client.create_experiment(name='local-data-prep-test-1')
+my_run = client.run_pipeline(my_experiment.id, 'local-data-prep', 
+  'local-data-prep.zip', params={'year': '2019'})
+
+
+# In[ ]:
+
+
+def train_func(input_path: String):
     from sklearn.cluster import KMeans
     from sklearn.model_selection import train_test_split
 
@@ -412,54 +438,6 @@ def do_witchcraft(fn_input: bool):
     # TODO: Dump the model somewhere you can use it later. 
 
 
-# 
-# ### The Kubeflow Bit.
-# 
-# OK, now you've seen a fairly exhuastive demonstration of antipatterns in programming, let's get down to the business of this book and actually create our Kubeflow Pipeline.  First you will notice we have to call in `k8s_client`.  My version of (working) Kubeflow is old and uses a somewhat antiquated method for attatching volumes to `ContainerOps`.  You should recall `ContainrOps` from the previous chapter, but here I will say, they are actually created not at 
-# ```
-# witchcraft_fn =...
-# ```
-# 
-# But at 
-# ```
-# step1 = ...
-# step2 = ...
-# ```
-# 
-# Which is why it is there, we are adding the `add_volume` and `add_volume_mount`. 
-# 
-# Obviously PVCs are only one of many ways to get data into our containers, and honestly may not be the _best_ way.  However, we often may "get" our data in the first step and then need to hand it, in various stages, from one component to the next, and in these cases, `PersistentVolumeClaims` work exceedingly well, and so they are presented as an example. 
-# 
-# 
-
-# In[122]:
-
-
-from kubernetes import client as k8s_client
-
-download_data_fn = kfp.components.func_to_container_op(download_data)
-witchcraft_fn = kfp.components.func_to_container_op(do_witchcraft)
-
-@kfp.dsl.pipeline(
-  name='Simple1',
-  description='Simple1'
-)
-def my_pipeline2():
-    ## Note this is OLD code, cleaner way to do it now- revisit when you have 0.7 up
-    step1 = download_data_fn().add_volume(k8s_client.V1Volume(name='data-processing',
-                                                                                  host_path=k8s_client.V1HostPathVolumeSource(path='/data_processing'))) \
-                            .add_volume_mount(k8s_client.V1VolumeMount(
-                                          mount_path='/data_processing',
-                                          name='data-processing'))
-    step2 = witchcraft_fn(fn_input= step1.output).add_volume(k8s_client.V1Volume(name='data-processing',
-                                                                                  host_path=k8s_client.V1HostPathVolumeSource(path='/data_processing'))) \
-                            .add_volume_mount(k8s_client.V1VolumeMount(
-                                          mount_path='/data_processing',
-                                          name='data-processing'))
-
-kfp.compiler.Compiler().compile(my_pipeline2, 'my-pipeline6.zip')
-
-
 # And just like that, we've done it. We've created a Kubeflow Pipeline.
 # 
 # So let's take a moment to step back and think, "what in the crazy-town-heck is going on here?!".  A valid question, and well spotted.  Each "Step" is going to be creating a container.  Maybe I should have noted that earlier when talking about attatching volumes, beacuse if you thougth I was doing that to a function, you'd probably think me quite insane. 
@@ -468,7 +446,7 @@ kfp.compiler.Compiler().compile(my_pipeline2, 'my-pipeline6.zip')
 # 
 # ### Using Python to Create Containers, but not like a crazy person
 # 
-# For completeness, let's last explore how to do all of these things like not a psycopath. 
+# For completeness, let's last explore how to do all of these things using annotations. 
 # 
 # The trick for the most part is to create a function that returns a `kfp.dsl.ContainerOp`.  This will point to an image, note the volumes that need to be mounted, and a number of other things. I've heard told people don't always just like creating absurdly large and fat functions to do everything in real life, so I leave this hear as an aside in case the reader is interested in it.  It's alsow worth noting that adding the `@kfp.dsl.component` annotation instructs teh Kubeflow compiler to turn on static typce checking. 
 # 
@@ -494,6 +472,12 @@ kfp.compiler.Compiler().compile(my_pipeline2, 'my-pipeline6.zip')
 # ```
 # 
 # Which should look exceedingly familiar as we did something very similar with our `download_data_fn` and `witchcraft_fn`.  
+
+# In[ ]:
+
+
+
+
 
 # In[ ]:
 
