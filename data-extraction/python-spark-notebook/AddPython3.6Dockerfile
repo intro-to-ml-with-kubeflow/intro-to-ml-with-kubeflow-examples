@@ -1,0 +1,25 @@
+ARG base
+FROM $base
+
+USER root
+
+# Install libraries we need to build Python 3.6
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -q make build-essential libssl-dev zlib1g-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+    xz-utils tk-dev libffi-dev liblzma-dev && \
+    rm -rf /var/cache/apt
+
+# Install python3.6 to match the notebook
+RUN cd /tmp && \
+    wget https://www.python.org/ftp/python/3.6.10/Python-3.6.10.tgz && \
+    tar -xvf Python-3.6.10.tgz && \
+    cd Python-3.6.10 && \
+    ./configure && \
+    make -j 8 && \
+    make altinstall
+    
+    
+RUN python3.6 -m pip install pandas pyarrow==0.11.0 spacy
+# We depend on Spark being on the PYTHONPATH so no pip install
+USER 185
