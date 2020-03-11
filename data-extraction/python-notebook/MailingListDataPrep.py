@@ -24,6 +24,14 @@ import re
 
 import pandas as pd
 
+import os
+
+
+# In[ ]:
+
+
+container_registry = "" # Wherever you put your containers
+
 
 # In[ ]:
 
@@ -176,6 +184,7 @@ get_ipython().system('pip3 install --upgrade kfp')
 
 
 import kfp
+import kfp.dsl as dsl
 
 
 # In[ ]:
@@ -251,12 +260,12 @@ def clean_data(input_path: str) -> str:
         records = json.load(f)
     print("records loaded")
     
+    df = pd.DataFrame(records)
     # Drop records without a subject, body, or sender
-    records.dropna(subset=["subject", "body", "from"])
+    cleaned = df.dropna(subset=["subject", "body", "from"])
     
     output_path = '/data_processing/clean_data.json'
-    with open(output_path, 'w') as f:
-        json.dump(records, f)
+    cleaned.to_hdf(output_path, key="clean")
     
     return output_path
 #end::clean_data_fun[]
@@ -278,13 +287,11 @@ def clean_data(input_path: str) -> str:
 
 def prepare_features(input_path: str):
    
-    import json
     import re
     import pandas as pd
     
     print("loading records...")
-    with open(input_path, 'r') as f:
-        records = json.load(f)
+    df = pd.read_hdf(input_path, key="clean")
     print("records loaded")
     
     
@@ -323,8 +330,7 @@ def prepare_features(input_path: str):
     def contains_exception_in_task(body):
         # Look for a line along the lines of ERROR Executor: Exception in task
         return "ERROR Executor: Exception in task" in body
-    
-    df = pd.DataFrame(records)
+
     print(df.shape)
     df['links'] = df['body'].apply(extract_links)
     df['containsPythonStackTrace'] = df['body'].apply(contains_python_stack_trace)
@@ -396,15 +402,15 @@ def my_pipeline2(year: int):
         packages_to_install=['lxml', 'requests'])
     clean_data_op = kfp.components.func_to_container_op(
         clean_data,
-        packages_to_install=['pandas>=0.24'])
+        packages_to_install=['pandas>=0.24', 'tables'])
     prepare_features_op = kfp.components.func_to_container_op(
         prepare_features,
-        packages_to_install=['pandas>=0.24'])
+        packages_to_install=['pandas>=0.24', 'tables', 'scikit-learn'])
     step1 = download_data_op(year).add_pvolumes({"/data_processing": dvop.volume})
     step2 = clean_data_op(input_path=step1.output).add_pvolumes({"/data_processing": dvop.volume})
     step3 = prepare_features_op(input_path=step2.output).add_pvolumes({"/data_processing": dvop.volume})
 
-kfp.compiler.Compiler().compile(my_pipeline2, 'local-data-prep.zip')
+kfp.compiler.Compiler().compile(my_pipeline2, 'local-data-prep-2.zip')
 #end::makePipeline[]
 
 
@@ -417,9 +423,23 @@ client = kfp.Client()
 # In[ ]:
 
 
-my_experiment = client.create_experiment(name='local-data-prep-test-1')
+my_experiment = client.create_experiment(name='local-data-prep-test-2')
 my_run = client.run_pipeline(my_experiment.id, 'local-data-prep', 
-  'local-data-prep.zip', params={'year': '2019'})
+  'local-data-prep-2.zip', params={'year': '2019'})
+
+
+# If we were using Spamassasin or some other library installed in a different base container we would:
+
+# In[ ]:
+
+
+# Clean data with custom container
+#tag::cleanDataWithContainer[]
+clean_data_op = kfp.components.func_to_container_op(
+    clean_data,
+    base_image="{0}/kubeflow/spammassisan".format(container_registry),
+    packages_to_install=['pandas>=0.24', 'tables'])
+#end::cleanDataWithContainer[]
 
 
 # In[ ]:
