@@ -1,0 +1,19 @@
+name: Python Linear Regression Example
+description: This is soooo awesome!
+
+inputs:
+  - {name: data_url, type: String, default: 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', description: 'The url to download data from.'}
+  - {name: last_col, type: Int, default: 4, description: 'The last numeric column for regressing on.'}
+
+
+
+implementation:
+  container:
+    image: rawkintrevo/linreg_py:0.6
+    command: [
+      python, /program.py,
+    ]
+    args: [
+    {inputValue: data_url},
+    {inputValue: last_col}
+    ]

@@ -1,0 +1,15 @@
+name: echo - KF echo tester
+description: A stupid test to make sure Im making components correctly.
+
+inputs:
+  - {name: Thing to echo, type: String, default: 'epstein didnt kill himself'}
+
+outputs:
+  - {name: The echo, type: String }
+
+implementation:
+  container:
+    image: rawkintrevo/kf-echo-test
+    command: [
+      /echo.sh {inputValue: Thing to echo},
+    ]
