@@ -15,19 +15,25 @@ https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
 4
 """
 
+#tag::handleCli[]
 with open("/data/data.csv", 'wb') as f:
     r = get(sys.argv[1])
     f.write(r.content)
 
 
 lastCol = int(sys.argv[2])
+#end::handleCli[]
+
+#tag::loadData[]
 data = pd.read_csv("/data/data.csv")
 columnNames = data.columns
 
 y = pd.DataFrame(data[columnNames[0]])
 x = data[columnNames[1:lastCol]]
+#end::loadData[]
 
+#tag::doModel[]
 model = LinearRegression()
 model.fit(x, y)
-
 print(model.coef_)
+#end::doModel[]
