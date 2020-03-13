@@ -24,15 +24,13 @@ with open("/data/data.csv", 'wb') as f:
 lastCol = int(sys.argv[2])
 #end::handleCli[]
 
-#tag::loadData[]
+#tag::doModel[]
 data = pd.read_csv("/data/data.csv")
 columnNames = data.columns
 
 y = pd.DataFrame(data[columnNames[0]])
 x = data[columnNames[1:lastCol]]
-#end::loadData[]
 
-#tag::doModel[]
 model = LinearRegression()
 model.fit(x, y)
 print(model.coef_)
