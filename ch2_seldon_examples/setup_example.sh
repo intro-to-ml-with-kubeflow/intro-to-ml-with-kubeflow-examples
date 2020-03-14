@@ -14,7 +14,7 @@ example_path=$(dirname \"$0\")
 # You can download & edit the configuration at this point if you need to.
 # For generic k8s with istio:
 export MANIFEST_BRANCH=${MANIFEST_BRANCH:-v1.0-branch}
-export MANIFEST_VERSION=${MANIFEST_VERSION:-v1.0.0}
+export MANIFEST_VERSION=${MANIFEST_VERSION:-v1.0.1}
 manifest_root=https://raw.githubusercontent.com/kubeflow/manifests/
 # On most enviroments this will create a "vanilla" kubeflow install using istio.
 KFDEF=${manifest_root}${MANIFEST_BRANCH}/kfdef/kfctl_k8s_istio.${MANIFEST_VERSION}.yaml
