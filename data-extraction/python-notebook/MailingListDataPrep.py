@@ -264,10 +264,10 @@ def clean_data(input_path: str) -> str:
     # Drop records without a subject, body, or sender
     cleaned = df.dropna(subset=["subject", "body", "from"])
     
-    output_path = '/data_processing/clean_data.json'
-    cleaned.to_hdf(output_path, key="clean")
+    output_path_hdf = '/data_processing/clean_data.hdf'
+    cleaned.to_hdf(output_path_hdf, key="clean")
     
-    return output_path
+    return output_path_hdf
 #end::clean_data_fun[]
 
 

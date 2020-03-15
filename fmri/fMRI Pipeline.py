@@ -34,7 +34,19 @@
 # ```
 # at the bottom
 
-# In[51]:
+# In[ ]:
+
+
+get_ipython().system('pip3 install --upgrade --user kfp')
+
+
+# In[ ]:
+
+
+import kfp
+
+
+# In[ ]:
 
 
 import kfp.dsl as dsl
@@ -49,10 +61,10 @@ container_manifest = {
   "spec": {
       "type": "Scala",
       "mode": "cluster",
-      "image": "gcr.io/spark-operator/spark:v2.4.5",
+      "image": "gcr.io/boos-demo-projects-are-rad/kf-steps/kubeflow/spark-with-dsvd:v1",
       "imagePullPolicy": "Always",
       "mainClass": "org.rawkintrevo.dsvd.App",
-      "mainApplicationFile": "local:///home/jovyan/dsvd-1.0-SNAPSHOT-jar-with-dependencies.jar",
+      "mainApplicationFile": "local:///dsvd-1.0-SNAPSHOT-jar-with-dependencies.jar", # See the Dockerfile
       "sparkVersion": "2.4.5",
       "restartPolicy": {
         "type": "Never"
@@ -134,13 +146,21 @@ def fmri_pipeline():
 
 import kfp.compiler as compiler
 
-compiler.Compiler().compile(fmri_pipeline,"fmri-pipeline.tar.gz")
+compiler.Compiler().compile(fmri_pipeline,"fmri-pipeline.zip")
 
 
-# In[19]:
+# In[ ]:
 
 
-get_ipython().system('pwd')
+client = kfp.Client()
+
+
+# In[ ]:
+
+
+my_experiment = client.create_experiment(name='fmri-pipeline-test-2')
+my_run = client.run_pipeline(my_experiment.id, 'fmri-pipeline-test', 
+  'fmri-pipeline.zip')
 
 
 # In[ ]:
