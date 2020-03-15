@@ -1,5 +1,5 @@
 # Use the spark operator 
-FROM gcr.io/spark-operator/spark:v2.4.4
+FROM gcr.io/spark-operator/spark:v2.4.5
 COPY requirements.txt /
 RUN virtualenv --python python3 /myvenv
 RUN source /myvenv/bin/activate && pip install -r /requirements.txt
