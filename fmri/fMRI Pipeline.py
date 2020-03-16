@@ -141,7 +141,8 @@ def fmri_pipeline():
     rop = dsl.ResourceOp(
         name="spark-scala-mahout-fmri",
         k8s_resource=container_manifest,
-        action="create",  
+        action="create",
+        success_condition="status.applicationState.state == COMPLETED"
     ).after(step2)
 
 import kfp.compiler as compiler
