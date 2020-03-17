@@ -1,8 +1,9 @@
-# Use the spark operator 
-FROM gcr.io/spark-operator/spark:v2.4.5
+# Use the spark operator image as base
+FROM gcr.io/spark-operator/spark-py:v2.4.5
+# Install Python requirements
 COPY requirements.txt /
-RUN virtualenv --python python3 /myvenv
-RUN source /myvenv/bin/activate && pip install -r /requirements.txt
+RUN pip3 install -r /requirements.txt
+# Now you can reference local:///job/my_file.py
 RUN mkdir -p /job
 COPY *.py /job
 
