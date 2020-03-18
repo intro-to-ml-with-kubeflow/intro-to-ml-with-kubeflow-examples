@@ -337,6 +337,7 @@ def prepare_features(input_path: str):
     df['containsJavaStackTrace'] = df['body'].apply(contains_probably_java_stack_trace)
     df['containsExceptionInTaskBody'] = df['body'].apply(contains_exception_in_task)
 
+    #tag::local_mailing_list_feature_prep_fun[]
     df['domains'] = df['links'].apply(extract_domains)
     df['isThreadStart'] = df['depth'] == '0'
     
@@ -344,13 +345,11 @@ def prepare_features(input_path: str):
     from sklearn.feature_extraction.text import TfidfVectorizer
 
     bodyV = TfidfVectorizer()
-    # bodyV = TfidfVectorizer(max_features=10000) #if we cared about making this 1:1 w holden's code.
     bodyFeatures = bodyV.fit_transform(df['body'])
 
     domainV = TfidfVectorizer()
-    # domainV = TfidfVectorizer(max_features=100)
 
-    ## A couple of "None" domains really screwed the pooch on this one. Also, no lists just space seperated domains.
+    ## A couple of "None" domains really screwed the pooch on this one.Also, no lists just space seperated domains.
     def makeDomainsAList(d):
         return ' '.join([a for a in d if not a is None])
 
@@ -358,9 +357,13 @@ def prepare_features(input_path: str):
 
     from scipy.sparse import csr_matrix, hstack
 
-    data = hstack([csr_matrix(df[['containsPythonStackTrace', 'containsJavaStackTrace', 'containsExceptionInTaskBody', 'isThreadStart']].to_numpy()),
+    data = hstack([csr_matrix(df[['containsPythonStackTrace',
+                                  'containsJavaStackTrace',
+                                  'containsExceptionInTaskBody', 
+                                  'isThreadStart']].to_numpy()),
                                  bodyFeatures,
                                 domainFeatures])
+    #end::local_mailing_list_feature_prep_fun[]
 
 
 # 
@@ -403,15 +406,44 @@ def my_pipeline2(year: int):
     clean_data_op = kfp.components.func_to_container_op(
         clean_data,
         packages_to_install=['pandas>=0.24', 'tables'])
-    prepare_features_op = kfp.components.func_to_container_op(
-        prepare_features,
-        packages_to_install=['pandas>=0.24', 'tables', 'scikit-learn'])
+
     step1 = download_data_op(year).add_pvolumes({"/data_processing": dvop.volume})
     step2 = clean_data_op(input_path=step1.output).add_pvolumes({"/data_processing": dvop.volume})
     step3 = prepare_features_op(input_path=step2.output).add_pvolumes({"/data_processing": dvop.volume})
 
 kfp.compiler.Compiler().compile(my_pipeline2, 'local-data-prep-2.zip')
 #end::makePipeline[]
+
+
+# In[ ]:
+
+
+@kfp.dsl.pipeline(
+  name='Simple1',
+  description='Simple1'
+)
+def my_pipeline2(year: int):
+    dvop = dsl.VolumeOp(
+        name="create_pvc",
+        resource_name="my-pvc-2",
+        size="5Gi",
+        modes=dsl.VOLUME_MODE_RWO)
+    download_data_op = kfp.components.func_to_container_op(
+        download_data,
+        packages_to_install=['lxml', 'requests'])
+    clean_data_op = kfp.components.func_to_container_op(
+        clean_data,
+        packages_to_install=['pandas>=0.24', 'tables'])
+    #tag::add_feature_step[]
+    prepare_features_op = kfp.components.func_to_container_op(
+        prepare_features,
+        packages_to_install=['pandas>=0.24', 'tables', 'scikit-learn'])
+    #tag::end_feature_step[]
+    step1 = download_data_op(year).add_pvolumes({"/data_processing": dvop.volume})
+    step2 = clean_data_op(input_path=step1.output).add_pvolumes({"/data_processing": dvop.volume})
+    step3 = prepare_features_op(input_path=step2.output).add_pvolumes({"/data_processing": dvop.volume})
+
+kfp.compiler.Compiler().compile(my_pipeline2, 'local-data-and-feature-prep-2.zip')
 
 
 # In[ ]:
