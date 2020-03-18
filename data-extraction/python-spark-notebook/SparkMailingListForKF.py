@@ -226,9 +226,20 @@ spark_mailing_list_data.select(spark_mailing_list_data["Date"],
 # In[ ]:
 
 
-mailing_list_posts_in_reply_to = spark_mailing_list_data_with_date.filter(
+#tag::filter_junk[]
+def is_ok(post):
+    # Your special business logic goes here
+    return True
+spark_mailing_list_data_cleaned = spark_mailing_list_data_with_date.filter(is_ok)
+#end::filter_junk[]
+
+
+# In[ ]:
+
+
+mailing_list_posts_in_reply_to = spark_mailing_list_data_cleaned.filter(
     spark_mailing_list_data["In-Reply-To"].isNotNull()).alias("mailing_list_posts_in_reply_to")
-initial_posts = spark_mailing_list_data_with_date.filter(
+initial_posts = spark_mailing_list_data_cleaned.filter(
     spark_mailing_list_data["In-Reply-To"].isNull()).alias("initial_posts").cache()
 
 
@@ -248,9 +259,25 @@ ids_in_reply = mailing_list_posts_in_reply_to.select("In-Reply-To", "message-id"
 # In[ ]:
 
 
+ids_in_reply.schema
+
+
+# In[ ]:
+
+
 # Ok now it's time to save these
+#tag::write_big_data[]
 initial_posts.write.format("parquet").mode('overwrite').save(fs_prefix + "/initial_posts")
 ids_in_reply.write.format("parquet").mode('overwrite').save(fs_prefix + "/ids_in_reply")
+#end::write_big_data[]
+
+
+# In[ ]:
+
+
+#tag::small_data[]
+initial_posts.toPandas()
+#end::small_data[]
 
 
 # In[ ]:
