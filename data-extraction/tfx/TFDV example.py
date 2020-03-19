@@ -159,5 +159,64 @@ tfdv.display_schema(schema)
 # In[ ]:
 
 
+#tag::loadTFT[]
+tfx_transform = kfp.components.load_component_from_file(
+    "pipelines-0.2.5/components/tfx/Transform/component.yaml")
+#end::loadTFT[]
+
+
+# In[ ]:
+
+
+module_file="gcs://"
+
+
+# In[ ]:
+
+
+@kfp.dsl.pipeline(
+  name='TFX',
+  description='TFX pipeline'
+)
+def tfx_pipeline():
+    # DL with wget, can use gcs instead as well
+    fetch = kfp.dsl.ContainerOp(
+      name='download',
+      image='busybox',
+      command=['sh', '-c'],
+      arguments=[
+          'sleep 1;'
+          'mkdir -p /tmp/data;'
+          'wget https://raw.githubusercontent.com/moorissa/medium/master/items-recommender/data/trx_data.csv -O /tmp/data/results.csv'],
+      file_outputs={'downloaded': '/tmp/data'})
+    records_example = tfx_csv_gen(input_base=fetch.output)
+    stats = tfx_statistic_gen(input_data=records_example.output)
+    schema_op = tfx_schema_gen(stats.output)
+    tfx_example_validator(stats=stats.outputs['output'], schema=schema_op.outputs['output'])
+    #tag::tft[]
+    transformed_output = tfx_transform(
+        input_data=records_example.output,
+        schema=schema_op.outputs['output'],
+        module_file=module_file) # Path to your TFT code on GCS/S3
+    #end::tft[]
+
+
+# In[ ]:
+
+
+kfp.compiler.Compiler().compile(tfx_pipeline, 'tfx_pipeline.zip')
+
+
+# In[ ]:
+
+
+my_experiment = client.create_experiment(name='tfx_pipeline')
+my_run = client.run_pipeline(my_experiment.id, 'tfx', 
+  'tfx_pipeline.zip')
+
+
+# In[ ]:
+
+
 
 
