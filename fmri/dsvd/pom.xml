@@ -107,7 +107,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.rawkintrevo.dsvd.App</mainClass>
+              <mainClass>org.rawkintrevo.App</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>

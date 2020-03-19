@@ -7,11 +7,13 @@ library("neuRosim")
 library("oro.nifti")
 
 option_list = list(
-  make_option(c("-d", "--dim"), type="character", default=NULL,
-              help="dataset file name", metavar="character"),
-  make_option(c("-g", "--formula"), type="character", default=NULL,
-              help="formula to pass to lm", metavar="character"),
-  make_option(c("-o", "--out"), type="character", default="out.txt",
+  make_option(c("-d", "--dim"), type="integer", default=64,
+              help="the dimension of the images to generate (cubed, so it will be this on each side)", metavar="integer"),
+  make_option(c("-s", "--snr"), type="integer", default=10,
+              help="signal to noise ratio", metavar="integer"),
+  make_option(c("-n", "--nscan"), type="integer", default=100,
+              help="number of scans (images) to generate", metavar="integer"),
+  make_option(c("-o", "--out"), type="character", default="synthetic-data",
               help="file to save the model to", metavar="character")
 );
 
@@ -43,8 +45,8 @@ design2 <- simprepTemporal(regions = 2, onsets = onset,
   effectsize = list(effect1, effect2), totaltime = total)
 
 w <- c(0.3, 0.3, 0.01, 0.09, 0.1, 0.2)
-data <- simVOLfmri(dim = c(64, 64, 64), base = 100, design = design2,
-  image = regions, SNR = 10, noise = "mixture", type = "rician",
+data <- simVOLfmri(dim = c(opt$dim, opt$dim, opt$dim), base = 100, design = design2,
+  image = regions, SNR = opt$snr, noise = "mixture", type = "rician",
   weights = w, verbose = FALSE)
 
 writeNIfTI(data, filename = opt$out, verbose=TRUE)
