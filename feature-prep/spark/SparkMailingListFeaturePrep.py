@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[50]:
+# In[ ]:
 
 
 # Yes we need both these imports
@@ -21,13 +21,13 @@ import os
 
 
 
-# In[4]:
+# In[ ]:
 
 
 fs_prefix = "s3a://kf-book-examples/mailing-lists" # Create with mc as in ch1
 
 
-# In[5]:
+# In[ ]:
 
 
 os.environ["PYSPARK_PYTHON"] = "python3.6"
@@ -36,7 +36,7 @@ session = (SparkSession.builder
            .appName("processMailingListData")
            .config("spark.executor.instances", "8")
            .config("spark.driver.memoryOverhead", "0.25")
-           .config("spark.executor.memory", "12g")
+           .config("spark.executor.memory", "10g")
            .config("spark.dynamicAllocation.enabled", "false")
            .config("spark.ui.enabled", "true")
            .config("spark.kubernetes.container.image",
@@ -59,15 +59,29 @@ session = (SparkSession.builder
 sc = session.sparkContext
 
 
-# In[6]:
+# In[ ]:
 
 
 #Load data from the previous stage
+#tag::load_data[]
 initial_posts = session.read.format("parquet").load(fs_prefix + "/initial_posts")
 ids_in_reply = session.read.format("parquet").load(fs_prefix + "/ids_in_reply")
+#end::load_data[]
 
 
-# In[8]:
+# In[ ]:
+
+
+# Load data from the previous stage while checking the schema
+#tag::load_with_schema[]
+ids_schema = StructType([
+    StructField("In-Reply-To", StringType(), nullable=True),
+    StructField("message-id", StringType(),nullable=True)])
+ids_in_reply = session.read.format("parquet").schema(ids_schema).load(fs_prefix + "/ids_in_reply")
+#end::load_with_schema[]
+
+
+# In[ ]:
 
 
 # Cache the data
@@ -75,13 +89,34 @@ initial_posts = initial_posts.alias("initial_posts").cache()
 ids_in_reply = ids_in_reply.alias("ids_in_reply").cache()
 
 
-# In[9]:
+# In[ ]:
+
+
+# We can write random SQL -- although we need to wait for preview 3 cause it was taken out in preview1
+#tag::direct_sql[]
+#ids_in_reply.registerTempTable("cheese")
+#no_text = session.sql("select * from cheese where body = '' AND subject = ''")
+#end::direct_sql[]
+
+
+# In[ ]:
+
+
+# Drop bad data
+#tag::drop_bad_fields[]
+initial_posts_count = initial_posts.count()
+initial_posts_cleaned = initial_posts.na.drop(how='any', subset=['body', 'from'])
+initial_posts_cleaned_count = initial_posts_cleaned.count()
+#end::drop_bad_fields[]
+
+
+# In[ ]:
 
 
 initial_posts.show()
 
 
-# In[28]:
+# In[ ]:
 
 
 # Start with computing the labels
@@ -101,20 +136,20 @@ joined_posts = initial_posts.join(
     col("initial_posts.Message-Id") == col("post_with_replies.id"))
 
 
-# In[29]:
+# In[ ]:
 
 
 joined_posts.show()
 
 
-# In[31]:
+# In[ ]:
 
 
 posts_with_labels = joined_posts.na.fill({"has_reply": 0.0}).cache()
 posts_with_labels.count()
 
 
-# In[32]:
+# In[ ]:
 
 
 def extract_links(body):
@@ -158,7 +193,7 @@ def contains_exception_in_task(body):
     
 
 
-# In[33]:
+# In[ ]:
 
 
 extract_links_udf = UserDefinedFunction(
@@ -203,7 +238,7 @@ session.catalog._jsparkSession.udf().registerPython(
 
 # We could make this a transformer stage, but I'm lazy so we'll just use a UDF directly.
 
-# In[37]:
+# In[ ]:
 
 
 annotated_spark_mailing_list_data = posts_with_labels.select(
@@ -214,19 +249,19 @@ annotated_spark_mailing_list_data = posts_with_labels.select(
     contains_exception_in_task_udf(posts_with_labels.body).alias("contains_exception_in_task").cast("double"))
 
 
-# In[38]:
+# In[ ]:
 
 
 annotated_spark_mailing_list_data.cache()
 
 
-# In[39]:
+# In[ ]:
 
 
 annotated_spark_mailing_list_data.show()
 
 
-# In[40]:
+# In[ ]:
 
 
 further_annotated = annotated_spark_mailing_list_data.withColumn(
@@ -237,20 +272,21 @@ further_annotated.cache()
 further_annotated.count()
 
 
-# In[52]:
+# In[ ]:
 
 
+#tag::make_features[]
 tokenizer = Tokenizer(inputCol="body", outputCol="body_tokens")
 
 
-# In[53]:
+# In[ ]:
 
 
 body_hashing = HashingTF(inputCol="body_tokens", outputCol="raw_body_features", numFeatures=10000)
 body_idf = IDF(inputCol="raw_body_features", outputCol="body_features")
 
 
-# In[75]:
+# In[ ]:
 
 
 body_word2Vec = Word2Vec(
@@ -258,23 +294,24 @@ body_word2Vec = Word2Vec(
     inputCol="body_tokens", outputCol="body_vecs")
 
 
-# In[77]:
+# In[ ]:
 
 
 assembler = VectorAssembler(
     inputCols=["body_features", "body_vecs", "contains_python_stack_trace", "contains_java_stack_trace", 
               "contains_exception_in_task"],
     outputCol="features")
+#end::make_features[]
 
 
-# In[78]:
+# In[ ]:
 
 
 featureprep_pipeline = Pipeline(
     stages=[tokenizer, body_hashing, body_idf, body_word2Vec, assembler])
 
 
-# In[79]:
+# In[ ]:
 
 
 featureprep_pipeline_transformer = featureprep_pipeline.fit(further_annotated)

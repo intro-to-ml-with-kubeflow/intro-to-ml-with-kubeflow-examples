@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[3]:
+# In[ ]:
 
 
 # Yes we need both these imports
@@ -19,17 +19,19 @@ import os
 
 
 
-# In[4]:
+# In[ ]:
 
 
 fs_prefix = "s3a://kf-book-examples/mailing-lists" # Create with mc as in ch1
 
 
-# In[5]:
+# In[ ]:
 
 
-os.environ["PYSPARK_PYTHON"] = "python3.6"
 # See https://medium.com/@szinck/setting-up-pyspark-jupyter-and-minio-on-kubeflow-kubernetes-aab98874794f
+#tag::configurePythonVersion[]
+os.environ["PYSPARK_PYTHON"] = "python3.6"
+#end::configurePythonVersion[]
 session = (SparkSession.builder
            .appName("fetchMailingListData")
            .config("spark.executor.instances", "8")
@@ -39,6 +41,7 @@ session = (SparkSession.builder
            .config("spark.ui.enabled", "true")
            .config("spark.kubernetes.container.image",
                    "gcr.io/boos-demo-projects-are-rad/kubeflow/spark-worker/spark-py-36:v3.0.0-preview2-23")
+            #tag::notebookSession[]
            .config("spark.driver.bindAddress", "0.0.0.0")
            .config("spark.kubernetes.namespace", "kubeflow-programmerboo")
            .config("spark.master", "k8s://https://kubernetes.default")
@@ -46,42 +49,45 @@ session = (SparkSession.builder
            .config("spark.kubernetes.executor.annotation.sidecar.istio.io/inject", "false")
            .config("spark.driver.port", "39235")
            .config("spark.blockManager.port", "39236")
+            #end::notebookSession[]
             # If using minio - see https://github.com/minio/cookbook/blob/master/docs/apache-spark-with-minio.md
+            #tag::minio[]
            .config("spark.hadoop.fs.s3a.endpoint", "minio-service.kubeflow.svc.cluster.local:9000")
            .config("fs.s3a.connection.ssl.enabled", "false")
            .config("fs.s3a.path.style.access", "true")
            # You can also add an account using the minio command as described in chapter 1
            .config("spark.hadoop.fs.s3a.access.key", "minio")
            .config("spark.hadoop.fs.s3a.secret.key", "minio123")
+            #end::minio[]
           ).getOrCreate()
 sc = session.sparkContext
 
 
-# In[6]:
+# In[ ]:
 
 
 # Data fetch pipeline: Download mailing list data
 
 
-# In[7]:
+# In[ ]:
 
 
 list_name="spark-user"
 
 
-# In[8]:
+# In[ ]:
 
 
 mailing_list_template="http://mail-archives.apache.org/mod_mbox/{list_name}/{date}.mbox"
 
 
-# In[9]:
+# In[ ]:
 
 
 # Generate the possible dates
 
 
-# In[10]:
+# In[ ]:
 
 
 start_year=2019 # Change to 2002 once you've verified
@@ -89,7 +95,7 @@ end_year=2021
 dates = ["{:d}{:02d}".format(year, month) for year in range(start_year, end_year) for month in range (1,12)]
 
 
-# In[11]:
+# In[ ]:
 
 
 def download_emails(date):
@@ -123,63 +129,63 @@ def download_emails(date):
     return emails
 
 
-# In[12]:
+# In[ ]:
 
 
 # Optional: test that it works locally
 # download_emails("202001")
 
 
-# In[13]:
+# In[ ]:
 
 
 emails_rdd = sc.parallelize(dates).flatMap(download_emails).cache()
 
 
-# In[14]:
+# In[ ]:
 
 
 emails_rdd.count()
 
 
-# In[15]:
+# In[ ]:
 
 
 mailing_list_posts_mbox_df = emails_rdd.toDF(sampleRatio=1.0)
 
 
-# In[16]:
+# In[ ]:
 
 
 cached = mailing_list_posts_mbox_df.cache()
 
 
-# In[17]:
+# In[ ]:
 
 
 mailing_list_posts_mbox_df.select("list-id", "In-Reply-To").take(5)
 
 
-# In[18]:
+# In[ ]:
 
 
 spark_mailing_list_data = mailing_list_posts_mbox_df.filter(
     mailing_list_posts_mbox_df["list-id"].contains("spark")).repartition(60).cache()
 
 
-# In[19]:
+# In[ ]:
 
 
 spark_mailing_list_data.show()
 
 
-# In[20]:
+# In[ ]:
 
 
 spark_mailing_list_data.printSchema()
 
 
-# In[21]:
+# In[ ]:
 
 
 def extract_date_from_email_datefield(datefield):
@@ -200,7 +206,7 @@ session.catalog._jsparkSession.udf().registerPython(
     extract_date_from_email_datefield_udf._judf)
 
 
-# In[22]:
+# In[ ]:
 
 
 spark_mailing_list_data_with_date = spark_mailing_list_data.select(
@@ -208,7 +214,7 @@ spark_mailing_list_data_with_date = spark_mailing_list_data.select(
     extract_date_from_email_datefield_udf(spark_mailing_list_data["Date"]).alias("email_date"))
 
 
-# In[23]:
+# In[ ]:
 
 
 # Manually verify that our date parser is looking ok
@@ -217,37 +223,64 @@ spark_mailing_list_data.select(spark_mailing_list_data["Date"],
                               ).take(2)
 
 
-# In[24]:
+# In[ ]:
 
 
-mailing_list_posts_in_reply_to = spark_mailing_list_data_with_date.filter(
+#tag::filter_junk[]
+def is_ok(post):
+    # Your special business logic goes here
+    return True
+spark_mailing_list_data_cleaned = spark_mailing_list_data_with_date.filter(is_ok)
+#end::filter_junk[]
+
+
+# In[ ]:
+
+
+mailing_list_posts_in_reply_to = spark_mailing_list_data_cleaned.filter(
     spark_mailing_list_data["In-Reply-To"].isNotNull()).alias("mailing_list_posts_in_reply_to")
-initial_posts = spark_mailing_list_data_with_date.filter(
+initial_posts = spark_mailing_list_data_cleaned.filter(
     spark_mailing_list_data["In-Reply-To"].isNull()).alias("initial_posts").cache()
 
 
-# In[25]:
+# In[ ]:
 
 
 # See how many start-of-thread posts we have
 initial_posts.count()
 
 
-# In[26]:
+# In[ ]:
 
 
 ids_in_reply = mailing_list_posts_in_reply_to.select("In-Reply-To", "message-id")
 
 
-# In[27]:
+# In[ ]:
+
+
+ids_in_reply.schema
+
+
+# In[ ]:
 
 
 # Ok now it's time to save these
+#tag::write_big_data[]
 initial_posts.write.format("parquet").mode('overwrite').save(fs_prefix + "/initial_posts")
 ids_in_reply.write.format("parquet").mode('overwrite').save(fs_prefix + "/ids_in_reply")
+#end::write_big_data[]
 
 
-# In[28]:
+# In[ ]:
+
+
+#tag::small_data[]
+initial_posts.toPandas()
+#end::small_data[]
+
+
+# In[ ]:
 
 
 session.stop()

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Build a notebook with Spark
+# Build a notebook with Spark 3
+# Note when Spark 3 is fully released we can use gcr.io/spark-operator/spark-py:v3.0.0
 set -ex
 V=${V:-"23"}
 REPO=${REPO:-"gcr.io/$PROJECT"}

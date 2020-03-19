@@ -43,3 +43,5 @@ RUN chmod -R 777 /opt/spark/
 # Switch the user back, using jovyan as a user is bad but the base image
 # depends on it.
 USER jovyan
+# Install some common tools
+pip install pandas numpy scipy pyarrow
