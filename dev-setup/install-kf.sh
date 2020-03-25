@@ -5,7 +5,7 @@ PLATFORM=$(uname) # Either Linux or Darwin
 export PLATFORM
 mkdir -p ~/bin
 #Configuration
-export KUBEFLOW_TAG=1.0
+export KUBEFLOW_TAG=1.0.1
 # ^ You can also point this to a different version if you want to try
 KUBEFLOW_BASE="https://api.github.com/repos/kubeflow/kfctl/releases"
 # Or just go to https://github.com/kubeflow/kfctl/releases
