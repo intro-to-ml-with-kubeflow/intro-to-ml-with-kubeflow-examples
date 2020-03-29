@@ -149,7 +149,7 @@ def fmri_pipeline():
         action="create",
         success_condition="status.applicationState.state == COMPLETED"
     ).after(step2)
-#tag::step3[]
+#end::step3[]
 
 import kfp.compiler as compiler
 
