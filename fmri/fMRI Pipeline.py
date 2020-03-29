@@ -34,23 +34,24 @@
 # ```
 # at the bottom
 
-# In[ ]:
+# In[2]:
 
 
 get_ipython().system('pip3 install --upgrade --user kfp')
 
 
-# In[ ]:
+# In[1]:
 
 
 import kfp
 
 
-# In[ ]:
+# In[8]:
 
 
 import kfp.dsl as dsl
 
+#tag::manifest[]
 container_manifest = {
     "apiVersion": "sparkoperator.k8s.io/v1beta2",
     "kind": "SparkApplication",
@@ -61,9 +62,9 @@ container_manifest = {
   "spec": {
       "type": "Scala",
       "mode": "cluster",
-      "image": "gcr.io/boos-demo-projects-are-rad/kf-steps/kubeflow/spark-with-dsvd:v1",
+      "image": "docker.io/rawkintrevo/spark-with-dsvd:0.0.3",
       "imagePullPolicy": "Always",
-      "mainClass": "org.rawkintrevo.dsvd.App",
+      "mainClass": "org.rawkintrevo.book.App",
       "mainApplicationFile": "local:///dsvd-1.0-SNAPSHOT-jar-with-dependencies.jar", # See the Dockerfile
       "sparkVersion": "2.4.5",
       "restartPolicy": {
@@ -109,6 +110,7 @@ container_manifest = {
   ]
   }
 }
+#end::manifest[]
 
 @dsl.pipeline(
     name="fMRI Pipeline",
@@ -121,14 +123,16 @@ def fmri_pipeline():
         size="10Gi",
         modes=dsl.VOLUME_MODE_RWO
     )
-
+#tag::step1[]
     step1 = dsl.ContainerOp(
         name="generatedata",
         image="rawkintrevo/r-fmri-gen:latest",
         command=["Rscript", "/pipelines/component/src/program.R", "--out", "/data/synthetic"],
         pvolumes={"/data": vop.volume}
     )
+#end::step2[]
 
+#tag::step2[]
     step2 = dsl.ContainerOp(
         name="prepdata",
         image="rawkintrevo/py-fmri-prep:0.2",
@@ -136,27 +140,29 @@ def fmri_pipeline():
         arguments=["/data/synthetic.nii.gz", "/data/s.csv"],
         pvolumes={"/data": step1.pvolume}
     )
+#end::step2[]
     
-
+#tag::step3[]
     rop = dsl.ResourceOp(
         name="spark-scala-mahout-fmri",
         k8s_resource=container_manifest,
         action="create",
         success_condition="status.applicationState.state == COMPLETED"
     ).after(step2)
+#tag::step3[]
 
 import kfp.compiler as compiler
 
 compiler.Compiler().compile(fmri_pipeline,"fmri-pipeline.zip")
 
 
-# In[ ]:
+# In[9]:
 
 
 client = kfp.Client()
 
 
-# In[ ]:
+# In[10]:
 
 
 my_experiment = client.create_experiment(name='fmri-pipeline-test-2')

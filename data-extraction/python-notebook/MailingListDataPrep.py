@@ -145,6 +145,7 @@ def makeDomainsAList(d):
 domainFeatures = domainV.fit_transform(df['domains'].apply(makeDomainsAList))
 
 
+
 # In[ ]:
 
 
