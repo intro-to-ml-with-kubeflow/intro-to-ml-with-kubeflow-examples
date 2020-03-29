@@ -46,7 +46,7 @@ design2 <- simprepTemporal(regions = 2, onsets = onset,
 
 w <- c(0.3, 0.3, 0.01, 0.09, 0.1, 0.2)
 data <- simVOLfmri(dim = c(opt$dim, opt$dim, opt$dim), base = 100, design = design2,
-  image = regions, SNR = opt$snr, noise = "mixture", type = "rician",
+  image = regions, SNR = opt$snr, noise = "mixture", type = "rician", nscan= opt$nscan
   weights = w, verbose = FALSE)
 
 writeNIfTI(data, filename = opt$out, verbose=TRUE)

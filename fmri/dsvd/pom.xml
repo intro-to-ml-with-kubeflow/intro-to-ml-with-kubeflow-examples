@@ -107,7 +107,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.rawkintrevo.App</mainClass>
+              <mainClass>org.rawkintrevo.book.App</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>

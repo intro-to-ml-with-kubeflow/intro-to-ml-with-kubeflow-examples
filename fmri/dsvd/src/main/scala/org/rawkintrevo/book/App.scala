@@ -1,4 +1,4 @@
-package org.rawkintrevo
+package org.rawkintrevo.book
 
 import org.apache.mahout.math._
 import org.apache.mahout.math.scalabindings._
@@ -14,6 +14,8 @@ import org.apache.spark.SparkConf
 object App {
   def main(args: Array[String]) {
 
+
+    println("I'm up")
 
     val conf:SparkConf = new SparkConf()
       .setAppName("fMRI Example")
