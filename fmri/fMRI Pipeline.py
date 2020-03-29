@@ -130,7 +130,7 @@ def fmri_pipeline():
         command=["Rscript", "/pipelines/component/src/program.R", "--out", "/data/synthetic"],
         pvolumes={"/data": vop.volume}
     )
-#end::step2[]
+#end::step1[]
 
 #tag::step2[]
     step2 = dsl.ContainerOp(
