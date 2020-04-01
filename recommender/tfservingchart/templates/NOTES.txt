@@ -1,0 +1,1 @@
+Kubeflow Model serving components : tfserving is installed
