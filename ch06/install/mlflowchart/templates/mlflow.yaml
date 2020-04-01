@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: kubeflow
+  name: mlflowserver
+  labels:
+    app: mlflowserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflowserver
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: mlflowserver
+    spec:
+      containers:
+        - name: server
+          image: "{{ .Values.image.server }}:{{ .Values.image.version }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          ports:
+            - containerPort: 5000
+              name: serving
+              protocol: TCP
+          env:
+            - name: "MLFLOW_S3_ENDPOINT_URL"
+              value: "http://minio-service.kubeflow.svc.cluster.local:9000"
+            - name: "AWS_ACCESS_KEY_ID"
+              valueFrom: { secretKeyRef: { name: "minioaccess", key: "AWS_ACCESS_KEY_ID" } }
+            - name: "AWS_SECRET_ACCESS_KEY"
+              valueFrom: { secretKeyRef: { name: "minioaccess", key: "AWS_SECRET_ACCESS_KEY" } }
+            - name: "AWS_BUCKET"
+              value: "mlflow"
+          volumes:
+            - name: secret-volume
+              secret:
+                secretName: minioaccess
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kubeflow
+  name: mlflowserver
+spec:
+  selector:
+    app: mlflowserver
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: mlflow-server
+  namespace: kubeflow
+spec:
+  gateways:
+    - kubeflow-gateway
+  hosts:
+    - '*'
+  http:
+    - match:
+        - uri:
+            prefix: /mlflow/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            host: mlflowserver.kubeflow.svc.cluster.local
+            port:
+              number: 5000
