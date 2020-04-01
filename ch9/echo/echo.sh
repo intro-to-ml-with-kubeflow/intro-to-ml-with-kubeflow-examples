@@ -1,3 +1,4 @@
+#!/bin/sh
 #tag::all[]
 #!/bin/sh
 echo "$1"
