@@ -1,3 +1,4 @@
+#!/bin/bash
 # Download the binary
 curl -sLO https://github.com/argoproj/argo/releases/download/v2.7.0/argo-linux-amd64
 

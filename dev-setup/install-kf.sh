@@ -11,12 +11,12 @@ KUBEFLOW_BASE="https://api.github.com/repos/kubeflow/kfctl/releases"
 # Or just go to https://github.com/kubeflow/kfctl/releases
 KFCTL_URL=$(curl -s ${KUBEFLOW_BASE} |\
 	      grep http |\
-	      grep ${KUBEFLOW_TAG} |\
-	      grep -i ${PLATFORM}|\
+	      grep "${KUBEFLOW_TAG}" |\
+	      grep -i "${PLATFORM}" |\
 	      cut -d : -f 2,3 |\
 	      tr -d '\" ' )
 wget "${KFCTL_URL}"
-KFCTL_FILE=$(echo ${KFCTL_URL##*/})
+KFCTL_FILE=${KFCTL_URL##*/}
 tar -xvf "${KFCTL_FILE}"
 mv ./kfctl ~/bin/
 rm "${KFCTL_FILE}"
