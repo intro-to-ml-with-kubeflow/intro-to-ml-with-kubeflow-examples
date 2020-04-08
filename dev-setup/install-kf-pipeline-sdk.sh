@@ -13,8 +13,8 @@ pip install "${URL}" --upgrade
 mkdir -p ~/repos
 pushd ~/repos
 if [[ ! -d pipelines ]]; then
-  #tag::checkout_sdk[]
+#tag::checkout_sdk[]
   git clone --single-branch --branch 0.3.0 https://github.com/kubeflow/pipelines.git
-  #end::checkout_sdk[]
+#end::checkout_sdk[]
 fi
 popd
