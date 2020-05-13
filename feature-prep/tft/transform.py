@@ -7,11 +7,11 @@ from tensorflow_transform.tf_metadata import schema_utils
 #tag::entry_point[]
 def preprocessing_fn(inputs):
 #end::entry_point[]
-  #tag::logic[]
+#tag::logic[]
   outputs = {}
   # TFT business logic goes here
   outputs["body_stuff"] = tft.compute_and_apply_vocabulary(
       inputs["body"],
       top_k=1000)
   return outputs
-  #end::logic[]
+#end::logic[]

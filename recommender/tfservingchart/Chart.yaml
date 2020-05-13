@@ -1,0 +1,7 @@
+apiVersion: v1
+appVersion: 1.14.0
+description: TF Serving
+maintainers:
+- name: Boris Lublinsky
+name: TF Serving Recommender model server
+version: 1.0.0

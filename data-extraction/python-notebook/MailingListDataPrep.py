@@ -8,6 +8,9 @@
 
 get_ipython().system('pip3 install --upgrade lxml')
 get_ipython().system('pip3 install --upgrade pandas')
+get_ipython().system('pip3 install --upgrade scikit-learn')
+get_ipython().system('pip3 install --upgrade scipy')
+get_ipython().system('pip3 install --upgrade tables')
 
 
 # We can use Jupyter notebooks just like normal inside of Kubeflow
@@ -145,7 +148,6 @@ def makeDomainsAList(d):
 domainFeatures = domainV.fit_transform(df['domains'].apply(makeDomainsAList))
 
 
-
 # In[ ]:
 
 
@@ -246,6 +248,39 @@ def download_data(year: int) -> str:
     
 
 
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+def download_tld_data() -> str:
+    from requests import get
+    import pandas as pd
+    print("importing io....")
+    import io
+
+    url = "https://pkgstore.datahub.io/core/country-list/data_csv/data/d7c9d7cfb42cb69f4422dec222dbbaa8/data_csv.csv"
+    print("Getting the url")
+    s = get(url).content
+    print("Converting content")
+    df = pd.read_csv(io.StringIO(s.decode('utf-8')))
+    print("Writing output")
+    output_path_hdf = '/tld_info/clean_data.hdf'
+    df.to_hdf(output_path_hdf, key="tld")
+    
+    return output_path_hdf
+
+
+# In[ ]:
+
+
+
+
+
 # Now that we have some data, we want to get rid of any "bad" records
 
 # In[ ]:
@@ -286,7 +321,7 @@ def clean_data(input_path: str) -> str:
 # In[ ]:
 
 
-def prepare_features(input_path: str):
+def prepare_features(input_path: str, tld_info_path: str):
    
     import re
     import pandas as pd
@@ -294,6 +329,10 @@ def prepare_features(input_path: str):
     print("loading records...")
     df = pd.read_hdf(input_path, key="clean")
     print("records loaded")
+    
+    print("Loading tld info....")
+    tld_df = pd.read_hdf(tld_info_path, key="tld")
+    print("Loaded tld info")
     
     
     ## Note: "Lightweight" Python Fns mean helper code must be inside the fn. (Bad Form)
@@ -390,6 +429,54 @@ dvop = dsl.VolumeOp(
 # In[ ]:
 
 
+get_ipython().system('rm local-data-prep-2.zip')
+
+
+# In[ ]:
+
+
+#tag::makePipeline[]
+@kfp.dsl.pipeline(
+  name='Simple1',
+  description='Simple1'
+)
+def my_pipeline_mini(year: int):
+    dvop = dsl.VolumeOp(
+        name="create_pvc",
+        resource_name="my-pvc-2",
+        size="5Gi",
+        modes=dsl.VOLUME_MODE_RWO)
+    tldvop = dsl.VolumeOp(
+        name="create_pvc",
+        resource_name="tld-volume-2",
+        size="100Mi",
+        modes=dsl.VOLUME_MODE_RWO)
+    download_data_op = kfp.components.func_to_container_op(
+        download_data,
+        packages_to_install=['lxml', 'requests'])
+    download_tld_info_op = kfp.components.func_to_container_op(
+        download_tld_data,
+        packages_to_install=['requests', 'pandas>=0.24', 'tables'])
+    clean_data_op = kfp.components.func_to_container_op(
+        clean_data,
+        packages_to_install=['pandas>=0.24', 'tables'])
+
+    step1 = download_data_op(year).add_pvolumes({"/data_processing": dvop.volume})
+    step2 = clean_data_op(input_path=step1.output).add_pvolumes({"/data_processing": dvop.volume})
+    step3 = download_tld_info_op().add_pvolumes({"/tld_info": tldvop.volume})
+
+kfp.compiler.Compiler().compile(my_pipeline_mini, 'local-data-prep-2.zip')
+
+
+# In[ ]:
+
+
+get_ipython().system('rm *.zip')
+
+
+# In[ ]:
+
+
 #tag::makePipeline[]
 @kfp.dsl.pipeline(
   name='Simple1',
@@ -401,48 +488,34 @@ def my_pipeline2(year: int):
         resource_name="my-pvc-2",
         size="5Gi",
         modes=dsl.VOLUME_MODE_RWO)
-    download_data_op = kfp.components.func_to_container_op(
-        download_data,
-        packages_to_install=['lxml', 'requests'])
-    clean_data_op = kfp.components.func_to_container_op(
-        clean_data,
-        packages_to_install=['pandas>=0.24', 'tables'])
-
-    step1 = download_data_op(year).add_pvolumes({"/data_processing": dvop.volume})
-    step2 = clean_data_op(input_path=step1.output).add_pvolumes({"/data_processing": dvop.volume})
-    step3 = prepare_features_op(input_path=step2.output).add_pvolumes({"/data_processing": dvop.volume})
-
-kfp.compiler.Compiler().compile(my_pipeline2, 'local-data-prep-2.zip')
-#end::makePipeline[]
-
-
-# In[ ]:
-
-
-@kfp.dsl.pipeline(
-  name='Simple1',
-  description='Simple1'
-)
-def my_pipeline2(year: int):
-    dvop = dsl.VolumeOp(
+    tldvop = dsl.VolumeOp(
         name="create_pvc",
-        resource_name="my-pvc-2",
-        size="5Gi",
+        resource_name="tld-volume-2",
+        size="100Mi",
         modes=dsl.VOLUME_MODE_RWO)
+
     download_data_op = kfp.components.func_to_container_op(
         download_data,
         packages_to_install=['lxml', 'requests'])
+    download_tld_info_op = kfp.components.func_to_container_op(
+        download_tld_data,
+        packages_to_install=['requests', 'pandas>=0.24', 'tables'])
     clean_data_op = kfp.components.func_to_container_op(
         clean_data,
         packages_to_install=['pandas>=0.24', 'tables'])
-    #tag::add_feature_step[]
+#tag::add_feature_step[]
     prepare_features_op = kfp.components.func_to_container_op(
         prepare_features,
         packages_to_install=['pandas>=0.24', 'tables', 'scikit-learn'])
-    #tag::end_feature_step[]
+#tag::end_feature_step[]
+
     step1 = download_data_op(year).add_pvolumes({"/data_processing": dvop.volume})
     step2 = clean_data_op(input_path=step1.output).add_pvolumes({"/data_processing": dvop.volume})
-    step3 = prepare_features_op(input_path=step2.output).add_pvolumes({"/data_processing": dvop.volume})
+    step3 = download_tld_info_op().add_pvolumes({"/tld_info": tldvop.volume})
+    step4 = prepare_features_op(input_path=step2.output, tld_info_path=step3.output).add_pvolumes({
+        "/data_processing": dvop.volume,
+        "/tld_info": tldvop.volume})
+#end::makePipeline[]
 
 kfp.compiler.Compiler().compile(my_pipeline2, 'local-data-and-feature-prep-2.zip')
 
@@ -458,7 +531,7 @@ client = kfp.Client()
 
 my_experiment = client.create_experiment(name='local-data-prep-test-2')
 my_run = client.run_pipeline(my_experiment.id, 'local-data-prep', 
-  'local-data-prep-2.zip', params={'year': '2019'})
+  'local-data-and-feature-prep-2.zip', params={'year': '2019'})
 
 
 # If we were using Spamassasin or some other library installed in a different base container we would:

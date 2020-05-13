@@ -1,0 +1,6 @@
+# application name is a namespace
+# docker images
+image:
+  server: lightbend/mlflow
+  pullPolicy: Always
+  version: 0.1

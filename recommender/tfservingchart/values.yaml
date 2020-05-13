@@ -1,0 +1,6 @@
+# application name is a namespace
+# docker images
+image:
+  server: tensorflow/serving
+  pullPolicy: Always
+  version: 1.15.0
