@@ -1,0 +1,13 @@
+name: Process DICOMs into Vectors
+description: Take a number of COVID DICOMs - output a list of vectors for DS-SVD.
+inputs:
+  - {name: in, type: String, description='Input file name.'}
+  - {name: out, type: String, description='Output file name.'}
+implementation:
+  container:
+    image: rawkintrevo/covid-prep-docim
+    command: [
+      python, /program.py,
+      {inputValue:  in},
+      inputValue:  out}
+    ]

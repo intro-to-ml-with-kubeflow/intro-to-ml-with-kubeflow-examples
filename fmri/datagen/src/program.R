@@ -2,6 +2,7 @@
 install.packages("optparse")
 install.packages("neuRosim")
 install.packages("oro.nifti")
+
 library("optparse")
 library("neuRosim")
 library("oro.nifti")
@@ -24,6 +25,15 @@ opt = parse_args(opt_parser);
 
 ## Lots of opportunities in here for cli variables. Need to figure out str -> int in R
 
+# but since it isn't this is a work around to get the baseline image
+
+
+
+# base.img <- readNIfTI("fmri/datagen/src/T1_brain.nii.gz", reorient = FALSE)
+# mask.img    <- 1*(readNIfTI("fmri/datagen/src/avg152T1_LR_nifti.nii.gz", reorient = FALSE)!=0)
+baseline.img    <- readNIfTI("fmri/datagen/src/avg152T1_LR_nifti.nii.gz", reorient = FALSE)
+
+
 TR <- 2
 nscan <- 100
 total <- TR * nscan
@@ -45,8 +55,20 @@ design2 <- simprepTemporal(regions = 2, onsets = onset,
   effectsize = list(effect1, effect2), totaltime = total)
 
 w <- c(0.3, 0.3, 0.01, 0.09, 0.1, 0.2)
-data <- simVOLfmri(dim = c(opt$dim, opt$dim, opt$dim), base = 100, design = design2,
-  image = regions, SNR = opt$snr, noise = "mixture", type = "rician", nscan= opt$nscan
-  weights = w, verbose = FALSE)
+
+test_mask_img = (mask.img > 76 & mask.img < 250)
+image(test_mask_img)
+mask.bin <- slot(baseline.img, ".Data") * 1
+
+fmri_data <- simVOLfmri(dim = dim(mask.bin),
+  base = 100,
+  design = simprepTemporal(totaltime=200, onsets=seq(1,200,40),
+                           durations=20, TR=2, effectsize=1, hrf="double-gamma"),
+  image = regions, SNR = 1, noise = "none", type = "rician", nscan= 100,
+  verbose=TRUE,
+  weights = w,
+  template=mask.bin)
+
+image(nifti(fmri_data))
 
 writeNIfTI(data, filename = opt$out, verbose=TRUE)
