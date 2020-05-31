@@ -90,6 +90,7 @@ my_run = client.run_pipeline(my_experiment.id, 'dl',
 )
 def tfdv_pipeline():
     # DL with wget, can use gcs instead as well
+    data_url = "https://raw.githubusercontent.com/moorissa/medium/master/items-recommender/data/trx_data.csv"
     #tag::wget[]
     fetch = kfp.dsl.ContainerOp(
       name='download',
@@ -98,7 +99,7 @@ def tfdv_pipeline():
       arguments=[
           'sleep 1;'
           'mkdir -p /tmp/data;'
-          'wget https://raw.githubusercontent.com/moorissa/medium/master/items-recommender/data/trx_data.csv -O /tmp/data/results.csv'],
+          'wget '+ data_url +' -O /tmp/data/results.csv'],
       file_outputs={'downloaded': '/tmp/data'})
     # This expects a directory of inputs not just a single file
     #end::wget[]

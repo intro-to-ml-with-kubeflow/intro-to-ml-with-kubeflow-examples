@@ -277,29 +277,18 @@ further_annotated.count()
 
 #tag::make_features[]
 tokenizer = Tokenizer(inputCol="body", outputCol="body_tokens")
-
-
-# In[ ]:
-
-
-body_hashing = HashingTF(inputCol="body_tokens", outputCol="raw_body_features", numFeatures=10000)
-body_idf = IDF(inputCol="raw_body_features", outputCol="body_features")
-
-
-# In[ ]:
-
-
+body_hashing = HashingTF(
+    inputCol="body_tokens", outputCol="raw_body_features",
+    numFeatures=10000)
+body_idf = IDF(
+    inputCol="raw_body_features", outputCol="body_features")
 body_word2Vec = Word2Vec(
     vectorSize=5, minCount=0, numPartitions=10,
     inputCol="body_tokens", outputCol="body_vecs")
-
-
-# In[ ]:
-
-
 assembler = VectorAssembler(
-    inputCols=["body_features", "body_vecs", "contains_python_stack_trace", "contains_java_stack_trace", 
-              "contains_exception_in_task"],
+    inputCols=[
+        "body_features", "body_vecs", "contains_python_stack_trace",
+        "contains_java_stack_trace", "contains_exception_in_task"],
     outputCol="features")
 #end::make_features[]
 

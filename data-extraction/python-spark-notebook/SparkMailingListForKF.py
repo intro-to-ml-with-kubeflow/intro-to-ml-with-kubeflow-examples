@@ -32,34 +32,38 @@ fs_prefix = "s3a://kf-book-examples/mailing-lists" # Create with mc as in ch1
 #tag::configurePythonVersion[]
 os.environ["PYSPARK_PYTHON"] = "python3.6"
 #end::configurePythonVersion[]
-session = (SparkSession.builder
-           .appName("fetchMailingListData")
-           .config("spark.executor.instances", "8")
-           .config("spark.driver.memoryOverhead", "0.25")
-           .config("spark.executor.memory", "6g")
-           .config("spark.dynamicAllocation.enabled", "false")
-           .config("spark.ui.enabled", "true")
-           .config("spark.kubernetes.container.image",
-                   "gcr.io/boos-demo-projects-are-rad/kubeflow/spark-worker/spark-py-36:v3.0.0-preview2-23")
-            #tag::notebookSession[]
-           .config("spark.driver.bindAddress", "0.0.0.0")
-           .config("spark.kubernetes.namespace", "kubeflow-programmerboo")
-           .config("spark.master", "k8s://https://kubernetes.default")
-           .config("spark.driver.host", "spark-driver.kubeflow-programmerboo.svc.cluster.local")
-           .config("spark.kubernetes.executor.annotation.sidecar.istio.io/inject", "false")
-           .config("spark.driver.port", "39235")
-           .config("spark.blockManager.port", "39236")
-            #end::notebookSession[]
-            # If using minio - see https://github.com/minio/cookbook/blob/master/docs/apache-spark-with-minio.md
-            #tag::minio[]
-           .config("spark.hadoop.fs.s3a.endpoint", "minio-service.kubeflow.svc.cluster.local:9000")
-           .config("fs.s3a.connection.ssl.enabled", "false")
-           .config("fs.s3a.path.style.access", "true")
-           # You can also add an account using the minio command as described in chapter 1
-           .config("spark.hadoop.fs.s3a.access.key", "minio")
-           .config("spark.hadoop.fs.s3a.secret.key", "minio123")
-            #end::minio[]
-          ).getOrCreate()
+session = (
+    SparkSession.builder
+    .appName("fetchMailingListData")
+    .config("spark.executor.instances", "8")
+    .config("spark.driver.memoryOverhead", "0.25")
+    .config("spark.executor.memory", "6g")
+    .config("spark.dynamicAllocation.enabled", "false")
+    .config("spark.ui.enabled", "true")
+    .config("spark.kubernetes.container.image",
+           "gcr.io/boos-demo-projects-are-rad/kubeflow/spark-worker/spark-py-36:v3.0.0-preview2-23")
+    #tag::notebookSession[]
+    .config("spark.driver.bindAddress", "0.0.0.0")
+    .config("spark.kubernetes.namespace", "kubeflow-programmerboo")
+    .config("spark.master", "k8s://https://kubernetes.default")
+    .config("spark.driver.host", 
+            "spark-driver.kubeflow-programmerboo.svc.cluster.local")
+    .config("spark.kubernetes.executor.annotation.sidecar.istio.io/inject",
+            "false")
+    .config("spark.driver.port", "39235")
+    .config("spark.blockManager.port", "39236")
+    #end::notebookSession[]
+    # If using minio - see https://github.com/minio/cookbook/blob/master/docs/apache-spark-with-minio.md
+    #tag::minio[]
+    .config("spark.hadoop.fs.s3a.endpoint",
+            "minio-service.kubeflow.svc.cluster.local:9000")
+    .config("fs.s3a.connection.ssl.enabled", "false")
+    .config("fs.s3a.path.style.access", "true")
+    # You can also add an account using the minio command as described in chapter 1
+    .config("spark.hadoop.fs.s3a.access.key", "minio")
+    .config("spark.hadoop.fs.s3a.secret.key", "minio123")
+    #end::minio[]
+    ).getOrCreate()
 sc = session.sparkContext
 
 
