@@ -477,7 +477,7 @@ get_ipython().system('rm *.zip')
 # In[ ]:
 
 
-#tag::makePipeline[]
+#tag::longPipeline[]
 @kfp.dsl.pipeline(
   name='Simple1',
   description='Simple1'
@@ -515,7 +515,7 @@ def my_pipeline2(year: int):
     step4 = prepare_features_op(input_path=step2.output, tld_info_path=step3.output).add_pvolumes({
         "/data_processing": dvop.volume,
         "/tld_info": tldvop.volume})
-#end::makePipeline[]
+#end::longPipeline[]
 
 kfp.compiler.Compiler().compile(my_pipeline2, 'local-data-and-feature-prep-2.zip')
 
