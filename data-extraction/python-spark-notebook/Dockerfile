@@ -1,8 +1,10 @@
+#tag::include[]
 # See https://www.kubeflow.org/docs/notebooks/custom-notebook/
 ARG base
 FROM $base
 ARG sparkversion
 ARG sparkrelease
+ARG sparkserver https://www-us.apache.org/dist/spark
 # We need to run as root for updates
 USER root
 
@@ -22,8 +24,11 @@ RUN set -ex && \
 
 RUN  echo "Setting up $sparkversion"
 RUN  cd /tmp && \
-     (wget https://www-us.apache.org/dist/spark/spark-${sparkversion}/${sparkrelease}.tgz || wget https://www-eu.apache.org/dist/spark/spark-${sparkversion}/${sparkrelease}.tgz) && \
-     cd /opt && tar -xvf /tmp/${sparkrelease}.tgz && rm /tmp/${sparkrelease}.tgz && mv ${sparkrelease} spark && cd spark/python && pip install -e .
+     (wget ${sparkserver}/spark-${sparkversion}/${sparkrelease}.tgz) && \
+     cd /opt && tar -xvf /tmp/${sparkrelease}.tgz && \
+     rm /tmp/${sparkrelease}.tgz && mv ${sparkrelease} spark && \
+     cd spark/python && pip install -e .
+#end::include[]
 
 # Add access to GCS
 RUN rm $SPARK_HOME/jars/guava-1*.jar
@@ -35,6 +40,7 @@ ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop3.j
 ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.2.0/hadoop-aws-3.2.0.jar $SPARK_HOME/jars
 ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.732/aws-java-sdk-bundle-1.11.732.jar $SPARK_HOME/jars
 
+#tag::include[]
 # Fix permissions
 WORKDIR /opt/spark/work-dir
 RUN chmod -R 777 /opt/spark/
@@ -45,3 +51,4 @@ RUN chmod -R 777 /opt/spark/
 USER jovyan
 # Install some common tools
 pip install pandas numpy scipy pyarrow
+#end::include[]
