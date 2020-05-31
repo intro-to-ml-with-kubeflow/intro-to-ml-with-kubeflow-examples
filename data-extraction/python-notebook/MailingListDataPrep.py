@@ -466,6 +466,7 @@ def my_pipeline_mini(year: int):
     step3 = download_tld_info_op().add_pvolumes({"/tld_info": tldvop.volume})
 
 kfp.compiler.Compiler().compile(my_pipeline_mini, 'local-data-prep-2.zip')
+#end::makePipeline[]
 
 
 # In[ ]:
