@@ -1,1 +1,0 @@
-SELECT body, last_edit_date FROM (SELECT body, REGEXP_CONTAINS(body, r"<code>") as has_code, last_edit_date FROM `bigquery-public-data.stackoverflow.posts_questions`) WHERE has_code
