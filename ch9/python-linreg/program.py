@@ -1,10 +1,7 @@
-
-
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from requests import get
 import sys
-
 """
 python program.py <url-of-data> <last-col-to-regress-on>
 
@@ -19,7 +16,6 @@ https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
 with open("/data/data.csv", 'wb') as f:
     r = get(sys.argv[1])
     f.write(r.content)
-
 
 lastCol = int(sys.argv[2])
 #end::handleCli[]

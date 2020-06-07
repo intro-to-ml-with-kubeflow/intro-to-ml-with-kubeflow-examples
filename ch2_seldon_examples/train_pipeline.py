@@ -5,24 +5,22 @@ import kfp.onprem as onprem
 from string import Template
 import json
 
-@dsl.pipeline(
-    name='Simple sci-kit KF Pipeline',
-    description='A simple end to end sci-kit seldon kf pipeline'
-)
-def mnist_train_pipeline(
-        docker_org="index.docker.io/seldonio",
-        train_container_version="0.2",
-        serve_container_version="0.1"):
 
-    vop = dsl.VolumeOp(
-        name="create_pvc",
-        resource_name="nfs-1",
-        modes=dsl.VOLUME_MODE_RWO,
-        size="10G")
+@dsl.pipeline(name='Simple sci-kit KF Pipeline',
+              description='A simple end to end sci-kit seldon kf pipeline')
+def mnist_train_pipeline(docker_org="index.docker.io/seldonio",
+                         train_container_version="0.2",
+                         serve_container_version="0.1"):
+
+    vop = dsl.VolumeOp(name="create_pvc",
+                       resource_name="nfs-1",
+                       modes=dsl.VOLUME_MODE_RWO,
+                       size="10G")
     volume = vop.volume
     train = dsl.ContainerOp(
         name='sk-train',
-        image=f"{docker_org}/skmnistclassifier_trainer:{train_container_version}",
+        image=
+        f"{docker_org}/skmnistclassifier_trainer:{train_container_version}",
         pvolumes={"/data": volume})
 
     seldon_serving_json_template = Template("""
@@ -90,17 +88,21 @@ def mnist_train_pipeline(
 }    
 """)
     seldon_serving_json = seldon_serving_json_template.substitute({
-        'dockerreposerving': f"{docker_org}/skmnistclassifier_runtime",
-        'dockertagserving': str(serve_container_version),
-        'modelpvc': vop.outputs["name"]})
+        'dockerreposerving':
+        f"{docker_org}/skmnistclassifier_runtime",
+        'dockertagserving':
+        str(serve_container_version),
+        'modelpvc':
+        vop.outputs["name"]
+    })
 
     seldon_deployment = json.loads(seldon_serving_json)
 
     serve = dsl.ResourceOp(
         name='serve',
         k8s_resource=seldon_deployment,
-        success_condition='status.state == Available'
-    ).after(train)
+        success_condition='status.state == Available').after(train)
+
 
 # If we're called directly create an expirement and run
 if __name__ == '__main__':
@@ -111,5 +113,6 @@ if __name__ == '__main__':
     expirement_name = "cheese"
     experiment = client.create_experiment(expirement_name)
     run_name = pipeline_func.__name__ + ' run'
-    run_result = client.run_pipeline(experiment.id, run_name, pipeline_filename, arguments)
+    run_result = client.run_pipeline(experiment.id, run_name,
+                                     pipeline_filename, arguments)
     print(run_result)
