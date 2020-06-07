@@ -3,7 +3,8 @@
 PLATFORM=$(uname) # Either Linux or Darwin
 export PLATFORM
 mkdir -p ~/bin
-KUSTOMIZE_URL=$(curl -s https://api.github.com/repos/kubernetes-sigs/kustomize/releases/latest |\
+KUSTOMIZE_URL=$(curl -s \
+  https://api.github.com/repos/kubernetes-sigs/kustomize/releases/latest |\
   grep browser_download |\
   grep -i "${PLATFORM}" |\
   cut -d '"' -f 4)
