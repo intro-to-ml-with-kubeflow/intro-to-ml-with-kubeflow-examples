@@ -30,8 +30,9 @@ ks generate spark-operator spark-operator --name=spark-operator
 ks apply default -c spark-operator
 
 # Create a Spark job with the operator (Pi)
+local_jar_path="local:///opt/spark/examples/jars/spark-examples_2.11-2.3.1.jar"
 ks generate spark-job spark-pi --name=spark-operator \
-   --applicationResource="local:///opt/spark/examples/jars/spark-examples_2.11-2.3.1.jar" \
+   --applicationResource="$local_jar_path" \
    --mainClass=org.apache.spark.examples.SparkPi
 ks apply default -c spark-pi
 
