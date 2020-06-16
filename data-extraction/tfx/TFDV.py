@@ -5,30 +5,20 @@
 
 # In[ ]:
 
-
-get_ipython().system('wget https://github.com/kubeflow/pipelines/archive/0.2.5.tar.gz')
-
+get_ipython().system(
+    'wget https://github.com/kubeflow/pipelines/archive/0.2.5.tar.gz')
 
 # In[ ]:
-
 
 get_ipython().system('tar -xvf 0.2.5.tar.gz')
 
-
 # In[ ]:
-
 
 import kfp
 
-
 # In[ ]:
 
-
-
-
-
 # In[ ]:
-
 
 #tag::loadGCSDLComponent[]
 gcs_download_component = kfp.components.load_component_from_file(
@@ -45,61 +35,51 @@ tfx_example_validator = kfp.components.load_component_from_file(
     "pipelines-0.2.5/components/tfx/ExampleValidator/component.yaml")
 #end::loadTFDVAndFriendsComponents[]
 
-
 # In[ ]:
 
 
-@kfp.dsl.pipeline(
-  name='DL',
-  description='Sample DL pipeline'
-)
+@kfp.dsl.pipeline(name='DL', description='Sample DL pipeline')
 def pipeline_with_dl():
     #tag::dlOp[]
     dl_op = gcs_download_component(
-        gcs_path="gs://ml-pipeline-playground/tensorflow-tfx-repo/tfx/components/testdata/external/csv") # Your path goes here
+        gcs_path=
+        "gs://ml-pipeline-playground/tensorflow-tfx-repo/tfx/components/testdata/external/csv"
+    )  # Your path goes here
     #end::dlOp[]
 
 
 # In[ ]:
 
-
 kfp.compiler.Compiler().compile(pipeline_with_dl, 'dl_pipeline.zip')
 
-
 # In[ ]:
-
 
 client = kfp.Client()
 
-
 # In[ ]:
 
-
 my_experiment = client.create_experiment(name='dl')
-my_run = client.run_pipeline(my_experiment.id, 'dl', 
-  'dl_pipeline.zip')
-
+my_run = client.run_pipeline(my_experiment.id, 'dl', 'dl_pipeline.zip')
 
 # In[ ]:
 
 
 #tag::standaloneTFDVPipeline[]
-@kfp.dsl.pipeline(
-  name='TFDV',
-  description='TF DV Pipeline'
-)
+@kfp.dsl.pipeline(name='TFDV', description='TF DV Pipeline')
 def tfdv_pipeline():
     # DL with wget, can use gcs instead as well
+    data_url = "https://raw.githubusercontent.com/moorissa/medium/master/items-recommender/data/trx_data.csv"
     #tag::wget[]
-    fetch = kfp.dsl.ContainerOp(
-      name='download',
-      image='busybox',
-      command=['sh', '-c'],
-      arguments=[
-          'sleep 1;'
-          'mkdir -p /tmp/data;'
-          'wget https://raw.githubusercontent.com/moorissa/medium/master/items-recommender/data/trx_data.csv -O /tmp/data/results.csv'],
-      file_outputs={'downloaded': '/tmp/data'})
+    fetch = kfp.dsl.ContainerOp(name='download',
+                                image='busybox',
+                                command=['sh', '-c'],
+                                arguments=[
+                                    'sleep 1;'
+                                    'mkdir -p /tmp/data;'
+                                    'wget ' + data_url +
+                                    ' -O /tmp/data/results.csv'
+                                ],
+                                file_outputs={'downloaded': '/tmp/data'})
     # This expects a directory of inputs not just a single file
     #end::wget[]
     #tag::csv[]
@@ -112,111 +92,88 @@ def tfdv_pipeline():
     schema_op = tfx_schema_gen(stats.output)
     #end::schema[]
     #tag::validate[]
-    tfx_example_validator(stats=stats.outputs['output'], schema=schema_op.outputs['output'])
+    tfx_example_validator(stats=stats.outputs['output'],
+                          schema=schema_op.outputs['output'])
     #end::validate[]
+
+
 #end::standaloneTFDVPipeline[]
 
-
 # In[ ]:
-
 
 kfp.compiler.Compiler().compile(tfdv_pipeline, 'tfdv_pipeline.zip')
 
-
 # In[ ]:
-
 
 my_experiment = client.create_experiment(name='tfdv_pipeline')
-my_run = client.run_pipeline(my_experiment.id, 'tfdv', 
-  'tfdv_pipeline.zip')
-
+my_run = client.run_pipeline(my_experiment.id, 'tfdv', 'tfdv_pipeline.zip')
 
 # In[ ]:
-
 
 get_ipython().system('pip3 install tfx tensorflow-data-validation')
 
-
 # In[ ]:
-
 
 #tag::importTFDV[]
 import tensorflow_data_validation as tfdv
 #end::importTFDV[]
 
-
 # You can download your schema by looking at the inputs/outputs in your pipeline run for the schema gen stage
 
 # In[ ]:
-
 
 #tag::displaySchema{}
 schema = tfdv.load_schema_text("schema_info_2")
 tfdv.display_schema(schema)
 #end::displaySchema[]
 
-
 # In[ ]:
-
 
 #tag::loadTFT[]
 tfx_transform = kfp.components.load_component_from_file(
     "pipelines-0.2.5/components/tfx/Transform/component.yaml")
 #end::loadTFT[]
 
+# In[ ]:
+
+module_file = "gcs://"
 
 # In[ ]:
 
 
-module_file="gcs://"
-
-
-# In[ ]:
-
-
-@kfp.dsl.pipeline(
-  name='TFX',
-  description='TFX pipeline'
-)
+@kfp.dsl.pipeline(name='TFX', description='TFX pipeline')
 def tfx_pipeline():
     # DL with wget, can use gcs instead as well
     fetch = kfp.dsl.ContainerOp(
-      name='download',
-      image='busybox',
-      command=['sh', '-c'],
-      arguments=[
-          'sleep 1;'
-          'mkdir -p /tmp/data;'
-          'wget https://raw.githubusercontent.com/moorissa/medium/master/items-recommender/data/trx_data.csv -O /tmp/data/results.csv'],
-      file_outputs={'downloaded': '/tmp/data'})
+        name='download',
+        image='busybox',
+        command=['sh', '-c'],
+        arguments=[
+            'sleep 1;'
+            'mkdir -p /tmp/data;'
+            'wget https://raw.githubusercontent.com/moorissa/medium/master/items-recommender/data/trx_data.csv -O /tmp/data/results.csv'
+        ],
+        file_outputs={'downloaded': '/tmp/data'})
     records_example = tfx_csv_gen(input_base=fetch.output)
     stats = tfx_statistic_gen(input_data=records_example.output)
     schema_op = tfx_schema_gen(stats.output)
-    tfx_example_validator(stats=stats.outputs['output'], schema=schema_op.outputs['output'])
+    tfx_example_validator(stats=stats.outputs['output'],
+                          schema=schema_op.outputs['output'])
     #tag::tft[]
     transformed_output = tfx_transform(
         input_data=records_example.output,
         schema=schema_op.outputs['output'],
-        module_file=module_file) # Path to your TFT code on GCS/S3
+        module_file=module_file)  # Path to your TFT code on GCS/S3
     #end::tft[]
 
 
 # In[ ]:
 
-
 kfp.compiler.Compiler().compile(tfx_pipeline, 'tfx_pipeline.zip')
 
-
 # In[ ]:
-
 
 my_experiment = client.create_experiment(name='tfx_pipeline')
-my_run = client.run_pipeline(my_experiment.id, 'tfx', 
-  'tfx_pipeline.zip')
-
+my_run = client.run_pipeline(my_experiment.id, 'tfx', 'tfx_pipeline.zip')
 
 # In[ ]:
-
-
-
-

@@ -5,9 +5,10 @@ USER root
 
 # Install libraries we need to build Python 3.6
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y -q make build-essential libssl-dev zlib1g-dev libbz2-dev \
-    libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
-    xz-utils tk-dev libffi-dev liblzma-dev && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
+    make build-essential libssl-dev zlib1g-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev \
+    libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev && \
     rm -rf /var/cache/apt
 
 # Install python3.6 to match the notebook

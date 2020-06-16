@@ -17,7 +17,7 @@ echo "Downloading DICOMs"
 gsutil cp gs://covid-dicoms/covid-dicoms.tar.gz /tmp/covid-dicoms.tar.gz
 tar -xzf /tmp/covid-dicoms.tar.gz -C /tmp
 
-mv /tmp/case0${CASE}/axial /data/dicom
+mv "/tmp/case0${CASE}/axial" /data/dicom
 
 
 
