@@ -44,6 +44,7 @@ fi
 pwd
 #tag::generate_kf_app_p2[]
 kfctl apply -f $KFDEF -V
+echo $?
 
 popd
 #end::generate_kf_app_p2[]
