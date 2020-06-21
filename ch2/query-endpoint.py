@@ -15,12 +15,12 @@
 #     specific language governing permissions and limitations
 # under the License.
 
+#tag::scriptSetup[]
 import requests
 import numpy as np
 
 from tensorflow.examples.tutorials.mnist import input_data
 from matplotlib import pyplot as plt
-
 
 def download_mnist():
     return input_data.read_data_sets("MNIST_data/", one_hot=True)
@@ -30,7 +30,7 @@ def gen_image(arr):
     two_d = (np.reshape(arr, (28, 28)) * 255).astype(np.uint8)
     plt.imshow(two_d, cmap=plt.cm.gray_r, interpolation='nearest')
     return plt
-
+#end::scriptSetup[]
 
 AMBASSADOR_API_IP = "10.53.148.167:30134"
 
