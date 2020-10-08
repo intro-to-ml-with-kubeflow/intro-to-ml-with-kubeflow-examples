@@ -480,11 +480,11 @@ def my_pipeline2(year: int):
         packages_to_install=['requests', 'pandas>=0.24', 'tables'])
     clean_data_op = kfp.components.func_to_container_op(
         clean_data, packages_to_install=['pandas>=0.24', 'tables'])
-    #tag::add_feature_step[]
+#tag::add_feature_step[]
     prepare_features_op = kfp.components.func_to_container_op(
         prepare_features,
         packages_to_install=['pandas>=0.24', 'tables', 'scikit-learn'])
-    #tag::end_feature_step[]
+#end::add_feature_step[]
 
     step1 = download_data_op(year).add_pvolumes(
         {"/data_processing": dvop.volume})
