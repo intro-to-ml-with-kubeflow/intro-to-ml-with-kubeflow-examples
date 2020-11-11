@@ -34,10 +34,10 @@ spec:
               valueFrom: { secretKeyRef: { name: "minioaccess", key: "AWS_SECRET_ACCESS_KEY" } }
             - name: "AWS_BUCKET"
               value: "mlflow"
-          volumes:
-            - name: secret-volume
-              secret:
-                secretName: minioaccess
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: minioaccess
 ---
 apiVersion: v1
 kind: Service
