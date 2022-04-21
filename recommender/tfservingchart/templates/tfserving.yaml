@@ -64,10 +64,10 @@ spec:
               value: "s3://models"
             - name: "MODEL_NAME"
               value: "recommender"
-          volumes:
-            - name: secret-volume
-              secret:
-                secretName: minioaccess
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: minioaccess
 ---
 apiVersion: v1
 kind: Service
